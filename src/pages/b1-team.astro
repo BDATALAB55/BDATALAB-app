@@ -1,0 +1,326 @@
+export const prerender = false;
+import Layout from '../layouts/Layout.astro';
+
+const { searchParams } = Astro.url;
+const teamId = searchParams.get('team') || 'HOKKAIDO';
+
+const GITHUB_REPO = "BDATALAB55/BDL-game-player-cards";
+const RECURSIVE_API = `https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1&t=${Date.now()}`;
+const IMAGE_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/reports/B1`;
+const token = process.env.GITHUB_TOKEN;
+
+const cityNameMap = {
+  "HOKKAIDO": "HOKKAIDO", "LEVANGA": "HOKKAIDO", "LEVANGAHOKKAIDO": "HOKKAIDO",
+  "89ERS": "SENDAI", "SENDAI": "SENDAI", "SENDAI89ERS": "SENDAI",
+  "AKITA": "AKITA", "NORTHERNHAPPINETS": "AKITA",
+  "ROBOTS": "IBARAKI", "IBARAKI": "IBARAKI",
+  "BREX": "UTSUNOMIYA", "UTSUNOMIYA": "UTSUNOMIYA",
+  "CRANETHUNDERS": "GUNMA", "GUNMA": "GUNMA",
+  "ALPHAS": "KOSHIGAYA", "KOSHIGAYA": "KOSHIGAYA",
+  "ALTIRI": "A CHIBA", "ACHIBA": "A CHIBA",
+  "JETS": "CHIBA J", "CHIBAJ": "CHIBA J",
+  "ALVARK": "A TOKYO", "ATOKYO": "A TOKYO",
+  "SUNROCKERS": "SR SHIBUYA", "SHIBUYA": "SR SHIBUYA",
+  "BRAVETHUNDERS": "KAWASAKI", "KAWASAKI": "KAWASAKI",
+  "BCORSAIRS": "YOKOHAMA BC", "YOKOHAMABC": "YOKOHAMA BC",
+  "GROUSES": "TOYAMA", "TOYAMA": "TOYAMA",
+  "NEOPHOENIX": "SAN-EN", "SANEN": "SAN-EN", "SAN-EN": "SAN-EN",
+  "SEAHORSES": "MIKAWA", "MIKAWA": "MIKAWA",
+  "FIGHTINGEAGLES": "FE NAGOYA", "FENAGOYA": "FE NAGOYA",
+  "DOLPHINS": "NAGOYA D", "DIAMONDDOLPHINS": "NAGOYA D", "NAGOYA": "NAGOYA D",
+  "LAKES": "SHIGA", "SHIGA": "SHIGA",
+  "HANNARYZ": "KYOTO", "KYOTO": "KYOTO",
+  "EVESSA": "OSAKA", "OSAKA": "OSAKA",
+  "SUSANOOMAGIC": "SHIMANE", "SHIMANE": "SHIMANE",
+  "DRAGONFLIES": "HIROSHIMA", "HIROSHIMA": "HIROSHIMA",
+  "BALLOONERS": "SAGA", "SAGA": "SAGA",
+  "VELCA": "NAGASAKI", "NAGASAKI": "NAGASAKI",
+  "GOLDENKINGS": "RYUKYU", "RYUKYU": "RYUKYU"
+};
+
+const teamInfo = {
+  HOKKAIDO: { city: "Levanga", name: "Hokkaido", color: "#91ad10", searchKey: "LEVANGA" },
+  SENDAI: { city: "Sendai", name: "89ers", color: "#f7e000", searchKey: "89ERS" },
+  AKITA: { city: "Akita", name: "Northern Happinets", color: "#dd0055", searchKey: "NORTHERNHAPPINETS" },
+  IBARAKI: { city: "Ibaraki", name: "Robots", color: "#002e95", searchKey: "ROBOTS" },
+  UTSUNOMIYA: { city: "Utsunomiya", name: "Brex", color: "#12284b", searchKey: "BREX" },
+  GUNMA: { city: "Gunma", name: "Crane Thunders", color: "#ffda00", searchKey: "CRANETHUNDERS" },
+  KOSHIGAYA: { city: "Koshigaya", name: "Alphas", color: "#610d0d", searchKey: "ALPHAS" },
+  'A CHIBA': { city: "Altiri", name: "Chiba", color: "#212836", searchKey: "ALTIRI" },
+  'CHIBA J': { city: "Chiba", name: "Jets", color: "#e33216", searchKey: "JETS" },
+  'A TOKYO': { city: "Alvark", name: "Tokyo", color: "#000000", searchKey: "ALVARK" },
+  'SR SHIBUYA': { city: "Sunrockers", name: "Shibuya", color: "#ffea00", searchKey: "SUNROCKERS" },
+  KAWASAKI: { city: "Kawasaki", name: "Brave Thunders", color: "#7a1231", searchKey: "BRAVETHUNDERS" },
+  'YOKOHAMA BC': { city: "Yokohama", name: "B-Corsairs", color: "#000f31", searchKey: "B-CORSAIRS" },
+  TOYAMA: { city: "Toyama", name: "Grouses", color: "#e21f26", searchKey: "GROUSES" },
+  'SAN-EN': { city: "San-en", name: "NeoPhoenix", color: "#d31118", searchKey: "NEOPHOENIX" },
+  MIKAWA: { city: "SeaHorses", name: "Mikawa", color: "#3356b9", searchKey: "SEAHORSES" },
+  'FE NAGOYA': { city: "FIGHTING EAGLES", name: "Nagoya", color: "#003882", searchKey: "FIGHTINGEAGLES" },
+  'NAGOYA D': { city: "Nagoya", name: "DIAMOND DOLPHINS", color: "#e31d20", searchKey: "DIAMONDDOLPHINS" },
+  SHIGA: { city: "Shiga", name: "Lakes", color: "#1a448e", searchKey: "LAKES" },
+  KYOTO: { city: "Kyoto", name: "Hannaryz", color: "#5ea1b4", searchKey: "HANNARYZ" },
+  OSAKA: { city: "Osaka", name: "Evessa", color: "#d11c1d", searchKey: "EVESSA" },
+  SHIMANE: { city: "Shimane", name: "Susanoo Magic", color: "#1c71be", searchKey: "SUSANOOMAGIC" },
+  HIROSHIMA: { city: "Hiroshima", name: "Dragonflies", color: "#f05a22", searchKey: "DRAGONFLIES" },
+  SAGA: { city: "Saga", name: "Ballooners", color: "#4da9df", searchKey: "BALLOONERS" },
+  NAGASAKI: { city: "Nagasaki", name: "Velca", color: "#2b3754", searchKey: "VELCA" },
+  RYUKYU: { city: "Ryukyu", name: "Golden Kings", color: "#b69e63", searchKey: "GOLDENKINGS" },
+};
+
+const currentTeam = teamInfo[teamId] || { city: "B.LEAGUE", name: "TEAM", color: "#FFFFFF", searchKey: "" };
+
+const reverseTeams = ['HOKKAIDO', 'A CHIBA', 'A TOKYO', 'SR SHIBUYA', 'MIKAWA', 'FE NAGOYA'];
+const isReversed = reverseTeams.includes(teamId);
+
+let allTeamReports = [];
+let availableDatesMap = {};
+
+try {
+  const res = await fetch(RECURSIVE_API, {
+    headers: {
+      ...(token ? { "Authorization": `token ${token}` } : {}),
+      "Accept": "application/vnd.github.v3+json",
+      "Cache-Control": "no-cache"
+    }
+  });
+  const data = await res.json();
+
+  if (data.tree) {
+    const reportFiles = data.tree.filter(item => 
+      item.path.includes('output/reports/B1/') && 
+      item.path.endsWith('.png')
+    );
+
+    reportFiles.forEach(file => {
+      const parts = file.path.split('/');
+      const fileName = parts[parts.length - 1];
+      const folderName = parts[parts.length - 2];
+      
+      if (currentTeam.searchKey && fileName.toUpperCase().includes(currentTeam.searchKey)) {
+        const nameParts = fileName.replace('.png', '').split('_');
+        const fullDate = nameParts[0]; 
+        const gameId = nameParts[1];
+        const rawAway = nameParts[2] || "AWAY";
+        const rawHome = nameParts[3] || "HOME";
+
+        const displayAway = cityNameMap[rawAway.toUpperCase().replace(/[\s\-_]/g, '')] || rawAway;
+        const displayHome = cityNameMap[rawHome.toUpperCase().replace(/[\s\-_]/g, '')] || rawHome;
+        const targetCardFolder = `game_${gameId}_${rawAway}_${rawHome}_${fullDate}`;
+
+        const reportObj = {
+          id: folderName,
+          date: `${fullDate.substring(0,4)}.${fullDate.substring(4,6)}.${fullDate.substring(6,8)}`,
+          path: `${IMAGE_BASE_URL}/${folderName}/${fileName}?t=${Date.now()}`,
+          fileName: fileName,
+          away: displayAway,
+          home: displayHome,
+          link: `/b1-cards?folder=${folderName}/${targetCardFolder}`
+        };
+        allTeamReports.push(reportObj);
+        if (!availableDatesMap[folderName]) availableDatesMap[folderName] = reportObj.link;
+      }
+    });
+    allTeamReports.sort((a, b) => b.id.localeCompare(a.id));
+  }
+} catch (e) {
+  console.error("Fetch failed:", e);
+}
+---
+
+<Layout title={`${teamId} | B-Data Lab`}>
+  <main class="bg-[#373A36] min-h-screen text-white font-avenir overflow-x-hidden flex flex-col">
+    
+    <header class="custom-page-header pt-12 pb-6 px-6 max-w-6xl mx-auto w-full relative shrink-0">
+      <div class="flex items-end w-full relative mb-1">
+        <div class="flex-1">
+          <div class="flex items-baseline gap-2 md:gap-7 font-bold font-avenir uppercase whitespace-nowrap">
+            <span class={isReversed 
+              ? "text-[clamp(1.5rem,5vw,4.5rem)] tracking-[0.05em] shrink-0 leading-none" 
+              : "text-[clamp(0.8rem,2vw,1.875rem)] opacity-60 tracking-[0.4em] shrink-0 leading-none"}>
+              {currentTeam.city}
+            </span>
+            <span class={isReversed 
+              ? "text-[clamp(0.8rem,2vw,1.875rem)] opacity-60 tracking-[0.4em] shrink-0 leading-none" 
+              : "text-[clamp(1.5rem,5vw,4.5rem)] tracking-[0.05em] shrink-0 leading-none"}>
+              {currentTeam.name}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div 
+        class="absolute bottom-1 left-6 right-6 h-[3px] md:h-[5px]" 
+        style={`background-color: ${currentTeam.color}; box-shadow: 0 4px 15px ${currentTeam.color}66;`}
+      ></div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 flex-grow w-full">
+      <section class="mt-16">
+        <div class="flex justify-between items-end mb-10">
+          <div>
+            <h2 class="text-3xl font-black uppercase tracking-tight italic">Game Reports</h2>
+            <p class="text-white/40 text-[10px] font-bold tracking-widest uppercase mt-1">Click card to download</p>
+          </div>
+          <div class="text-right leading-none">
+            <span class="text-7xl font-black italic opacity-20 block tracking-[-0.1em]">{allTeamReports.length}</span>
+            <span class="text-[12px] font-bold opacity-40 uppercase tracking-[0.3em]">Games</span>
+          </div>
+        </div>
+
+        {allTeamReports.length > 0 ? (
+          <div class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-12">
+            {allTeamReports.map(r => (
+              <div class="flex-none w-[320px] snap-center">
+                <div class="mb-4 flex items-center gap-2 px-2">
+                  <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                  <span class="text-[14px] font-black tracking-wider text-white/80">{r.date}</span>
+                </div>
+                <a href={r.path} download={r.fileName} class="block cursor-pointer active:scale-95 transition-transform">
+                  <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2] relative group">
+                     <img src={r.path} alt="Report" class="w-full h-full object-cover" />
+                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="bg-black/60 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20">Download PNG</span>
+                     </div>
+                  </div>
+                </a>
+                <div class="mt-6 flex justify-center">
+                  <a href={r.link} class="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-black/40 border-2 border-transparent bg-clip-padding relative hover:scale-110 transition-transform group">
+                    <div class="absolute inset-0 p-[2px] rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 -z-10"></div>
+                    <span class="text-[12px] font-black tracking-[0.2em] uppercase text-white">
+                      {r.away} <span class="text-[9px] font-medium lowercase mx-1 text-white/50 italic px-1">vs</span> {r.home}
+                    </span>
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div class="py-20 text-center border-2 border-dashed border-white/5 rounded-3xl">
+            <p class="text-white/20 font-black uppercase tracking-widest italic">No game reports found</p>
+          </div>
+        )}
+
+        <section class="mt-24 mb-40">
+          <div class="max-w-md mx-auto">
+            <h3 class="text-center text-[10px] font-black tracking-[0.4em] uppercase mb-8 text-white/30 italic">Game Calendar</h3>
+            <div id="calendar" class="bg-black/30 p-8 rounded-[40px] border border-white/5 shadow-inner"></div>
+          </div>
+        </section>
+      </section>
+    </div>
+
+    <footer class="w-full py-40 flex flex-col items-center justify-center gap-10 bg-black/20 shrink-0 border-t border-white/5 mt-20">
+      <div class="text-center">
+        <h2 class="text-7xl md:text-[10rem] font-black tracking-[0.25em] uppercase leading-none mb-4" 
+            style="color: #2E3C57; -webkit-text-stroke: 1.5px white; paint-order: stroke fill;">
+          BDATALAB
+        </h2>
+        <p class="text-[12px] font-bold text-white/30 tracking-[0.7em] uppercase">B.League Data Analysis</p>
+      </div>
+
+      <div class="flex items-center gap-16">
+        <a href="https://x.com/BDataLab5x5" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-3 group">
+          <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-all border border-white/10 shadow-2xl scale-110">
+            <svg class="w-7 h-7 fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </div>
+        </a>
+        <div class="h-12 w-[1px] bg-white/10"></div>
+        <a href="https://note.com/bdatalab5x5" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-3 group">
+          <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-[#23bb9d] transition-all border border-white/10 shadow-2xl scale-110">
+             <span class="text-[26px] font-black text-white">n</span>
+          </div>
+        </a>
+      </div>
+    </footer>
+
+    <div class="fixed bottom-8 left-8 z-50">
+        <button onclick="history.back()" class="bg-white/10 backdrop-blur-xl text-white px-8 py-5 rounded-full font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl border border-white/20 active:scale-90 transition-all">← Back</button>
+    </div>
+    <div class="fixed bottom-8 right-8 z-50">
+      <a href="/b1-home" class="bg-gray-800/80 backdrop-blur-xl text-white px-10 py-5 rounded-full font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl border border-white/10 active:scale-90 transition-all">B1 Home</a>
+    </div>
+
+  </main>
+</Layout>
+
+<script is:inline define:vars={{ availableDatesMap }}>
+  let currentY = 2026;
+  let currentM = 0;
+  const dates = Object.keys(availableDatesMap).sort((a,b) => b.localeCompare(a));
+  if (dates.length > 0) {
+    currentY = 2000 + parseInt(dates[0].substring(0,2));
+    currentM = parseInt(dates[0].substring(2,4)) - 1;
+  }
+  window.changeMonth = function(delta) {
+    currentM += delta;
+    if (currentM < 0) { currentM = 11; currentY--; }
+    else if (currentM > 11) { currentM = 0; currentY++; }
+    renderCalendar(currentY, currentM);
+  };
+  function renderCalendar(y, m) {
+    const calendarEl = document.getElementById('calendar');
+    if(!calendarEl) return;
+    const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+    const firstDay = new Date(y, m, 1).getDay();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    let html = `
+      <div class="flex justify-between items-center mb-10 px-2">
+        <button onclick="changeMonth(-1)" class="text-white/30 hover:text-white transition-colors text-lg">←</button>
+        <div class="font-black text-[13px] tracking-[0.3em] uppercase">${monthNames[m]} ${y}</div>
+        <button onclick="changeMonth(1)" class="text-white/30 hover:text-white transition-colors text-lg">→</button>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-center text-[9px] font-black text-white/10 mb-6 tracking-widest">
+        <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+      </div>
+      <div class="grid grid-cols-7 gap-y-4 gap-x-2">`;
+    for (let i = 0; i < firstDay; i++) html += `<div></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${String(y).substring(2)}${String(m + 1).padStart(2, '0')}${String(d).padStart(2, '0')}`;
+      const link = availableDatesMap[dateStr];
+      html += `
+        <div class="flex items-center justify-center">
+          ${link ? 
+            `<a href="${link}" class="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white text-[12px] font-black shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all border border-white/20">${d}</a>` : 
+            `<span class="text-white/10 text-[12px] font-bold">${d}</span>`
+          }
+        </div>`;
+    }
+    calendarEl.innerHTML = html + `</div>`;
+  }
+  renderCalendar(currentY, currentM);
+</script>
+
+<style is:global>
+  /* --- 強制リセットCSS：PC版のLayout干渉を完全に断つ --- */
+  
+  /* ページ専用ヘッダー(custom-page-header) 以外の全ヘッダー・ナビを消去 */
+  header:not(.custom-page-header), 
+  nav, 
+  [class*="nav"], 
+  [class*="Header"],
+  .layout-header-right {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* 親のLayoutが中身を中央寄せにしてしまうのを防ぐ（横幅いっぱい使う） */
+  header.custom-page-header {
+    display: block !important;
+    width: 100% !important;
+    max-width: 72rem !important; /* max-w-6xl */
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: left !important;
+  }
+
+  /* 親Layoutのコンテナ幅制限を上書きして左寄せを維持 */
+  header.custom-page-header .flex {
+    justify-content: flex-start !important;
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .font-avenir { font-family: 'Avenir Next', 'Avenir', 'Helvetica Neue', Arial, sans-serif; }
+</style>
