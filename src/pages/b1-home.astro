@@ -101,20 +101,19 @@ try {
       displayToday = reportGroups[0].date;
       const latestFolderId = reportGroups[0].id; // 例: "251004"
 
-      // 1. 最新の日付フォルダ内にある「game_試合ID_...」というフォルダをすべて特定
+      // 1. 画像が格納されている「試合ごとのフォルダ名」からGameIDを抽出
+      // パスに含まれる "game_試合ID" の部分を正規表現で探します
       const latestGameIds = data.tree
-        .filter(item => item.path.includes(`output/reports/B1/${latestFolderId}/game_`))
+        .filter(item => item.path.includes(`output/Bplayers/B1/${latestFolderId}/game_`))
         .map(item => {
-          const parts = item.path.split('/');
-          const folderName = parts[parts.length - 2]; // game_504728_... の部分
-          const match = folderName.match(/game_(\d+)/);
+          const match = item.path.match(/game_(\d+)/);
           return match ? match[1] : null;
         })
-        .filter((id, index, self) => id && self.indexOf(id) === index); // 重複排除
+        .filter((id, index, self) => id && self.indexOf(id) === index); // 重複を消す
 
       let allPlayersRaw = [];
 
-      // 2. 抽出した試合IDに一致するJSONファイルを data/raw/ から探して読み込む
+      // 2. 抽出したGameIDを使って、data/raw/game_試合ID.json を読み込む
       for (const gameId of latestGameIds) {
         const targetFile = data.tree.find(item => 
           item.path.includes(`data/raw/game_${gameId}.json`)
@@ -129,16 +128,19 @@ try {
         }
       }
 
+      // 3. 補助関数（分:秒を秒に変換）
       const timeToSec = (t) => {
         if (!t) return 0;
-        const parts = t.split(':').map(Number);
+        const parts = String(t).split(':').map(Number);
         return parts.length === 2 ? (parts[0] * 60) + parts[1] : 0;
       };
 
-      // 3. ランキング作成
+      // 4. PTS順でソート（同点の場合は出場時間が短い方を上位に）
       ptsRank10 = allPlayersRaw
         .sort((a, b) => {
-          if (Number(b.pts) !== Number(a.pts)) return Number(b.pts) - Number(a.pts);
+          const ptsA = Number(a.pts) || 0;
+          const ptsB = Number(b.pts) || 0;
+          if (ptsB !== ptsA) return ptsB - ptsA;
           return timeToSec(a.min) - timeToSec(b.min);
         })
         .slice(0, 10);
