@@ -54,22 +54,50 @@ try {
   const data = await res.json();
 
   if (data.tree) {
-    // 1. 【GAME REPORT用】reports フォルダから試合カードを取得
+    // 1. 画像フォルダ(260207)から今日の試合IDを抜き出す
+    const latestGameIds = data.tree
+      .filter(item => item.path.includes('260207/game_'))
+      .map(item => {
+        const match = item.path.match(/game_(\d+)/);
+        return match ? match[1] : null;
+      })
+      .filter((id, index, self) => id && self.indexOf(id) === index);
+
+    let allPlayersRaw = [];
+
+    // 2. 抜き出したIDをもとに、data/reports/report_試合ID.json を読みに行く
+    if (latestGameIds.length > 0) {
+      for (const gameId of latestGameIds) {
+        try {
+          // スクリーンショットに合わせてパスを修正：report_試合ID.json
+          const jsonUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/data/reports/report_${gameId}.json`;
+          const jsonRes = await fetch(jsonUrl);
+          
+          if (jsonRes.ok) {
+            const jsonData = await jsonRes.json();
+            // JSONの中身が players ではなく別の名前（例: player_stats等）ならここを調整
+            // 一般的な構成であれば players で大丈夫なはずです
+            if (jsonData.players) {
+              allPlayersRaw = [...allPlayersRaw, ...jsonData.players];
+            }
+          }
+        } catch (err) {
+          console.error(`Fetch error for report_${gameId}:`, err);
+        }
+      }
+    }
+
+    // 3. GAME REPORT（カード表示）用のロジック
     const reportFiles = data.tree.filter(item => 
       item.path.includes('output/reports/B1/') && 
       item.path.toLowerCase().endsWith('.png')
     );
-
     const groups = {};
     reportFiles.forEach(file => {
       const pathParts = file.path.split('/');
       const bIndex = pathParts.indexOf('B1');
       if (bIndex === -1 || pathParts.length <= bIndex + 2) return;
-      
-      const folderName = pathParts[bIndex + 1]; // "251004" 等
-      const fileName = pathParts[pathParts.length - 1];
-      if (!/^\d+$/.test(folderName)) return;
-
+      const folderName = pathParts[bIndex + 1];
       if (!groups[folderName]) {
         groups[folderName] = {
           id: folderName,
@@ -77,62 +105,31 @@ try {
           reports: []
         };
       }
-      
-      // game_ID_... のフォルダ名を取得
-      const cardFolderName = pathParts[bIndex + 2];
-
       groups[folderName].reports.push({
-        path: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${file.path}?t=${Date.now()}`,
-        away: "AWAY", // 必要なら cityNameMap での変換を入れてください
-        home: "HOME",
-        link: `/b1-cards?folder=${folderName}/${cardFolderName}`
+        path: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${file.path}`,
+        away: "AWAY", home: "HOME",
+        link: `/b1-cards?folder=${folderName}/${pathParts[bIndex + 2]}`
       });
     });
-
     reportGroups = Object.values(groups).sort((a, b) => b.id.localeCompare(a.id));
+    displayToday = "2026.02.07";
 
-    if (reportGroups.length > 0) {
-      // 1. 最新のフォルダから日付（例: 2026.02.07）を取得
-      displayToday = reportGroups[0].date; 
-      
-      // JSON内の日付と比較するために、形式を合わせる (例: "2025.10.04")
-      // もし画像フォルダが251004なら、displayTodayは 2025.10.04 になっています
-      
-      let allPlayersRaw = [];
+    // 4. ランキングソート
+    const timeToSec = (t) => {
+      if (!t) return 0;
+      const parts = String(t).split(':').map(Number);
+      return parts.length === 2 ? (parts[0] * 60) + parts[1] : 0;
+    };
 
-      // 2. data/raw/ 直下のJSONをすべて取得
-      const targetJsons = data.tree.filter(item => 
-        item.path.includes('data/raw/game_') && 
-        item.path.endsWith('.json')
-      );
-
-      // 各JSONの中身を開いて、日付が一致するか確認する
-      for (const file of targetJsons) {
-        const jsonRes = await fetch(`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${file.path}`);
-        const jsonData = await jsonRes.json();
-        
-        // JSON内の "date" フィールドが、今表示している日付と一致するかチェック
-        if (jsonData.date === displayToday && jsonData.players) {
-          allPlayersRaw = [...allPlayersRaw, ...jsonData.players];
-        }
-      }
-
-      // 3. ランキング作成
-      const timeToSec = (t) => {
-        if (!t) return 0;
-        const parts = String(t).split(':').map(Number);
-        return parts.length === 2 ? (parts[0] * 60) + parts[1] : 0;
-      };
-
-      ptsRank10 = allPlayersRaw
-        .sort((a, b) => {
-          const ptsA = Number(a.pts) || 0;
-          const ptsB = Number(b.pts) || 0;
-          if (ptsB !== ptsA) return ptsB - ptsA;
-          return timeToSec(a.min) - timeToSec(b.min);
-        })
-        .slice(0, 10);
-    }
+    ptsRank10 = allPlayersRaw
+      .sort((a, b) => {
+        const ptsA = Number(a.pts) || 0;
+        const ptsB = Number(b.pts) || 0;
+        if (ptsB !== ptsA) return ptsB - ptsA;
+        return timeToSec(a.min) - timeToSec(b.min);
+      })
+      .slice(0, 10);
+  }
   }
 } catch (e) {
   console.error("Fetch Error:", e);
