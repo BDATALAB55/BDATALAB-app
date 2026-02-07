@@ -91,33 +91,33 @@ try {
 
     reportGroups = Object.values(groups).sort((a, b) => b.id.localeCompare(a.id));
 
-    // 2. 【ランキング用】Bplayers フォルダから試合IDを抜き出す
     if (reportGroups.length > 0) {
-      displayToday = reportGroups[0].date;
-      const latestFolderId = reportGroups[0].id; // 例: "251004"
-
-      // Bplayers 側のフォルダをスキャンして ID を取得
-      const latestGameIds = data.tree
-        .filter(item => item.path.includes(`output/Bplayers/B1/${latestFolderId}/game_`))
-        .map(item => {
-          const match = item.path.match(/game_(\d+)/);
-          return match ? match[1] : null;
-        })
-        .filter((id, index, self) => id && self.indexOf(id) === index);
-
+      // 1. 最新のフォルダから日付（例: 2026.02.07）を取得
+      displayToday = reportGroups[0].date; 
+      
+      // JSON内の日付と比較するために、形式を合わせる (例: "2025.10.04")
+      // もし画像フォルダが251004なら、displayTodayは 2025.10.04 になっています
+      
       let allPlayersRaw = [];
-      for (const gameId of latestGameIds) {
-        const targetFile = data.tree.find(item => item.path.includes(`data/raw/game_${gameId}.json`));
-        if (targetFile) {
-          const jsonRes = await fetch(`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${targetFile.path}`);
-          const jsonData = await jsonRes.json();
-          if (jsonData.players) {
-            allPlayersRaw = [...allPlayersRaw, ...jsonData.players];
-          }
+
+      // 2. data/raw/ 直下のJSONをすべて取得
+      const targetJsons = data.tree.filter(item => 
+        item.path.includes('data/raw/game_') && 
+        item.path.endsWith('.json')
+      );
+
+      // 各JSONの中身を開いて、日付が一致するか確認する
+      for (const file of targetJsons) {
+        const jsonRes = await fetch(`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${file.path}`);
+        const jsonData = await jsonRes.json();
+        
+        // JSON内の "date" フィールドが、今表示している日付と一致するかチェック
+        if (jsonData.date === displayToday && jsonData.players) {
+          allPlayersRaw = [...allPlayersRaw, ...jsonData.players];
         }
       }
 
-      // 3. ランキングソート
+      // 3. ランキング作成
       const timeToSec = (t) => {
         if (!t) return 0;
         const parts = String(t).split(':').map(Number);
