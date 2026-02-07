@@ -3,7 +3,7 @@ export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 
 const { searchParams } = Astro.url;
-const queryFolder = searchParams.get('folder') || ""; 
+const queryFolder = searchParams.get('folder') || "";
 
 const GITHUB_REPO = "BDATALAB55/BDL-game-player-cards";
 const token = process.env.GITHUB_TOKEN;
@@ -127,7 +127,6 @@ try {
 const awayFinalConf = findConfig(awayId);
 const homeFinalConf = findConfig(homeId);
 ---
-
 <Layout title="B1 CARDS | B-Data Lab">
   <div class="app-container bg-[#373A36] min-h-screen text-white font-avenir relative">
     <header class="pt-12 pb-6 px-8 border-b border-white/5 text-center relative">
