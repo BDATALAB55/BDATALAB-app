@@ -79,10 +79,18 @@ try {
 
         if (jsonData.players) {
           const playersWithCards = jsonData.players.map(p => {
-            // スクショのファイル名を再現: チーム名_背番号_..._0207.png
-            // チーム名が 'LEVANGA HOKKAIDO' なら 'LEVANGA_HOKKAIDO' に変換
-            const teamFilePart = p.teamNameRaw.replace(/\s+/g, '_');
-            const cardPath = `output/Bplayers/B1/260207/game_${gameId}_${jsonData.home_en}_${jsonData.away_en}_260207/${teamFilePart}_${p.no}_${p.name_en}_0207.png`;
+            // 1. チーム名・選手名を大文字にし、スペースをアンダースコアに変換
+            const teamFilePart = p.teamNameRaw.toUpperCase().replace(/\s+/g, '_');
+            const playerName = p.name_en.toUpperCase().replace(/\s+/g, '_');
+            const playerNo = String(p.no);
+
+            // 2. パスを組み立て (日付をスクショ通りの 20260207 に修正)
+            // ファイル名例: LEVANGA_HOKKAIDO_15_REN_SHIMATANI_20260207.png
+            const fileName = `${teamFilePart}_${playerNo}_${playerName}_20260207.png`;
+            
+            // フォルダ名例: game_505183_HOKKAIDO_MIKAWA_20260207
+            const cardPath = `output/Bplayers/B1/260207/game_${gameId}_${jsonData.home_en}_${jsonData.away_en}_20260207/${fileName}`;
+            
             return { ...p, cardImage: cardPath };
           });
           allPlayersRaw = [...allPlayersRaw, ...playersWithCards];
