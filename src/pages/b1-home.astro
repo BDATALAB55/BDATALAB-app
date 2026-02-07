@@ -54,28 +54,21 @@ try {
   const data = await res.json();
 
   if (data.tree) {
-    const allFiles = data.tree.filter(item => 
+    // 1. 【GAME REPORT用】reports フォルダから試合カードを取得
+    const reportFiles = data.tree.filter(item => 
       item.path.includes('output/reports/B1/') && 
       item.path.toLowerCase().endsWith('.png')
     );
 
     const groups = {};
-    allFiles.forEach(file => {
+    reportFiles.forEach(file => {
       const pathParts = file.path.split('/');
       const bIndex = pathParts.indexOf('B1');
       if (bIndex === -1 || pathParts.length <= bIndex + 2) return;
-      const folderName = pathParts[bIndex + 1]; 
-      const fileName = pathParts[bIndex + 2];
+      
+      const folderName = pathParts[bIndex + 1]; // "251004" 等
+      const fileName = pathParts[pathParts.length - 1];
       if (!/^\d+$/.test(folderName)) return;
-
-      const nameParts = fileName.replace('.png', '').split('_');
-      const fullDate = nameParts[0] || ""; 
-      const gameId = nameParts[1] || "";   
-      const rawAway = nameParts[2] || "AWAY";
-      const rawHome = nameParts[3] || "HOME";
-
-      const displayAway = cityNameMap[rawAway.toUpperCase().replace(/[\s\-_]/g, '')] || rawAway;
-      const displayHome = cityNameMap[rawHome.toUpperCase().replace(/[\s\-_]/g, '')] || rawHome;
 
       if (!groups[folderName]) {
         groups[folderName] = {
@@ -85,40 +78,36 @@ try {
         };
       }
       
-      const cardFolderName = `game_${gameId}_${rawAway}_${rawHome}_${fullDate}`;
+      // game_ID_... のフォルダ名を取得
+      const cardFolderName = pathParts[bIndex + 2];
 
       groups[folderName].reports.push({
-        path: `${IMAGE_BASE_URL}/${folderName}/${fileName}?t=${Date.now()}`,
-        away: displayAway, 
-        home: displayHome,
+        path: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${file.path}?t=${Date.now()}`,
+        away: "AWAY", // 必要なら cityNameMap での変換を入れてください
+        home: "HOME",
         link: `/b1-cards?folder=${folderName}/${cardFolderName}`
       });
     });
 
     reportGroups = Object.values(groups).sort((a, b) => b.id.localeCompare(a.id));
 
+    // 2. 【ランキング用】Bplayers フォルダから試合IDを抜き出す
     if (reportGroups.length > 0) {
       displayToday = reportGroups[0].date;
       const latestFolderId = reportGroups[0].id; // 例: "251004"
 
-      // 1. 画像が格納されている「試合ごとのフォルダ名」からGameIDを抽出
-      // パスに含まれる "game_試合ID" の部分を正規表現で探します
+      // Bplayers 側のフォルダをスキャンして ID を取得
       const latestGameIds = data.tree
         .filter(item => item.path.includes(`output/Bplayers/B1/${latestFolderId}/game_`))
         .map(item => {
           const match = item.path.match(/game_(\d+)/);
           return match ? match[1] : null;
         })
-        .filter((id, index, self) => id && self.indexOf(id) === index); // 重複を消す
+        .filter((id, index, self) => id && self.indexOf(id) === index);
 
       let allPlayersRaw = [];
-
-      // 2. 抽出したGameIDを使って、data/raw/game_試合ID.json を読み込む
       for (const gameId of latestGameIds) {
-        const targetFile = data.tree.find(item => 
-          item.path.includes(`data/raw/game_${gameId}.json`)
-        );
-
+        const targetFile = data.tree.find(item => item.path.includes(`data/raw/game_${gameId}.json`));
         if (targetFile) {
           const jsonRes = await fetch(`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${targetFile.path}`);
           const jsonData = await jsonRes.json();
@@ -128,14 +117,13 @@ try {
         }
       }
 
-      // 3. 補助関数（分:秒を秒に変換）
+      // 3. ランキングソート
       const timeToSec = (t) => {
         if (!t) return 0;
         const parts = String(t).split(':').map(Number);
         return parts.length === 2 ? (parts[0] * 60) + parts[1] : 0;
       };
 
-      // 4. PTS順でソート（同点の場合は出場時間が短い方を上位に）
       ptsRank10 = allPlayersRaw
         .sort((a, b) => {
           const ptsA = Number(a.pts) || 0;
