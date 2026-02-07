@@ -54,8 +54,15 @@ try {
   const data = await res.json();
 
   if (data.tree) {
-    // 1. 最新の日付フォルダ(260207)から B1 の試合IDだけを抽出
-    const latestGameIds = data.tree
+    // 1. まず全試合のIDをリストアップ（data/reports/report_XXXXXX.json を探す）
+    const allReportFiles = data.tree
+      .filter(item => item.path.includes('data/reports/report_') && item.path.endsWith('.json'));
+
+    let allPlayersRaw = [];
+
+    // 2. B1の試合だけを狙い撃ちしてJSONを読み込む
+    // ここでは、既に画面に出ている「B1のGAME REPORT画像」の試合ID（latestGameIds）を基準にします
+    const b1GameIds = data.tree
       .filter(item => item.path.includes('output/reports/B1/260207/game_'))
       .map(item => {
         const match = item.path.match(/game_(\d+)/);
@@ -63,38 +70,29 @@ try {
       })
       .filter((id, index, self) => id && self.indexOf(id) === index);
 
-    let allPlayersRaw = [];
+    for (const gameId of b1GameIds) {
+      try {
+        const jsonUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/data/reports/report_${gameId}.json`;
+        const res = await fetch(jsonUrl);
+        if (!res.ok) continue;
+        const jsonData = await res.json();
 
-    // 2. B1の試合IDに紐づくJSONだけを読み込み、画像パスを生成
-    if (latestGameIds.length > 0) {
-      for (const gameId of latestGameIds) {
-        try {
-          const jsonUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/data/reports/report_${gameId}.json`;
-          const jsonRes = await fetch(jsonUrl);
-          
-          if (jsonRes.ok) {
-            const jsonData = await jsonRes.json();
-            if (jsonData.players) {
-              // 各選手データに、対応する「選手カード画像」のパスをあらかじめ付与します
-              const playersWithCards = jsonData.players.map(p => {
-                // 画像ファイル名の規則: チーム名_背番号_名前_日付.png
-                // JSONの項目名に合わせて調整してください（例: p.team_en, p.no, p.name_en など）
-                const cardPath = `output/Bplayers/B1/260207/game_${gameId}_${jsonData.home_en}_${jsonData.away_en}_260207/${p.team_en}_${p.no}_${p.name_en}_0207.png`;
-                return { ...p, cardImage: cardPath };
-              });
-              allPlayersRaw = [...allPlayersRaw, ...playersWithCards];
-            }
-          }
-        } catch (err) {
-          console.error(`Fetch error for ${gameId}:`, err);
+        if (jsonData.players) {
+          const playersWithCards = jsonData.players.map(p => {
+            // スクショのファイル名を再現: チーム名_背番号_..._0207.png
+            // チーム名が 'LEVANGA HOKKAIDO' なら 'LEVANGA_HOKKAIDO' に変換
+            const teamFilePart = p.teamNameRaw.replace(/\s+/g, '_');
+            const cardPath = `output/Bplayers/B1/260207/game_${gameId}_${jsonData.home_en}_${jsonData.away_en}_260207/${teamFilePart}_${p.no}_${p.name_en}_0207.png`;
+            return { ...p, cardImage: cardPath };
+          });
+          allPlayersRaw = [...allPlayersRaw, ...playersWithCards];
         }
-      }
+      } catch (e) { console.error(e); }
     }
 
-    // 3. GAME REPORT（13試合のカード）の表示ロジックはそのまま維持
+    // --- GAME REPORT表示用ロジック（ここは絶対変えない） ---
     const reportFiles = data.tree.filter(item => 
-      item.path.includes('output/reports/B1/') && 
-      item.path.toLowerCase().endsWith('.png')
+      item.path.includes('output/reports/B1/') && item.path.toLowerCase().endsWith('.png')
     );
     const groups = {};
     reportFiles.forEach(file => {
@@ -103,11 +101,7 @@ try {
       if (bIndex === -1 || pathParts.length <= bIndex + 2) return;
       const folderName = pathParts[bIndex + 1];
       if (!groups[folderName]) {
-        groups[folderName] = {
-          id: folderName,
-          date: `20${folderName.substring(0,2)}.${folderName.substring(2,4)}.${folderName.substring(4,6)}`,
-          reports: []
-        };
+        groups[folderName] = { id: folderName, reports: [] };
       }
       groups[folderName].reports.push({
         path: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${file.path}`,
@@ -118,20 +112,9 @@ try {
     reportGroups = Object.values(groups).sort((a, b) => b.id.localeCompare(a.id));
     displayToday = "2026.02.07";
 
-    // 4. ランキングソート
-    const timeToSec = (t) => {
-      if (!t) return 0;
-      const parts = String(t).split(':').map(Number);
-      return parts.length === 2 ? (parts[0] * 60) + parts[1] : 0;
-    };
-
+    // 3. ランキングソート
     ptsRank10 = allPlayersRaw
-      .sort((a, b) => {
-        const ptsA = Number(a.pts) || 0;
-        const ptsB = Number(b.pts) || 0;
-        if (ptsB !== ptsA) return ptsB - ptsA;
-        return timeToSec(a.min) - timeToSec(b.min);
-      })
+      .sort((a, b) => (Number(b.pts) || 0) - (Number(a.pts) || 0))
       .slice(0, 10);
   }
   
@@ -322,21 +305,21 @@ for (let i = 0; i < teams.length; i += 9) {
   {ptsRank10.length > 0 ? ptsRank10.map((player, i) => (
     <div class="flex-none w-[260px] snap-center">
       <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 group">
-        <div class="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-black border border-white/20">
+        <div class="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-black border border-white/20">
           #{i + 1}
         </div>
         
         <img 
           src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${player.cardImage}`} 
           alt={player.nameJp} 
-          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          loading="lazy"
+          class="w-full h-full object-cover"
+          onerror="this.src='/no-player.png'; this.style.opacity='0.3';" 
         />
 
-        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-6 pt-12">
+        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black to-transparent p-4">
            <div class="flex items-baseline justify-between">
-              <span class="text-3xl font-black text-blue-500">{player.pts}<span class="text-xs ml-1">PTS</span></span>
-              <span class="text-[10px] text-white/40 uppercase tracking-widest">MIN: {player.min}</span>
+              <span class="text-2xl font-black text-blue-500">{player.pts}<span class="text-[10px] ml-1">PTS</span></span>
+              <span class="text-[9px] text-white/40 uppercase font-bold">MIN: {player.min}</span>
            </div>
         </div>
       </div>
