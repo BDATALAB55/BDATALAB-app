@@ -97,26 +97,35 @@ try {
 
     reportGroups = Object.values(groups).sort((a, b) => b.id.localeCompare(a.id));
 
-    // --- ここから書き換え ---
     if (reportGroups.length > 0) {
-      // 1. 最新の画像フォルダから日付（例: "2026.02.07"）を自動取得
-      displayToday = reportGroups[0].date; 
+      displayToday = reportGroups[0].date;
+      const latestFolderId = reportGroups[0].id; // 例: "251004"
+
+      // 1. 最新の日付フォルダ内にある「game_試合ID_...」というフォルダをすべて特定
+      const latestGameIds = data.tree
+        .filter(item => item.path.includes(`output/reports/B1/${latestFolderId}/game_`))
+        .map(item => {
+          const parts = item.path.split('/');
+          const folderName = parts[parts.length - 2]; // game_504728_... の部分
+          const match = folderName.match(/game_(\d+)/);
+          return match ? match[1] : null;
+        })
+        .filter((id, index, self) => id && self.indexOf(id) === index); // 重複排除
 
       let allPlayersRaw = [];
-      
-      // 2. data/raw/ 配下の全JSONをチェック
-      const targetJsons = data.tree.filter(item => 
-        item.path.includes('data/raw/game_') && 
-        item.path.endsWith('.json')
-      );
 
-      for (const file of targetJsons) {
-        const jsonRes = await fetch(`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${file.path}`);
-        const jsonData = await jsonRes.json();
-        
-        // 3. JSONの中身の日付が、最新画像の日付と一致する場合のみ集計
-        if (jsonData.date === displayToday && jsonData.players) {
-          allPlayersRaw = [...allPlayersRaw, ...jsonData.players];
+      // 2. 抽出した試合IDに一致するJSONファイルを data/raw/ から探して読み込む
+      for (const gameId of latestGameIds) {
+        const targetFile = data.tree.find(item => 
+          item.path.includes(`data/raw/game_${gameId}.json`)
+        );
+
+        if (targetFile) {
+          const jsonRes = await fetch(`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${targetFile.path}`);
+          const jsonData = await jsonRes.json();
+          if (jsonData.players) {
+            allPlayersRaw = [...allPlayersRaw, ...jsonData.players];
+          }
         }
       }
 
@@ -126,7 +135,7 @@ try {
         return parts.length === 2 ? (parts[0] * 60) + parts[1] : 0;
       };
 
-      // 4. ランキング作成
+      // 3. ランキング作成
       ptsRank10 = allPlayersRaw
         .sort((a, b) => {
           if (Number(b.pts) !== Number(a.pts)) return Number(b.pts) - Number(a.pts);
@@ -134,7 +143,6 @@ try {
         })
         .slice(0, 10);
     }
-    // --- ここまで書き換え ---
   }
 } catch (e) {
   console.error("Fetch Error:", e);
