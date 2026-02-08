@@ -70,18 +70,27 @@ try {
 const getCardUrl = (cardPathInJson) => {
   if (!cardPathInJson) return "/no-player.png";
 
-  // 1. JSON内のパス（output/Bplayers/...）から、先頭のスラッシュを取り除く
-  let cleanPath = cardPathInJson.replace(/^\//, '');
+  // 1. まず現在のパスを取得
+  let path = cardPathInJson.replace(/^\//, '');
+  if (!path.startsWith('output/')) path = 'output/' + path;
 
-  // 2. もしパスに 'output/' が含まれていない場合は追加する（念のため）
-  if (!cleanPath.startsWith('output/')) {
-    cleanPath = 'output/' + cleanPath;
+  // 2. 【重要】パスの中に "undefined" が含まれている場合、
+  // 事前に取得した allPlayerCards (GitHub上の全ファイルリスト) から正しいパスを探し出す
+  if (path.includes('undefined')) {
+    // ファイル名（最後の部分）の数字 ID (例: 505191) を抽出
+    const match = path.match(/game_(\d+)_/);
+    if (match && allPlayerCards.length > 0) {
+      const gameId = match[1];
+      // GitHubのリストから、同じGameIDを持つ本物のパスを探す
+      const realFile = allPlayerCards.find(item => item.path.includes(`game_${gameId}_`));
+      if (realFile) {
+        path = realFile.path;
+      }
+    }
   }
 
-  // 3. encodeURIを使用して、日本語などは変換しつつ、スラッシュ / はそのまま維持する
-  const safePath = encodeURI(cleanPath);
-
-  // 4. GitHubのRaw URLとして完成させる
+  // 3. 安全なURLに変換して返却
+  const safePath = encodeURI(path);
   return `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${safePath}`;
 };
 
