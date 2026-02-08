@@ -67,31 +67,33 @@ try {
   console.error("Fetch Error:", e);
 }
 
-const getCardUrl = (cardPathInJson) => {
+const getCardUrl = (cardPathInJson, playerObject) => {
   if (!cardPathInJson) return "/no-player.png";
 
-  // 1. まず現在のパスを取得
   let path = cardPathInJson.replace(/^\//, '');
   if (!path.startsWith('output/')) path = 'output/' + path;
 
-  // 2. 【重要】パスの中に "undefined" が含まれている場合、
-  // 事前に取得した allPlayerCards (GitHub上の全ファイルリスト) から正しいパスを探し出す
-  if (path.includes('undefined')) {
-    // ファイル名（最後の部分）の数字 ID (例: 505191) を抽出
-    const match = path.match(/game_(\d+)_/);
-    if (match && allPlayerCards.length > 0) {
-      const gameId = match[1];
-      // GitHubのリストから、同じGameIDを持つ本物のパスを探す
-      const realFile = allPlayerCards.find(item => item.path.includes(`game_${gameId}_`));
-      if (realFile) {
-        path = realFile.path;
-      }
+  // undefined が含まれる場合、GitHub上の全ファイルから「試合ID」と「選手名」で検索
+  if (path.includes('undefined') && allPlayerCards.length > 0) {
+    const gameMatch = path.match(/game_(\d+)_/);
+    if (gameMatch) {
+      const gameId = gameMatch[1];
+      // 1. まず試合IDで絞り込む
+      const sameGameCards = allPlayerCards.filter(item => item.path.includes(`game_${gameId}_`));
+      
+      // 2. その中から、選手の苗字（または名前）が含まれるファイルを探す
+      // playerObject.nameJp が "ジャレット・カルバー" なら "カルバー" で探す
+      const nameMatch = playerObject.nameJp ? playerObject.nameJp.split(' ').pop() : null;
+      
+      const realFile = sameGameCards.find(item => 
+        nameMatch && item.path.includes(nameMatch)
+      ) || sameGameCards[0]; // 見つからなければ仕方なく最初の一枚
+
+      if (realFile) path = realFile.path;
     }
   }
 
-  // 3. 安全なURLに変換して返却
-  const safePath = encodeURI(path);
-  return `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${safePath}`;
+  return `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(path)}`;
 };
 
 const teams = [
@@ -244,7 +246,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
               <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 group">
                 <div class="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-black border border-white/20">#{i + 1}</div>
                 <div class="text-[10px] text-red-500">{player.cardPath}</div>
-<img src={getCardUrl(player.cardPath)} alt={player.nameJp} class="w-full h-full object-cover" />
+<img src={getCardUrl(player.cardPath, player)} alt={player.nameJp} class="w-full h-full object-cover" />
                 <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black to-transparent p-4">
                   <div class="flex items-baseline justify-between">
                     <span class="text-2xl font-black text-blue-500">{player.pts}<span class="text-[10px] ml-1">PTS</span></span>
@@ -262,7 +264,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
               <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden bg-black/40 border border-white/10">
                 <div class="absolute top-4 left-4 z-10 bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">#{i+1}</div>
                 <div class="text-[10px] text-red-500">{player.cardPath}</div>
-<img src={getCardUrl(player.cardPath)} alt={player.nameJp} class="w-full h-full object-cover" />
+<img src={getCardUrl(player.cardPath, player)} alt={player.nameJp} class="w-full h-full object-cover" />
                 <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black">
                   <span class="text-2xl font-black text-green-400">{player.reb}<span class="text-[10px] ml-1">REB</span></span>
                 </div>
@@ -277,7 +279,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
               <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden bg-black/40 border border-white/10">
                 <div class="absolute top-4 left-4 z-10 bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">#{i+1}</div>
                 <div class="text-[10px] text-red-500">{player.cardPath}</div>
-<img src={getCardUrl(player.cardPath)} alt={player.nameJp} class="w-full h-full object-cover" />
+<img src={getCardUrl(player.cardPath, player)} alt={player.nameJp} class="w-full h-full object-cover" />
                 <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black">
                   <span class="text-2xl font-black text-purple-400">{player.ast}<span class="text-[10px] ml-1">AST</span></span>
                 </div>
