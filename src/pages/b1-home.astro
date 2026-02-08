@@ -67,12 +67,18 @@ try {
   console.error("Fetch Error:", e);
 }
 
-// 【修正版】シンプルにURLを生成する関数
+// 【最終修正】確実に画像を表示させる関数
 const getCardUrl = (cardPathInJson) => {
   if (!cardPathInJson) return "/no-player.png";
 
-  // JSON内のパス（output/Bplayers/...）をURL用に変換して結合
-  const safePath = encodeURI(cardPathInJson);
+  // 1. 先頭にスラッシュがあれば削除
+  const cleanPath = cardPathInJson.replace(/^\//, '');
+
+  // 2. 日本語やスペース、スラッシュを安全にURLエンコード
+  // ただし、フォルダ区切りの "/" まで消さないように encodeURI を使います
+  const safePath = encodeURI(cleanPath);
+
+  // 3. GitHubのリポジトリURLと結合
   return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${safePath}`;
 };
 
