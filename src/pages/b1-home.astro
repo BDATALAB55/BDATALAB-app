@@ -54,14 +54,7 @@ try {
   const data = await res.json();
 
   if (data.tree) {
-    // 1. まず全試合のIDをリストアップ（data/reports/report_XXXXXX.json を探す）
-    const allReportFiles = data.tree
-      .filter(item => item.path.includes('data/reports/report_') && item.path.endsWith('.json'));
-
-    let allPlayersRaw = [];
-
-    // 2. B1の試合だけを狙い撃ちしてJSONを読み込む
-    // ここでは、既に画面に出ている「B1のGAME REPORT画像」の試合ID（latestGameIds）を基準にします
+    // 1. B1の「画像がある試合」のIDだけを正確に抜き出す
     const b1GameIds = data.tree
       .filter(item => item.path.includes('output/reports/B1/260207/game_'))
       .map(item => {
@@ -70,6 +63,9 @@ try {
       })
       .filter((id, index, self) => id && self.indexOf(id) === index);
 
+    let allPlayersRaw = [];
+
+    // 2. 抜き出したB1の試合IDに紐づくJSONだけを読み込む
     for (const gameId of b1GameIds) {
       try {
         const jsonUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/data/reports/report_${gameId}.json`;
@@ -79,16 +75,13 @@ try {
 
         if (jsonData.players) {
           const playersWithCards = jsonData.players.map(p => {
-            // 1. チーム名・選手名を大文字にし、スペースをアンダースコアに変換
+            // チーム名・選手名を大文字化してアンダースコアに変換
             const teamFilePart = p.teamNameRaw.toUpperCase().replace(/\s+/g, '_');
             const playerName = p.name_en.toUpperCase().replace(/\s+/g, '_');
             const playerNo = String(p.no);
 
-            // 2. パスを組み立て (日付をスクショ通りの 20260207 に修正)
-            // ファイル名例: LEVANGA_HOKKAIDO_15_REN_SHIMATANI_20260207.png
+            // スクショに基づいた画像パス生成 (20260207形式)
             const fileName = `${teamFilePart}_${playerNo}_${playerName}_20260207.png`;
-            
-            // フォルダ名例: game_505183_HOKKAIDO_MIKAWA_20260207
             const cardPath = `output/Bplayers/B1/260207/game_${gameId}_${jsonData.home_en}_${jsonData.away_en}_20260207/${fileName}`;
             
             return { ...p, cardImage: cardPath };
@@ -98,7 +91,7 @@ try {
       } catch (e) { console.error(e); }
     }
 
-    // --- GAME REPORT表示用ロジック（ここは絶対変えない） ---
+    // --- GAME REPORT表示用ロジック（変更なし） ---
     const reportFiles = data.tree.filter(item => 
       item.path.includes('output/reports/B1/') && item.path.toLowerCase().endsWith('.png')
     );
@@ -120,7 +113,7 @@ try {
     reportGroups = Object.values(groups).sort((a, b) => b.id.localeCompare(a.id));
     displayToday = "2026.02.07";
 
-    // 3. ランキングソート
+    // 3. ランキングソート（B1の選手だけでトップ10作成）
     ptsRank10 = allPlayersRaw
       .sort((a, b) => (Number(b.pts) || 0) - (Number(a.pts) || 0))
       .slice(0, 10);
