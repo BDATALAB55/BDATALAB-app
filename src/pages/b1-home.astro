@@ -67,20 +67,13 @@ try {
   console.error("Fetch Error:", e);
 }
 
-// 【重要：追加】ファイル名から正しいURLを生成する関数
+// 【修正版】シンプルにURLを生成する関数
 const getCardUrl = (cardPathInJson) => {
   if (!cardPathInJson) return "/no-player.png";
-  
-  // JSON内の "Bplayers/B1/FILENAME.png" からファイル名だけを抽出
-  const fileName = cardPathInJson.split('/').pop(); 
-  
-  // GitHubの全ファイルリストから、そのファイル名で終わるパスを検索
-  const found = allPlayerCards.find(file => file.path.endsWith(fileName));
-  
-  if (found) {
-    return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${found.path}`;
-  }
-  return "/no-player.png";
+
+  // JSON内のパス（output/Bplayers/...）をURL用に変換して結合
+  const safePath = encodeURI(cardPathInJson);
+  return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${safePath}`;
 };
 
 const teams = [
