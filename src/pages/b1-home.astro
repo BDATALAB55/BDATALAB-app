@@ -205,7 +205,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
             <div class="flex-none w-[260px] snap-center">
               <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 group">
                 <div class="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-black border border-white/20">#{i + 1}</div>
-                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${player.cardPath}`} alt={player.nameJp} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
+                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/${player.cardPath}`} alt={player.nameJp} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
                 <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black to-transparent p-4">
                   <div class="flex items-baseline justify-between">
                     <span class="text-2xl font-black text-blue-500">{player.pts}<span class="text-[10px] ml-1">PTS</span></span>
@@ -222,7 +222,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
             <div class="flex-none w-[260px] snap-center">
               <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden bg-black/40 border border-white/10">
                 <div class="absolute top-4 left-4 z-10 bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">#{i+1}</div>
-                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${player.cardPath}`} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
+                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/${player.cardPath}`} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
                 <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black">
                   <span class="text-2xl font-black text-green-400">{player.reb}<span class="text-[10px] ml-1">REB</span></span>
                 </div>
@@ -236,7 +236,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
             <div class="flex-none w-[260px] snap-center">
               <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden bg-black/40 border border-white/10">
                 <div class="absolute top-4 left-4 z-10 bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">#{i+1}</div>
-                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${player.cardPath}`} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
+                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/${player.cardPath}`} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
                 <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black">
                   <span class="text-2xl font-black text-purple-400">{player.ast}<span class="text-[10px] ml-1">AST</span></span>
                 </div>
