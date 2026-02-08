@@ -67,19 +67,22 @@ try {
   console.error("Fetch Error:", e);
 }
 
-// 【最終修正】確実に画像を表示させる関数
 const getCardUrl = (cardPathInJson) => {
   if (!cardPathInJson) return "/no-player.png";
 
-  // 1. 先頭にスラッシュがあれば削除
-  const cleanPath = cardPathInJson.replace(/^\//, '');
+  // 1. JSON内のパス（output/Bplayers/...）から、先頭のスラッシュを取り除く
+  let cleanPath = cardPathInJson.replace(/^\//, '');
 
-  // 2. 日本語やスペース、スラッシュを安全にURLエンコード
-  // ただし、フォルダ区切りの "/" まで消さないように encodeURI を使います
+  // 2. もしパスに 'output/' が含まれていない場合は追加する（念のため）
+  if (!cleanPath.startsWith('output/')) {
+    cleanPath = 'output/' + cleanPath;
+  }
+
+  // 3. encodeURIを使用して、日本語などは変換しつつ、スラッシュ / はそのまま維持する
   const safePath = encodeURI(cleanPath);
 
-  // 3. GitHubのリポジトリURLと結合
-  return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${safePath}`;
+  // 4. GitHubのRaw URLとして完成させる
+  return `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${safePath}`;
 };
 
 const teams = [
