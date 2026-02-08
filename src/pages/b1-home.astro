@@ -114,6 +114,9 @@ try {
     reportGroups = Object.values(groups).sort((a, b) => b.id.localeCompare(a.id));
     displayToday = "2026.02.07";
   }
+  } catch (e) {
+  console.error("Fetch Error:", e);
+}
 
 const teams = [
   { id: 'HOKKAIDO', color: 'bg-[#91ad10]' }, { id: 'SENDAI', color: 'bg-[#f7e000] text-black' }, { id: 'AKITA', color: 'bg-[#dd0055]' },
