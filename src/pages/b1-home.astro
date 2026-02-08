@@ -23,6 +23,8 @@ let reportGroups = [];
 // --- ゲームレポート一覧は引き続きGitHub APIから取得 (画像URL用) ---
 const RECURSIVE_API = `https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1&t=${Date.now()}`;
 
+let allPlayerCards = []; // これを追加
+
 try {
   const res = await fetch(RECURSIVE_API, {
     headers: token ? { 
@@ -33,6 +35,7 @@ try {
   const data = await res.json();
 
   if (data && data.tree) {
+    // 既存のレポート取得処理
     const reportFiles = data.tree.filter(item => 
       item.path.includes('/B1/') && 
       item.path.includes('260207') && 
@@ -40,6 +43,14 @@ try {
       !item.path.includes('/Bplayers/')
     );
     
+    // 【重要：追加】選手カードの全パスをリスト化
+    // output/Bplayers/B1/ 以下にある全PNGファイルを拾う
+    allPlayerCards = data.tree.filter(item => 
+      item.path.includes('output/Bplayers/B1/') && 
+      item.path.endsWith('.png')
+    );
+
+    // ... (既存の reportGroups を作る処理はそのままでOK) ...
     const groups = {};
     reportFiles.forEach(file => {
       const parts = file.path.split('/');
@@ -55,6 +66,22 @@ try {
 } catch (e) {
   console.error("Fetch Error:", e);
 }
+
+// 【重要：追加】ファイル名から正しいURLを生成する関数
+const getCardUrl = (cardPathInJson) => {
+  if (!cardPathInJson) return "/no-player.png";
+  
+  // JSON内の "Bplayers/B1/FILENAME.png" からファイル名だけを抽出
+  const fileName = cardPathInJson.split('/').pop(); 
+  
+  // GitHubの全ファイルリストから、そのファイル名で終わるパスを検索
+  const found = allPlayerCards.find(file => file.path.endsWith(fileName));
+  
+  if (found) {
+    return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${found.path}`;
+  }
+  return "/no-player.png";
+};
 
 const teams = [
   { id: 'HOKKAIDO', color: 'bg-[#91ad10]' }, { id: 'SENDAI', color: 'bg-[#f7e000] text-black' }, { id: 'AKITA', color: 'bg-[#dd0055]' },
@@ -205,7 +232,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
             <div class="flex-none w-[260px] snap-center">
               <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 group">
                 <div class="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-black border border-white/20">#{i + 1}</div>
-                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/${player.cardPath}`} alt={player.nameJp} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
+                <img src={getCardUrl(player.cardPath)} alt={player.nameJp} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
                 <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black to-transparent p-4">
                   <div class="flex items-baseline justify-between">
                     <span class="text-2xl font-black text-blue-500">{player.pts}<span class="text-[10px] ml-1">PTS</span></span>
@@ -222,7 +249,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
             <div class="flex-none w-[260px] snap-center">
               <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden bg-black/40 border border-white/10">
                 <div class="absolute top-4 left-4 z-10 bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">#{i+1}</div>
-                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/${player.cardPath}`} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
+                <img src={getCardUrl(player.cardPath)} alt={player.nameJp} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
                 <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black">
                   <span class="text-2xl font-black text-green-400">{player.reb}<span class="text-[10px] ml-1">REB</span></span>
                 </div>
@@ -236,7 +263,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
             <div class="flex-none w-[260px] snap-center">
               <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden bg-black/40 border border-white/10">
                 <div class="absolute top-4 left-4 z-10 bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">#{i+1}</div>
-                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/${player.cardPath}`} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
+                <img src={getCardUrl(player.cardPath)} alt={player.nameJp} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
                 <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black">
                   <span class="text-2xl font-black text-purple-400">{player.ast}<span class="text-[10px] ml-1">AST</span></span>
                 </div>
