@@ -2,34 +2,25 @@
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 
+// 1. ローカルに保存したJSONをインポート
+// パスが正しいか確認してください：src/data/rankings/B1/20260207.json
+import localRankingData from '../data/rankings/B1/20260207.json';
+
 // --- 設定値 ---
 const GITHUB_REPO = "BDATALAB55/BDL-game-player-cards";
 const DISPLAY_DATE = "20260207";
-// GitHubのRaw URLを直接指定
-const RANKING_JSON_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/src/data/rankings/B1/${DISPLAY_DATE}.json`;
-
 let displayToday = "2026.02.07"; 
 const token = import.meta.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN;
 
+// --- ランキングデータの格納 ---
+// まずはローカルのデータを入れ、念のため空の場合のフォールバックを用意
+let ptsRank10 = localRankingData.pts || [];
+let rebRank10 = localRankingData.reb || [];
+let astRank10 = localRankingData.ast || [];
+
 let reportGroups = [];
-let ptsRank10 = [];
-let rebRank10 = [];
-let astRank10 = [];
 
-// --- ランキングデータをGitHubから直接取得 ---
-try {
-  const rankRes = await fetch(RANKING_JSON_URL);
-  if (rankRes.ok) {
-    const rankingData = await rankRes.json();
-    ptsRank10 = rankingData.pts || [];
-    rebRank10 = rankingData.reb || [];
-    astRank10 = rankingData.ast || [];
-  }
-} catch (e) {
-  console.error("Ranking fetch error:", e);
-}
-
-// --- 以下、既存の reportGroups 取得用ロジック ---
+// --- ゲームレポート一覧は引き続きGitHub APIから取得 (画像URL用) ---
 const RECURSIVE_API = `https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1&t=${Date.now()}`;
 
 try {
@@ -42,7 +33,6 @@ try {
   const data = await res.json();
 
   if (data && data.tree) {
-    // --- 下部のゲームレポート一覧用ロジック (維持) ---
     const reportFiles = data.tree.filter(item => 
       item.path.includes('/B1/') && 
       item.path.includes('260207') && 
@@ -79,10 +69,6 @@ const teams = [
 ];
 
 const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length : 0;
-const teamChunks = [];
-for (let i = 0; i < teams.length; i += 9) {
-  teamChunks.push(teams.slice(i, i + 9));
-}
 ---
 
 <Layout title="B1 HOME | B-Data Lab">
