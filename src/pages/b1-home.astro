@@ -1,17 +1,22 @@
 ---
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
+// --- バッチ生成されたJSONをインポート ---
+import rankingData from '../src/data/rankings/B1/20260207.json';
 
 // --- 設定値 ---
 const GITHUB_REPO = "BDATALAB55/BDL-game-player-cards";
 const RECURSIVE_API = `https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1&t=${Date.now()}`;
 
-let displayToday = "----.--.--"; 
-
+let displayToday = "2026.02.07"; 
 const token = import.meta.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN;
 
 let reportGroups = [];
-let ptsRank10 = [];
+
+// JSONから各ランキングデータを取得
+const ptsRank10 = rankingData.pts;
+const rebRank10 = rankingData.reb;
+const astRank10 = rankingData.ast;
 
 try {
   const res = await fetch(RECURSIVE_API, {
@@ -23,51 +28,12 @@ try {
   const data = await res.json();
 
   if (data && data.tree) {
-    // 1. B1の試合IDを抽出
-    const b1GameIds = data.tree
-      .filter(item => item.path.includes('/B1/') && item.path.includes('game_'))
-      .map(item => {
-        const match = item.path.match(/game_(\d+)/);
-        return match ? match[1] : null;
-      })
-      .filter((id, index, self) => id && self.indexOf(id) === index);
-
-    let allPlayersRaw = [];
-
-    // 2. 抽出したB1の試合IDに紐づくJSONを読み込む
-    for (const gameId of b1GameIds) {
-      try {
-        const jsonUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/data/reports/report_${gameId}.json`;
-        const resJson = await fetch(jsonUrl);
-        if (!resJson.ok) continue;
-        const jsonData = await resJson.json();
-
-        if (jsonData.players) {
-          const playersWithCards = jsonData.players.map(p => {
-            const teamFilePart = (p.teamNameRaw || "").toUpperCase().trim().replace(/\s+/g, '_');
-            const playerName = (p.name_en || "").toUpperCase().trim().replace(/\s+/g, '_');
-            const fileName = `${teamFilePart}_${p.no}_${playerName}_20260207.png`;
-            const folderName = `game_${gameId}_${jsonData.home_en}_${jsonData.away_en}_20260207`;
-            const cardPath = `output/Bplayers/B1/260207/${folderName}/${fileName}`;
-            return { ...p, cardImage: cardPath };
-          });
-          allPlayersRaw = [...allPlayersRaw, ...playersWithCards];
-        }
-      } catch (e) { console.error(`Game ${gameId} fetch failed:`, e); }
-    }
-
-    // 3. PTSランキング作成
-    ptsRank10 = allPlayersRaw
-      .sort((a, b) => (Number(b.pts) || 0) - (Number(a.pts) || 0))
-      .slice(0, 10);
-
-    // --- 下部のゲームレポート一覧用ロジック ---
-    // ここで選手カード(Bplayers)を除外してレポート画像のみに絞り込む
+    // --- 下部のゲームレポート一覧用ロジック (維持) ---
     const reportFiles = data.tree.filter(item => 
       item.path.includes('/B1/') && 
       item.path.includes('260207') && 
       item.path.endsWith('.png') &&
-      !item.path.includes('/Bplayers/') // 修正：選手カードの混入を防止
+      !item.path.includes('/Bplayers/')
     );
     
     const groups = {};
@@ -81,7 +47,6 @@ try {
       });
     });
     reportGroups = Object.values(groups).sort((a, b) => b.id.localeCompare(a.id));
-    displayToday = "2026.02.07";
   }
 } catch (e) {
   console.error("Fetch Error:", e);
@@ -185,7 +150,6 @@ for (let i = 0; i < teams.length; i += 9) {
 
       <section class="mt-24">
         <h2 class="text-4xl font-black uppercase tracking-tighter mb-8">TEAM</h2>
-        
         <div class="hidden md:grid grid-cols-4 lg:grid-cols-6 gap-2">
           {teams.map(t => (
             <a href={`/b1-team?team=${t.id}`} class="group">
@@ -194,35 +158,6 @@ for (let i = 0; i < teams.length; i += 9) {
               </div>
             </a>
           ))}
-        </div>
-
-        <div class="md:hidden -mx-6">
-          <div id="team-carousel" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-6 gap-1.5">
-            {teamChunks.map((chunk) => (
-              <div class="min-w-full snap-center grid grid-cols-3 gap-1.5">
-                {chunk.map(t => (
-                  <a href={`/b1-team?team=${t.id}`}>
-                    <div class={`${t.color} aspect-square rounded-lg flex items-center justify-center font-black tracking-tighter transition-all active:scale-95 uppercase px-1 text-center leading-[0.85]`}>
-                      <span class={t.id.length > 10 ? "text-[12px]" : "text-[15px]"}>
-                        {t.id === 'YOKOHAMA BC' ? (
-                          <>YOKOHAMA<br/>BC</>
-                        ) : t.id === 'SR SHIBUYA' ? (
-                          <>SR<br/>SHIBUYA</>
-                        ) : (
-                          t.id
-                        )}
-                      </span>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            ))}
-          </div>
-          <div class="flex justify-center gap-1.5 mt-6">
-            {teamChunks.map((_, i) => (
-              <div class={`h-[2px] rounded-full transition-all duration-300 ${i === 0 ? 'w-6 bg-white' : 'w-2 bg-white/10'}`} data-dot={i}></div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -256,6 +191,7 @@ for (let i = 0; i < teams.length; i += 9) {
           {['PTS', 'REB', 'AST'].map((stat, i) => (
             <button 
               data-tab="rank" 
+              data-target={stat}
               class={`rank-btn flex-1 py-4 rounded-xl text-[12px] font-black tracking-widest uppercase transition-all border border-white/5 
                 ${i === 0 ? 'bg-white text-black' : 'bg-black/20 text-white/80 hover:bg-white/10'}`}
             >
@@ -263,38 +199,50 @@ for (let i = 0; i < teams.length; i += 9) {
             </button>
           ))}
         </div>
-        <div id="rank-container" class="flex overflow-x-auto gap-6 no-scrollbar snap-x pb-4">
-          {ptsRank10.length > 0 ? ptsRank10.map((player, i) => (
+
+        <div id="rank-PTS" class="rank-pane flex overflow-x-auto gap-6 no-scrollbar snap-x pb-4">
+          {ptsRank10.map((player, i) => (
             <div class="flex-none w-[260px] snap-center">
               <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 group">
-                <div class="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-black border border-white/20">
-                  #{i + 1}
-                </div>
-                <img 
-                  src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${player.cardImage}`} 
-                  alt={player.name_en} 
-                  class="w-full h-full object-cover"
-                  onerror="this.src='/no-player.png'; this.style.opacity='0.3';" 
-                />
+                <div class="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-black border border-white/20">#{i + 1}</div>
+                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${player.cardPath}`} alt={player.nameJp} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
                 <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black to-transparent p-4">
-                   <div class="flex items-baseline justify-between">
-                      <span class="text-2xl font-black text-blue-500">{player.pts}<span class="text-[10px] ml-1">PTS</span></span>
-                      <span class="text-[9px] text-white/40 uppercase font-bold">MIN: {player.min}</span>
-                   </div>
+                  <div class="flex items-baseline justify-between">
+                    <span class="text-2xl font-black text-blue-500">{player.pts}<span class="text-[10px] ml-1">PTS</span></span>
+                    <span class="text-[9px] text-white/40 uppercase font-bold">REB:{player.reb} AST:{player.ast}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          )) : (
-            Array.from({ length: 10 }).map((_, i) => (
-              <div class="flex-none w-[260px] snap-center aspect-[3/4.2] bg-black/40 border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-4 relative overflow-hidden group">
-                <div class="absolute top-4 left-6 text-[32px] font-black text-white/10">#{i + 1}</div>
-                <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="text-white/10" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/></svg>
+          ))}
+        </div>
+
+        <div id="rank-REB" class="rank-pane hidden flex overflow-x-auto gap-6 no-scrollbar snap-x pb-4">
+          {rebRank10.map((player, i) => (
+            <div class="flex-none w-[260px] snap-center">
+              <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden bg-black/40 border border-white/10">
+                <div class="absolute top-4 left-4 z-10 bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">#{i+1}</div>
+                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${player.cardPath}`} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
+                <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black">
+                  <span class="text-2xl font-black text-green-400">{player.reb}<span class="text-[10px] ml-1">REB</span></span>
                 </div>
-                <span class="text-[10px] font-black tracking-[0.3em] uppercase text-white/30 text-center">No Data for<br/>{displayToday}</span>
               </div>
-            ))
-          )}
+            </div>
+          ))}
+        </div>
+
+        <div id="rank-AST" class="rank-pane hidden flex overflow-x-auto gap-6 no-scrollbar snap-x pb-4">
+          {astRank10.map((player, i) => (
+            <div class="flex-none w-[260px] snap-center">
+              <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden bg-black/40 border border-white/10">
+                <div class="absolute top-4 left-4 z-10 bg-black/60 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">#{i+1}</div>
+                <img src={`https://raw.githubusercontent.com/${GITHUB_REPO}/main/${player.cardPath}`} class="w-full h-full object-cover" onerror="this.src='/no-player.png';"/>
+                <div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black">
+                  <span class="text-2xl font-black text-purple-400">{player.ast}<span class="text-[10px] ml-1">AST</span></span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </div>
@@ -306,39 +254,47 @@ for (let i = 0; i < teams.length; i += 9) {
 </Layout>
 
 <script>
-  const carousel = document.getElementById('team-carousel');
-  const dots = document.querySelectorAll('[data-dot]');
-  if (carousel) {
-    carousel.addEventListener('scroll', () => {
-      const index = Math.round(carousel.scrollLeft / carousel.offsetWidth);
-      dots.forEach((dot, i) => {
-        if (i === index) {
-          dot.classList.add('w-6', 'bg-white');
-          dot.classList.remove('w-2', 'bg-white/10');
-        } else {
-          dot.classList.remove('w-6', 'bg-white');
-          dot.classList.add('w-2', 'bg-white/10');
-        }
-      });
-    });
-  }
-
+  // 既存のカルーセル・タブスクリプトを活かしつつ、ランキング切り替えを追加
   const initTabs = (btnClassName) => {
     const btns = document.querySelectorAll(`.${btnClassName}`);
     btns.forEach(btn => {
       btn.addEventListener('click', () => {
         const tabGroup = btn.getAttribute('data-tab');
+        const target = btn.getAttribute('data-target');
+
+        // ボタン表示の切り替え
         document.querySelectorAll(`[data-tab="${tabGroup}"]`).forEach(b => {
           b.classList.remove('bg-white', 'text-black');
           b.classList.add('bg-black/20', 'text-white/80');
         });
         btn.classList.add('bg-white', 'text-black');
         btn.classList.remove('bg-black/20', 'text-white/80');
+
+        // ランキング部門の表示切り替え（rank-btnの場合のみ）
+        if (tabGroup === 'rank') {
+          document.querySelectorAll('.rank-pane').forEach(pane => pane.classList.add('hidden'));
+          document.getElementById(`rank-${target}`)?.classList.remove('hidden');
+        }
       });
     });
   };
   initTabs('tab-btn');
   initTabs('rank-btn');
+
+  // カルーセル (維持)
+  const carousel = document.getElementById('team-carousel');
+  const dots = document.querySelectorAll('[data-dot]');
+  if (carousel) {
+    carousel.addEventListener('scroll', () => {
+      const index = Math.round(carousel.scrollLeft / carousel.offsetWidth);
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('w-6', i === index);
+        dot.classList.toggle('bg-white', i === index);
+        dot.classList.toggle('w-2', i !== index);
+        dot.classList.toggle('bg-white/10', i !== index);
+      });
+    });
+  }
 </script>
 
 <style>
