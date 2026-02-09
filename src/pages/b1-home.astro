@@ -73,31 +73,38 @@ const getCardUrl = (cardPathInJson, playerObject) => {
   let path = cardPathInJson.replace(/^\//, '');
   if (!path.startsWith('output/')) path = 'output/' + path;
 
-  // undefined が含まれる場合、GitHub上の全ファイルから検索
-  if (path.includes('undefined') && allPlayerCards.length > 0) {
+  // GitHub上の全ファイルリスト(allPlayerCards)から、より適切なファイルを探す
+  if (allPlayerCards.length > 0) {
     const gameMatch = path.match(/game_(\d+)_/);
     if (gameMatch) {
       const gameId = gameMatch[1];
-      // 1. 試合IDで絞り込む
+      
+      // 1. まずその試合ID(game_XXXXXX)のカードだけに絞り込む
       const sameGameCards = allPlayerCards.filter(item => item.path.includes(`game_${gameId}_`));
-      
-      // 2. 検索キーワードの作成
-      // 例: "ジャレット・カルバー" -> ["JARRETT", "CULVER"]
-      const nameParts = playerObject.nameJp 
-        ? playerObject.nameJp.toUpperCase().replace('・', ' ').split(' ') 
-        : [];
-      
-      // 3. 全ての名前パーツが含まれるファイルを優先的に探す
-      const realFile = sameGameCards.find(item => {
-        const upperPath = item.path.toUpperCase();
-        return nameParts.every(part => upperPath.includes(part));
-      }) || sameGameCards.find(item => {
-        // 全一致がなければ、苗字だけでも探す
-        const lastName = nameParts.pop();
-        return lastName && item.path.toUpperCase().includes(lastName);
-      }) || sameGameCards[0];
 
-      if (realFile) path = realFile.path;
+      if (sameGameCards.length > 0) {
+        // 2. 検索用のキーワードを作成
+        // JSONの cardPath (例: ...game_505191_undefined_ジャレット・カルバー_...) 
+        // から後ろの選手名部分を抽出してクリーニング
+        const rawNamePart = cardPathInJson.split('_').pop().replace('.png', ''); 
+        
+        // 3. ファイル名に「その選手名（の一部）」が含まれているものを探す
+        const realFile = sameGameCards.find(item => {
+          const upperPath = item.path.toUpperCase();
+          // 日本語名が含まれているか、あるいはファイル名自体にその文字列が含まれているか
+          return upperPath.includes(rawNamePart.toUpperCase()) || 
+                 (playerObject.nameJp && upperPath.includes(playerObject.nameJp));
+        });
+
+        // 見つかればそのパスを、見つからなければ（念のため）元のpathを使用
+        if (realFile) {
+          path = realFile.path;
+        } else {
+          // それでも見つからない場合、1枚目(index 0)になってしまうのを防ぐため
+          // sameGameCardsの中から "名前" らしき部分が一致するものを探す（最終手段）
+          console.warn(`Matching file not found for: ${rawNamePart}. Using original path.`);
+        }
+      }
     }
   }
 
