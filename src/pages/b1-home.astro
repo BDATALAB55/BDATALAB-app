@@ -70,45 +70,34 @@ try {
 const getCardUrl = (cardPathInJson, playerObject) => {
   if (!cardPathInJson) return "/no-player.png";
 
-  let path = cardPathInJson.replace(/^\//, '');
-  if (!path.startsWith('output/')) path = 'output/' + path;
+  // 1. 試合IDを取得
+  const gameMatch = cardPathInJson.match(/game_(\d+)_/);
+  const gameId = gameMatch ? gameMatch[1] : null;
 
-  // GitHub上の全ファイルリスト(allPlayerCards)から、より適切なファイルを探す
-  if (allPlayerCards.length > 0) {
-    const gameMatch = path.match(/game_(\d+)_/);
-    if (gameMatch) {
-      const gameId = gameMatch[1];
-      
-      // 1. まずその試合ID(game_XXXXXX)のカードだけに絞り込む
-      const sameGameCards = allPlayerCards.filter(item => item.path.includes(`game_${gameId}_`));
+  if (gameId && allPlayerCards.length > 0) {
+    // 2. その試合のカードに絞り込む
+    const sameGameCards = allPlayerCards.filter(item => item.path.includes(`game_${gameId}_`));
 
-      if (sameGameCards.length > 0) {
-        // 2. 検索用のキーワードを作成
-        // JSONの cardPath (例: ...game_505191_undefined_ジャレット・カルバー_...) 
-        // から後ろの選手名部分を抽出してクリーニング
-        const rawNamePart = cardPathInJson.split('_').pop().replace('.png', ''); 
-        
-        // 3. ファイル名に「その選手名（の一部）」が含まれているものを探す
-        const realFile = sameGameCards.find(item => {
-          const upperPath = item.path.toUpperCase();
-          // 日本語名が含まれているか、あるいはファイル名自体にその文字列が含まれているか
-          return upperPath.includes(rawNamePart.toUpperCase()) || 
-                 (playerObject.nameJp && upperPath.includes(playerObject.nameJp));
-        });
+    // 3. JSONにある英字名（例: "JARRETT CULVER"）を取得して正規化
+    // 空白をアンダースコアに変換して、ファイル名(JARRETT_CULVER...)と合いやすくする
+    const targetNameEn = playerObject.name ? playerObject.name.toUpperCase().replace(/\s+/g, '_') : "";
+    const targetNameJp = playerObject.nameJp || "";
 
-        // 見つかればそのパスを、見つからなければ（念のため）元のpathを使用
-        if (realFile) {
-          path = realFile.path;
-        } else {
-          // それでも見つからない場合、1枚目(index 0)になってしまうのを防ぐため
-          // sameGameCardsの中から "名前" らしき部分が一致するものを探す（最終手段）
-          console.warn(`Matching file not found for: ${rawNamePart}. Using original path.`);
-        }
-      }
+    // 4. 適切なファイルを検索
+    const realFile = sameGameCards.find(item => {
+      const upperPath = item.path.toUpperCase();
+      // パスの中に "JARRETT_CULVER" または "ジャレット・カルバー" が含まれているか確認
+      return (targetNameEn && upperPath.includes(targetNameEn)) || 
+             (targetNameJp && upperPath.includes(targetNameJp.toUpperCase()));
+    });
+
+    if (realFile) {
+      return `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
     }
   }
 
-  return `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(path)}`;
+  // 見つからない場合のフォールバック
+  return "/no-player.png";
 };
 
 const teams = [
