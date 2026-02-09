@@ -12,11 +12,19 @@ const DISPLAY_DATE = "20260208";
 let displayToday = "2026.02.08"; 
 const token = import.meta.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN;
 
-// --- ランキングデータの格納 ---
-// JSONの中身が { "pts": [...], "reb": [...], "ast": [...] } であることを前提にします
-const ptsRank10 = localRankingData?.pts || [];
-const rebRank10 = localRankingData?.reb || [];
-const astRank10 = localRankingData?.ast || [];
+// --- ランキングデータの格納とソート ---
+// 同じ数値（PTSなど）だった場合、MIN（出場時間）が短い方を上位にするロジック
+const sortRank = (a, b, statKey) => {
+  if (b[statKey] !== a[statKey]) {
+    return b[statKey] - a[statKey]; // スタッツが多い順
+  }
+  // スタッツが同数の場合、min（"20:09"などの文字列）を比較して短い方を先にする
+  return a.min.localeCompare(b.min); 
+};
+
+const ptsRank10 = (localRankingData?.pts || []).sort((a, b) => sortRank(a, b, 'pts')).slice(0, 10);
+const rebRank10 = (localRankingData?.reb || []).sort((a, b) => sortRank(a, b, 'reb')).slice(0, 10);
+const astRank10 = (localRankingData?.ast || []).sort((a, b) => sortRank(a, b, 'ast')).slice(0, 10);
 
 let reportGroups = [];
 
