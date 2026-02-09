@@ -244,54 +244,69 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
           ))}
         </div>
 
-        <div id="rank-PTS" class="rank-pane flex overflow-x-auto gap-6 no-scrollbar snap-x pb-4">
+        <div id="rank-PTS" class="rank-pane flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8">
   {ptsRank10.map((player, i) => (
     <div class="flex-none w-[260px] snap-center">
+      {/* カード画像：オーバーレイを削除 */}
       <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 group">
-        <div class="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-black border border-white/20">#{i + 1}</div>
-        
-        {/* 画像部分：ホバーで拡大するエフェクトを追加 */}
         <img src={getCardUrl(player.cardPath, player)} alt={player.nameJp} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-        
-        {/* 下部：グラデーションを少し濃くして文字を見やすく修正 */}
-        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent p-6">
-          <div class="flex items-baseline justify-between">
-            <span class="text-3xl font-black text-blue-500">{player.pts}<span class="text-[12px] ml-1 text-white/70">PTS</span></span>
-            <span class="text-[10px] text-white/40 uppercase font-bold">REB:{player.reb} AST:{player.ast}</span>
-          </div>
+      </div>
+
+      {/* 順位と選手ボタン */}
+      <div class="mt-6 flex items-center justify-center gap-4 px-2">
+        <div class="flex items-baseline min-w-[60px]">
+          <span class="text-4xl font-black italic text-white leading-none">{i + 1}</span>
+          <span class="text-sm font-bold uppercase ml-0.5 text-white/60">
+            {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
+          </span>
         </div>
+        <a href={`/b-players?name=${encodeURIComponent(player.nameJp)}`} class="bg-white/10 border border-white/10 hover:bg-white/20 px-4 py-2.5 rounded-full transition-all active:scale-95 flex-1 text-center truncate">
+          <span class="text-[10px] font-black uppercase tracking-[0.1em] text-white/90">{player.nameJp}</span>
+        </a>
       </div>
     </div>
   ))}
 </div>
 
-        <div id="rank-REB" class="rank-pane hidden flex overflow-x-auto gap-6 no-scrollbar snap-x pb-4">
+        <div id="rank-REB" class="rank-pane hidden flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8">
   {rebRank10.map((player, i) => (
     <div class="flex-none w-[260px] snap-center">
       <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 group">
-        <div class="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center font-black border border-white/20">#{i+1}</div>
-        
         <img src={getCardUrl(player.cardPath, player)} alt={player.nameJp} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-        
-        <div class="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black via-black/70 to-transparent">
-          <span class="text-3xl font-black text-green-400">{player.reb}<span class="text-[12px] ml-1 text-white/70">REB</span></span>
+      </div>
+
+      <div class="mt-6 flex items-center justify-center gap-4 px-2">
+        <div class="flex items-baseline min-w-[60px]">
+          <span class="text-4xl font-black italic text-white leading-none">{i + 1}</span>
+          <span class="text-sm font-bold uppercase ml-0.5 text-white/60">
+            {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
+          </span>
         </div>
+        <a href={`/b-players?name=${encodeURIComponent(player.nameJp)}`} class="bg-white/10 border border-white/10 hover:bg-white/20 px-4 py-2.5 rounded-full transition-all active:scale-95 flex-1 text-center truncate">
+          <span class="text-[10px] font-black uppercase tracking-[0.1em] text-white/90">{player.nameJp}</span>
+        </a>
       </div>
     </div>
   ))}
 </div>
 
-        <div id="rank-AST" class="rank-pane hidden flex overflow-x-auto gap-6 no-scrollbar snap-x pb-4">
+        <div id="rank-AST" class="rank-pane hidden flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8">
   {astRank10.map((player, i) => (
     <div class="flex-none w-[260px] snap-center">
       <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 group">
-        <div class="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center font-black border border-white/20">#{i+1}</div>
-        
         <img src={getCardUrl(player.cardPath, player)} alt={player.nameJp} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-        
-        <div class="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black via-black/70 to-transparent">
-          <span class="text-3xl font-black text-purple-400">{player.ast}<span class="text-[12px] ml-1 text-white/70">AST</span></span>
+      </div>
+
+      <div class="mt-6 flex items-center justify-center gap-4 px-2">
+        <div class="flex items-baseline min-w-[60px]">
+          <span class="text-4xl font-black italic text-white leading-none">{i + 1}</span>
+          <span class="text-sm font-bold uppercase ml-0.5 text-white/60">
+            {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
+          </span>
         </div>
+        <a href={`/b-players?name=${encodeURIComponent(player.nameJp)}`} class="bg-white/10 border border-white/10 hover:bg-white/20 px-4 py-2.5 rounded-full transition-all active:scale-95 flex-1 text-center truncate">
+          <span class="text-[10px] font-black uppercase tracking-[0.1em] text-white/90">{player.nameJp}</span>
+        </a>
       </div>
     </div>
   ))}
