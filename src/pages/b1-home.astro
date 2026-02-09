@@ -3,13 +3,13 @@ export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 
 // 1. ローカルに保存したJSONをインポート
-// パスが正しいか確認してください：src/data/rankings/B1/20260207.json
-import localRankingData from '../data/rankings/B1/20260207.json';
+// パスが正しいか確認してください：src/data/rankings/B1/20260208.json
+import localRankingData from '../data/rankings/B1/20260208.json';
 
 // --- 設定値 ---
 const GITHUB_REPO = "BDATALAB55/BDL-game-player-cards";
-const DISPLAY_DATE = "20260207";
-let displayToday = "2026.02.07"; 
+const DISPLAY_DATE = "20260208";
+let displayToday = "2026.02.08"; 
 const token = import.meta.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN;
 
 // --- ランキングデータの格納 ---
@@ -38,7 +38,7 @@ try {
     // 既存のレポート取得処理
     const reportFiles = data.tree.filter(item => 
       item.path.includes('/B1/') && 
-      item.path.includes('260207') && 
+      item.path.includes('260208') && 
       item.path.endsWith('.png') &&
       !item.path.includes('/Bplayers/')
     );
