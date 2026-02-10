@@ -291,21 +291,21 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
           return (
             <div 
               id={`rank-${statType}`} 
-              class={`rank-pane ${statType !== 'PTS' ? 'hidden' : ''} flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8 pt-8`}
+              class={`rank-pane ${statType !== 'PTS' ? 'hidden' : ''} flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8 pt-12`}
             >
               {rankData.map((player, i) => (
                 <div class="flex-none w-[210px] snap-center">
                   <div class="relative group">
                     
-                    {/* 順位：完全にカードの外側・左上に配置 */}
-                    <div class="absolute -top-8 -left-2 z-10 flex items-baseline">
+                    {/* 順位：さらに上(-top-11)に上げ、少し右(left-1)に寄せて調整 */}
+                    <div class="absolute -top-11 left-1 z-10 flex items-baseline">
                       <span class="text-4xl font-black italic text-white leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{i + 1}</span>
                       <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
                         {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
                       </span>
                     </div>
 
-                    {/* カード画像：横幅210pxに拡大 */}
+                    {/* カード画像：横幅210px */}
                     <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 transition-transform duration-300 group-hover:translate-y-[-4px]">
                       <img 
                         src={getCardUrl(player.cardPath, player)} 
@@ -318,7 +318,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                     <div class="mt-4">
                       <a 
                         href={`/b-players?name=${encodeURIComponent(player.name)}`} 
-                        class="block w-full bg-white/10 border border-white/10 hover:bg-white/20 py-3.5 rounded-full transition-all active:scale-95 text-center truncate"
+                        class="block w-full bg-white/10 border border-white/10 hover:bg-white/20 py-3.5 rounded-full transition-all active:scale-95 text-center truncate shadow-lg"
                       >
                         <span class="text-[10px] font-black uppercase tracking-widest text-white/90 px-4">
                           {player.name}
