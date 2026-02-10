@@ -284,73 +284,55 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
           ))}
         </div>
 
-        <div id="rank-PTS" class="rank-pane flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8">
-  {ptsRank10.map((player, i) => (
-    <div class="flex-none w-[260px] snap-center">
-      {/* カード画像：オーバーレイを削除 */}
-      <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 group">
-        <img src={getCardUrl(player.cardPath, player)} alt={player.nameJp} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-      </div>
+        {/* ランキングカードリスト部分 */}
+        {['PTS', 'REB', 'AST'].map((statType) => {
+          // 各スタッツに応じたデータを選択
+          const rankData = statType === 'PTS' ? ptsRank10 : statType === 'REB' ? rebRank10 : astRank10;
+          
+          return (
+            <div 
+              id={`rank-${statType}`} 
+              class={`rank-pane ${statType !== 'PTS' ? 'hidden' : ''} flex overflow-x-auto gap-4 no-scrollbar snap-x pb-8`}
+            >
+              {rankData.map((player, i) => (
+                <div class="flex-none w-[180px] snap-center">
+                  <div class="relative group pt-5"> {/* 順位がはみ出すための上部余白 */}
+                    
+                    {/* 順位表示：左上に絶対配置（カードの外側へ） */}
+                    <div class="absolute top-0 -left-1 z-10 flex items-baseline drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)]">
+                      <span class="text-4xl font-black italic text-white leading-none">{i + 1}</span>
+                      <span class="text-[10px] font-bold uppercase ml-0.5 text-white/80">
+                        {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
+                      </span>
+                    </div>
 
-      {/* 順位と選手ボタン：選手名を英字に変更 */}
-      <div class="mt-6 flex items-center justify-center gap-4 px-2">
-        <div class="flex items-baseline min-w-[60px]">
-          <span class="text-4xl font-black italic text-white leading-none">{i + 1}</span>
-          <span class="text-sm font-bold uppercase ml-0.5 text-white/60">
-            {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
-          </span>
-        </div>
-        <a href={`/b-players?name=${encodeURIComponent(player.name)}`} class="bg-white/10 border border-white/10 hover:bg-white/20 px-4 py-2.5 rounded-full transition-all active:scale-95 flex-1 text-center truncate">
-          <span class="text-[10px] font-black uppercase tracking-[0.1em] text-white/90">{player.name}</span>
-        </a>
-      </div>
-    </div>
-  ))}
-</div>
+                    {/* カード画像：横幅180pxに合わせて表示 */}
+                    <div class="relative aspect-[3/4.2] rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
+                      <img 
+                        src={getCardUrl(player.cardPath, player)} 
+                        alt={player.nameJp} 
+                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                      />
+                    </div>
 
-        <div id="rank-REB" class="rank-pane hidden flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8">
-  {rebRank10.map((player, i) => (
-    <div class="flex-none w-[260px] snap-center">
-      <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 group">
-        <img src={getCardUrl(player.cardPath, player)} alt={player.nameJp} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-      </div>
+                    {/* 選手名ボタン：カード幅に合わせたデザイン */}
+                    <div class="mt-3">
+                      <a 
+                        href={`/b-players?name=${encodeURIComponent(player.name)}`} 
+                        class="block w-full bg-white/10 border border-white/10 hover:bg-white/20 py-3 rounded-xl transition-all active:scale-95 text-center truncate"
+                      >
+                        <span class="text-[10px] font-black uppercase tracking-tighter text-white/90 px-2">
+                          {player.name}
+                        </span>
+                      </a>
+                    </div>
 
-      <div class="mt-6 flex items-center justify-center gap-4 px-2">
-        <div class="flex items-baseline min-w-[60px]">
-          <span class="text-4xl font-black italic text-white leading-none">{i + 1}</span>
-          <span class="text-sm font-bold uppercase ml-0.5 text-white/60">
-            {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
-          </span>
-        </div>
-        <a href={`/b-players?name=${encodeURIComponent(player.name)}`} class="bg-white/10 border border-white/10 hover:bg-white/20 px-4 py-2.5 rounded-full transition-all active:scale-95 flex-1 text-center truncate">
-          <span class="text-[10px] font-black uppercase tracking-[0.1em] text-white/90">{player.name}</span>
-        </a>
-      </div>
-    </div>
-  ))}
-</div>
-
-        <div id="rank-AST" class="rank-pane hidden flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8">
-  {astRank10.map((player, i) => (
-    <div class="flex-none w-[260px] snap-center">
-      <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 group">
-        <img src={getCardUrl(player.cardPath, player)} alt={player.nameJp} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-      </div>
-
-      <div class="mt-6 flex items-center justify-center gap-4 px-2">
-        <div class="flex items-baseline min-w-[60px]">
-          <span class="text-4xl font-black italic text-white leading-none">{i + 1}</span>
-          <span class="text-sm font-bold uppercase ml-0.5 text-white/60">
-            {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
-          </span>
-        </div>
-        <a href={`/b-players?name=${encodeURIComponent(player.name)}`} class="bg-white/10 border border-white/10 hover:bg-white/20 px-4 py-2.5 rounded-full transition-all active:scale-95 flex-1 text-center truncate">
-          <span class="text-[10px] font-black uppercase tracking-[0.1em] text-white/90">{player.name}</span>
-        </a>
-      </div>
-    </div>
-  ))}
-</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })}
       </section>
     </div>
 
