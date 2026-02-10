@@ -271,17 +271,22 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
           <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em]">{displayToday}</span>
         </div>
 
-        <div class="flex flex-nowrap gap-2 mb-10 max-w-sm">
-          {['PTS', 'REB', 'AST'].map((stat, i) => (
-            <button 
-              data-tab="rank" 
-              data-target={stat}
-              class={`rank-btn flex-1 py-4 rounded-xl text-[12px] font-black tracking-widest uppercase transition-all border border-white/5 
-                ${i === 0 ? 'bg-white text-black' : 'bg-black/20 text-white/80 hover:bg-white/10'}`}
-            >
-              {stat}
-            </button>
-          ))}
+        <div class="flex flex-col md:flex-row md:items-end gap-4 mb-10">
+          <div class="flex flex-nowrap gap-2 w-full max-w-sm">
+            {['PTS', 'REB', 'AST'].map((stat, i) => (
+              <button 
+                data-tab="rank" 
+                data-target={stat}
+                class={`rank-btn flex-1 py-4 rounded-xl text-[12px] font-black tracking-widest uppercase transition-all border border-white/5 
+                  ${i === 0 ? 'bg-white text-black' : 'bg-black/20 text-white/80 hover:bg-white/10'}`}
+              >
+                {stat}
+              </button>
+            ))}
+          </div>
+          <p class="text-white text-[10px] font-medium leading-none mb-1 opacity-80">
+            ※数値が同じ場合は出場時間が短い選手を上位にしています
+          </p>
         </div>
 
         {/* ランキングカードリスト部分 */}
@@ -297,7 +302,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                 <div class="flex-none w-[210px] snap-center">
                   <div class="relative group">
                     
-                    {/* 順位：さらに上(-top-11)に上げ、少し右(left-1)に寄せて調整 */}
+                    {/* 順位 */}
                     <div class="absolute -top-11 left-1 z-10 flex items-baseline">
                       <span class="text-4xl font-black italic text-white leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{i + 1}</span>
                       <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
@@ -305,7 +310,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                       </span>
                     </div>
 
-                    {/* カード画像：横幅210px */}
+                    {/* カード画像 */}
                     <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 transition-transform duration-300 group-hover:translate-y-[-4px]">
                       <img 
                         src={getCardUrl(player.cardPath, player)} 
@@ -314,7 +319,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                       />
                     </div>
 
-                    {/* 選手名ボタン：角を完全に丸く（カプセル型） */}
+                    {/* 選手名ボタン */}
                     <div class="mt-4">
                       <a 
                         href={`/b-players?name=${encodeURIComponent(player.name)}`} 
