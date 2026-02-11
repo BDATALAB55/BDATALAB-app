@@ -245,7 +245,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
         <h2 class="text-4xl font-black uppercase tracking-tighter mb-8">Today's RANK 10</h2>
         <div class="flex flex-col gap-1 mb-10">
           <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
-          <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em]">{displayToday}</span>
+          <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em] rank-date-display">{displayToday}</span>
         </div>
 
         <div class="flex flex-col md:flex-row md:items-end gap-4 mb-10">
@@ -465,9 +465,13 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
   const group = reportGroups.find(g => g.id === targetDate);
   
   if (group) {
-    // 1. 日付表示（2026.02.08など）を更新
-    const dateTitle = document.querySelector('.date-display'); // または .text-[32px].font-bold
-    if(dateTitle) dateTitle.innerText = `20${targetDate.substring(0,2)}.${targetDate.substring(2,4)}.${targetDate.substring(4,6)}`;
+    // 形式を 2026.02.08 に整える
+    const displayStr = `20${targetDate.substring(0,2)}.${targetDate.substring(2,4)}.${targetDate.substring(4,6)}`;
+
+    // ★ここを追加：レポートとランキング両方の日付を書き換える
+    document.querySelectorAll('.date-display, .rank-date-display').forEach(el => {
+      el.innerText = displayStr;
+    });
     
     // 2. ★これがご質問の箇所！ ゲーム数を更新
     const gameCountEl = document.querySelector('.text-7xl.font-black.italic');
