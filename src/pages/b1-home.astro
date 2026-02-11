@@ -133,26 +133,25 @@ try {
 const getCardUrl = (cardPathInJson, playerObject) => {
   if (!cardPathInJson) return "/no-player.png";
 
-  // 1. 試合IDを取得
+  // 1. 試合IDを取得 (例: 504728)
   const gameMatch = cardPathInJson.match(/game_(\d+)_/);
   const gameId = gameMatch ? gameMatch[1] : null;
 
   if (gameId && allPlayerCards.length > 0) {
-    // 2. その試合のカードに絞り込む（この段階で game_504728_ 等で絞る）
+    // 2. その試合IDが含まれるパスだけに絞り込む
+    // スクリーンショットの構造 (game_504728_...) に対応
     const sameGameCards = allPlayerCards.filter(item => item.path.includes(`game_${gameId}_`));
 
-    // 3. 検索用の名前を整理（英語名と日本語名の両方用意）
+    // 3. 検索する名前を正規化 (ROBERT FRANKS -> ROBERT_FRANKS)
     const targetNameEn = playerObject.name 
       ? playerObject.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '')
       : "";
-    const targetNameJp = playerObject.nameJp ? playerObject.nameJp.trim() : "";
 
-    // 4. 適切なファイルを検索（ここが以前成功していたキモです）
+    // 4. 適切なファイルを検索
     const realFile = sameGameCards.find(item => {
       const upperPath = item.path.toUpperCase();
-      // 「英語名が含まれている」か「日本語名が含まれている」どちらかでヒットすればOK
-      return (targetNameEn && upperPath.includes(targetNameEn)) || 
-             (targetNameJp && upperPath.includes(targetNameJp.toUpperCase()));
+      // ファイル名の中に名前（ROBERT_FRANKS）が含まれているかチェック
+      return targetNameEn && upperPath.includes(targetNameEn);
     });
 
     if (realFile) {
@@ -160,7 +159,6 @@ const getCardUrl = (cardPathInJson, playerObject) => {
     }
   }
 
-  // 見つからない場合のフォールバック
   return "/no-player.png";
 };
 
