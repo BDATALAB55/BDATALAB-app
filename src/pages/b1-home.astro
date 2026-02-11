@@ -324,16 +324,27 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                     </div>
 
                     {/* 選手名ボタン */}
-                    <div class="mt-4">
-                      <a 
-                        href={`/b-players?name=${encodeURIComponent(player.name)}`} 
-                        class="block w-full bg-white/10 border border-white/10 hover:bg-white/20 py-3.5 rounded-full transition-all active:scale-95 text-center truncate shadow-lg"
-                      >
-                        <span class="text-[10px] font-black uppercase tracking-widest text-white/90 px-4">
-                          {player.name}
-                        </span>
-                      </a>
-                    </div>
+<div class="mt-4 px-1">
+  <a 
+    href={`/b-players?name=${encodeURIComponent(player.name)}`} 
+    class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden"
+  >
+    {/* コンテンツの配置（名前と矢印を両端に） */}
+    <div class="flex items-center justify-between px-6">
+      <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate mr-2">
+        {player.name}
+      </span>
+      
+      {/* 右端の▶︎アイコン：ホバーで少し右に動く演出 */}
+      <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
+        ▶︎
+      </span>
+    </div>
+
+    {/* ホバー時に光が走るエフェクト（装飾） */}
+    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
+  </a>
+</div>
 
                   </div>
                 </div>
@@ -399,4 +410,11 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
 <style>
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* --- 追加：光るアニメーションの設定 --- */
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
 </style>
