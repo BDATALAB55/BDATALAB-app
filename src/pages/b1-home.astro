@@ -2,29 +2,38 @@
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 
-// 1. ローカルに保存したJSONをインポート
-// パスが正しいか確認してください：src/data/rankings/B1/20260208.json
-import localRankingData from '../data/rankings/B1/20260208.json';
-
 // --- 設定値 ---
 const GITHUB_REPO = "BDATALAB55/BDL-game-player-cards";
 const DISPLAY_DATE = "20260208";
 let displayToday = "2026.02.08"; 
 const token = import.meta.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN;
 
-// --- ランキングデータの格納とソート ---
-// 同じ数値（PTSなど）だった場合、MIN（出場時間）が短い方を上位にするロジック
+// --- ここから上書き ---
+// 1. フォルダ内の全ランキングJSONを動的に一括インポート
+const rankingFiles = import.meta.glob('../data/rankings/B1/*.json', { eager: true });
+
+// 2. 日付 (例: 260208) をキーにしたオブジェクトに整理
+const allRankings = {};
+Object.entries(rankingFiles).forEach(([path, content]) => {
+  const dateKey = path.split('/').pop().replace('.json', '').substring(2); 
+  allRankings[dateKey] = content.default || content;
+});
+
+// 3. 初期表示用のデータ（一番新しい日付、または2月8日）を特定
+const latestDateKey = Object.keys(allRankings).sort().reverse()[0] || "260208";
+const initialData = allRankings[latestDateKey] || { pts: [], reb: [], ast: [] };
+
+// 4. ソートロジック（そのまま活用）
 const sortRank = (a, b, statKey) => {
-  if (b[statKey] !== a[statKey]) {
-    return b[statKey] - a[statKey]; // スタッツが多い順
-  }
-  // スタッツが同数の場合、min（"20:09"などの文字列）を比較して短い方を先にする
-  return a.min.localeCompare(b.min); 
+  if (b[statKey] !== a[statKey]) return b[statKey] - a[statKey];
+  return (a.min || "").localeCompare(b.min || "");
 };
 
-const ptsRank10 = (localRankingData?.pts || []).sort((a, b) => sortRank(a, b, 'pts')).slice(0, 10);
-const rebRank10 = (localRankingData?.reb || []).sort((a, b) => sortRank(a, b, 'reb')).slice(0, 10);
-const astRank10 = (localRankingData?.ast || []).sort((a, b) => sortRank(a, b, 'ast')).slice(0, 10);
+// 5. 初回読み込み時のランキング（画面に最初に出る分）
+const ptsRank10 = (initialData.pts || []).sort((a, b) => sortRank(a, b, 'pts')).slice(0, 10);
+const rebRank10 = (initialData.reb || []).sort((a, b) => sortRank(a, b, 'reb')).slice(0, 10);
+const astRank10 = (initialData.ast || []).sort((a, b) => sortRank(a, b, 'ast')).slice(0, 10);
+// --- ここまで上書き ---
 
 const cityNameMap = {
   "HOKKAIDO": "HOKKAIDO", "LEVANGA": "HOKKAIDO", "LEVANGAHOKKAIDO": "HOKKAIDO",
@@ -382,7 +391,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
   </main>
 </Layout>
 
-<script is:inline define:vars={{ reportGroups }}>
+<script is:inline define:vars={{ reportGroups, allRankings, allPlayerCards }}>
   // 1. 既存のタブ切り替えロジック
   const initTabs = (btnClassName) => {
     const btns = document.querySelectorAll(`.${btnClassName}`);
@@ -461,53 +470,105 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     
     calendarEl.querySelectorAll('[data-date]').forEach(el => {
       el.onclick = () => {
-  const targetDate = el.getAttribute('data-date');
-  const group = reportGroups.find(g => g.id === targetDate);
-  
-  if (group) {
-    // 形式を 2026.02.08 に整える
-    const displayStr = `20${targetDate.substring(0,2)}.${targetDate.substring(2,4)}.${targetDate.substring(4,6)}`;
+        const targetDate = el.getAttribute('data-date');
+        const group = reportGroups.find(g => g.id === targetDate);
+        const rankingData = allRankings[targetDate]; // ★追加：クリックした日のランキングデータを取得
 
-    // ★ここを追加：レポートとランキング両方の日付を書き換える
-    document.querySelectorAll('.date-display, .rank-date-display').forEach(el => {
-      el.innerText = displayStr;
-    });
-    
-    // 2. ★これがご質問の箇所！ ゲーム数を更新
-    const gameCountEl = document.querySelector('.text-7xl.font-black.italic');
-    if (gameCountEl) gameCountEl.innerText = group.reports.length;
+        if (group) {
+          // 形式を 2026.02.08 に整える
+          const displayStr = `20${targetDate.substring(0, 2)}.${targetDate.substring(2, 4)}.${targetDate.substring(4, 6)}`;
 
-    // 3. レポートスライダーと詳細ボタンを更新
-    const slider = document.getElementById('report-slider');
-    if (slider) {
-      // --- 修正箇所：slider.innerHTML の中身を具体的に記述 ---
-slider.innerHTML = group.reports.map(r => `
-  <div class="flex-none w-[300px] snap-center">
-    <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
-      <img src="${r.path}" class="w-full h-full object-cover" />
-    </div>
+          // 1. 日付表示をすべて更新
+          document.querySelectorAll('.date-display, .rank-date-display').forEach(d => {
+            d.innerText = displayStr;
+          });
 
-    <div class="mt-6 px-1">
-      <a href="${r.link}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
-        <div class="flex items-center justify-between px-6">
-          <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
-            ${r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> ${r.home}
-          </span>
-          <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
-            ▶︎
-          </span>
-        </div>
-        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
-      </a>
-    </div>
-  </div>
-`).join('');
-      slider.scrollTo({ left: 0, behavior: 'smooth' });
-    }
-  }
-};
-    });
-  }
+          // 2. ゲーム数を更新
+          const gameCountEl = document.querySelector('.text-7xl.font-black.italic');
+          if (gameCountEl) gameCountEl.innerText = group.reports.length;
+
+          // 3. レポートスライダーの更新
+          const slider = document.getElementById('report-slider');
+          if (slider) {
+            slider.innerHTML = group.reports.map(r => `
+              <div class="flex-none w-[300px] snap-center">
+                <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
+                  <img src="${r.path}" class="w-full h-full object-cover" />
+                </div>
+                <div class="mt-6 px-1">
+                  <a href="${r.link}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
+                    <div class="flex items-center justify-between px-6">
+                      <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
+                        ${r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> ${r.home}
+                      </span>
+                      <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
+                  </a>
+                </div>
+              </div>
+            `).join('');
+            slider.scrollTo({ left: 0, behavior: 'smooth' });
+          }
+
+          // 4. ★追加：ランキングセクション（PTS, REB, AST）の更新
+          if (rankingData) {
+            ['PTS', 'REB', 'AST'].forEach(statType => {
+              const pane = document.getElementById(`rank-${statType}`);
+              if (!pane) return;
+
+              const statKey = statType.toLowerCase();
+              const sortedData = (rankingData[statKey] || []).sort((a, b) => {
+                if (b[statKey] !== a[statKey]) return b[statKey] - a[statKey];
+                return (a.min || "").localeCompare(b.min || "");
+              }).slice(0, 10);
+
+              pane.innerHTML = sortedData.map((player, i) => {
+                // クライアント側での簡易画像URL解決ロジック
+                let cardUrl = "/no-player.png";
+                const gameMatch = player.card ? player.card.match(/game_(\d+)_/) : null;
+                const gameId = gameMatch ? gameMatch[1] : null;
+
+                if (gameId && allPlayerCards.length > 0) {
+                  const targetNameEn = player.name ? player.name.toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
+                  const realFile = allPlayerCards.find(item => {
+                    const upPath = item.path.toUpperCase();
+                    return upPath.includes(`GAME_${gameId}_`) && upPath.includes(targetNameEn);
+                  });
+                  if (realFile) {
+                    cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
+                  }
+                }
+
+                return `
+                  <div class="flex-none w-[210px] snap-center">
+                    <div class="relative group">
+                      <div class="absolute -top-11 left-1 z-10 flex items-baseline">
+                        <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
+                        <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${['st', 'nd', 'rd'][i] || 'th'}</span>
+                      </div>
+                      <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
+                        <img src="${cardUrl}" alt="${player.nameJp}" class="w-full h-full object-cover" loading="lazy" />
+                      </div>
+                      <div class="mt-4 px-1">
+                        <a href="/b-players?name=${encodeURIComponent(player.name)}" class="relative group/btn block w-full bg-white/10 border border-white/10 py-3.5 rounded-full hover:bg-white/20 transition-all">
+                          <div class="flex items-center justify-between px-6">
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate pr-2">${player.name}</span>
+                            <span class="text-[10px] text-blue-400">▶︎</span>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('');
+            });
+          }
+        }
+      };
+      });
+      }
+      
 
   // --- 修正後のスクリプト末尾 ---
 const latestId = availableDates.length > 0 ? availableDates[0] : "260208";
