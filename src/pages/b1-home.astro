@@ -232,22 +232,36 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
         </div>
 
         <div class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-4">
-          {reportGroups.length > 0 ? reportGroups[0].reports.map(r => (
-            <div class="flex-none w-[300px] snap-center">
-              <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
-                <img src={r.path} alt="Report" class="w-full h-full object-cover" />
-              </div>
-              <div class="mt-6 flex justify-center">
-                <a href={r.link} class="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-black/40 border-2 border-transparent bg-clip-padding relative active:scale-95 hover:scale-110 transition-transform group overflow-hidden">
-                  <div class="absolute inset-0 p-[2px] rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 -z-10"></div>
-                  <span class="text-[12px] font-black tracking-[0.2em] uppercase text-white">
-                      {r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/50 px-1 italic">vs</span> {r.home}
-                  </span>
-                </a>
-              </div>
-            </div>
-          )) : <div class="text-gray-500 px-4">No reports found.</div>}
-        </div>
+  {reportGroups.length > 0 ? reportGroups[0].reports.map(r => (
+    <div class="flex-none w-[300px] snap-center">
+      <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
+        <img src={r.path} alt="Report" class="w-full h-full object-cover" />
+      </div>
+      
+      {/* --- 詳細ボタン：ランキングの選手名ボタンと同じデザイン --- */}
+      <div class="mt-6 px-1">
+        <a 
+          href={r.link} 
+          class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden"
+        >
+          <div class="flex items-center justify-between px-6">
+            <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
+              {r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> {r.home}
+            </span>
+            
+            {/* 右端の▶︎アイコン */}
+            <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
+              ▶︎
+            </span>
+          </div>
+
+          {/* ホバー時に光が走るエフェクト */}
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
+        </a>
+      </div>
+    </div>
+  )) : <div class="text-gray-500 px-4">No reports found.</div>}
+</div>
         <div class="mt-16 flex justify-center">
           <a href="/b1-reports" class="bg-blue-600 hover:bg-blue-700 hover:scale-105 text-white px-12 py-5 rounded-full text-sm font-black uppercase tracking-[0.25em] shadow-2xl transition-all">
             Game Report Archive
