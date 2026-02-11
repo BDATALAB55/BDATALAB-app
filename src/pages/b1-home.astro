@@ -218,38 +218,105 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     <div class="max-w-6xl mx-auto px-6">
       
       <section class="mt-12">
-  <div class="flex justify-between items-end mb-8">
-    <div>
-      <h2 class="text-4xl font-black uppercase tracking-tighter mb-4">GAME REPORT</h2>
-      <div class="flex flex-col gap-1">
-        <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
-        <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em] date-display">{displayToday}</span>
-      </div>
-    </div>
-    <div class="text-right leading-none">
-      <span class="text-7xl font-black italic opacity-20 block game-count-display">{todayGameCount}</span>
-      <span class="text-[12px] font-bold opacity-40 uppercase tracking-[0.3em]">Games</span>
-    </div>
-  </div>
+        <div class="flex justify-between items-end mb-8">
+          <div>
+            <h2 class="text-4xl font-black uppercase tracking-tighter mb-4">GAME REPORT</h2>
+            <div class="flex flex-col gap-1">
+              <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
+              <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em] date-display">{displayToday}</span>
+            </div>
+          </div>
+          <div class="text-right leading-none">
+            <span class="text-7xl font-black italic opacity-20 block game-count-display">{todayGameCount}</span>
+            <span class="text-[12px] font-bold opacity-40 uppercase tracking-[0.3em]">Games</span>
+          </div>
+        </div>
 
-  <div id="report-slider" class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-4">
-    </div>
+        <div id="report-slider" class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-4">
+        </div>
 
-    <div class="mt-8 mb-12 flex justify-center">
-  <div id="calendar" class="w-full max-w-sm bg-black/20 p-6 rounded-3xl border border-white/5 shadow-2xl">
-    </div>
-</div>
-
-<div class="mt-16 flex justify-center">
-  <a href="/b1-reports" class="text-white/40 hover:text-white text-[11px] font-black uppercase tracking-widest transition-colors">Game Report Archive</a>
-</div>
-
-  <div class="mt-16 flex justify-center">
-    <a href="/b1-reports" class="text-white/40 hover:text-white text-[11px] font-black uppercase tracking-widest transition-colors">Game Report Archive</a>
-  </div>
-</section>
+        <div class="mt-8 mb-12 flex justify-center">
+          <div id="calendar" class="w-full max-w-sm bg-black/20 p-6 rounded-3xl border border-white/5 shadow-2xl">
+          </div>
+        </div>
+      </section>
 
       <section class="mt-24">
+        <h2 class="text-4xl font-black uppercase tracking-tighter mb-8">Today's RANK 10</h2>
+        <div class="flex flex-col gap-1 mb-10">
+          <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
+          <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em]">{displayToday}</span>
+        </div>
+
+        <div class="flex flex-col md:flex-row md:items-end gap-4 mb-10">
+          <div class="flex flex-nowrap gap-2 w-full max-w-sm">
+            {['PTS', 'REB', 'AST'].map((stat, i) => (
+              <button 
+                data-tab="rank" 
+                data-target={stat}
+                class={`rank-btn flex-1 py-4 rounded-xl text-[12px] font-black tracking-widest uppercase transition-all border border-white/5 
+                  ${i === 0 ? 'bg-white text-black' : 'bg-black/20 text-white/80 hover:bg-white/10'}`}
+              >
+                {stat}
+              </button>
+            ))}
+          </div>
+          <p class="text-white text-[10px] font-medium leading-none mb-1 opacity-80">
+            ※数値が同じ場合は出場時間が短い選手を上位にしています
+          </p>
+        </div>
+
+        {['PTS', 'REB', 'AST'].map((statType) => {
+          const rankData = statType === 'PTS' ? ptsRank10 : statType === 'REB' ? rebRank10 : astRank10;
+          
+          return (
+            <div 
+              id={`rank-${statType}`} 
+              class={`rank-pane ${statType !== 'PTS' ? 'hidden' : ''} flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8 pt-12`}
+            >
+              {rankData.map((player, i) => (
+                <div class="flex-none w-[210px] snap-center">
+                  <div class="relative group">
+                    <div class="absolute -top-11 left-1 z-10 flex items-baseline">
+                      <span class="text-4xl font-black italic text-white leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{i + 1}</span>
+                      <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                        {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
+                      </span>
+                    </div>
+
+                    <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 transition-transform duration-300 group-hover:translate-y-[-4px]">
+                      <img 
+                        src={getCardUrl(player.cardPath, player)} 
+                        alt={player.nameJp} 
+                        class="w-full h-full object-cover" 
+                      />
+                    </div>
+
+                    <div class="mt-4 px-1">
+                      <a 
+                        href={`/b-players?name=${encodeURIComponent(player.name)}`} 
+                        class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden"
+                      >
+                        <div class="flex items-center justify-between px-6">
+                          <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate mr-2">
+                            {player.name}
+                          </span>
+                          <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
+                            ▶︎
+                          </span>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </section>
+
+      <section class="mt-32">
         <h2 class="text-4xl font-black uppercase tracking-tighter mb-8">TEAM</h2>
         
         <div class="hidden md:grid grid-cols-4 lg:grid-cols-6 gap-2">
@@ -307,91 +374,6 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
         </div>
       </section>
 
-      <section class="mt-32">
-        <h2 class="text-4xl font-black uppercase tracking-tighter mb-8">Today's RANK 10</h2>
-        <div class="flex flex-col gap-1 mb-10">
-          <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
-          <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em]">{displayToday}</span>
-        </div>
-
-        <div class="flex flex-col md:flex-row md:items-end gap-4 mb-10">
-          <div class="flex flex-nowrap gap-2 w-full max-w-sm">
-            {['PTS', 'REB', 'AST'].map((stat, i) => (
-              <button 
-                data-tab="rank" 
-                data-target={stat}
-                class={`rank-btn flex-1 py-4 rounded-xl text-[12px] font-black tracking-widest uppercase transition-all border border-white/5 
-                  ${i === 0 ? 'bg-white text-black' : 'bg-black/20 text-white/80 hover:bg-white/10'}`}
-              >
-                {stat}
-              </button>
-            ))}
-          </div>
-          <p class="text-white text-[10px] font-medium leading-none mb-1 opacity-80">
-            ※数値が同じ場合は出場時間が短い選手を上位にしています
-          </p>
-        </div>
-
-        {/* ランキングカードリスト部分 */}
-        {['PTS', 'REB', 'AST'].map((statType) => {
-          const rankData = statType === 'PTS' ? ptsRank10 : statType === 'REB' ? rebRank10 : astRank10;
-          
-          return (
-            <div 
-              id={`rank-${statType}`} 
-              class={`rank-pane ${statType !== 'PTS' ? 'hidden' : ''} flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8 pt-12`}
-            >
-              {rankData.map((player, i) => (
-                <div class="flex-none w-[210px] snap-center">
-                  <div class="relative group">
-                    
-                    {/* 順位 */}
-                    <div class="absolute -top-11 left-1 z-10 flex items-baseline">
-                      <span class="text-4xl font-black italic text-white leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{i + 1}</span>
-                      <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-                        {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
-                      </span>
-                    </div>
-
-                    {/* カード画像 */}
-                    <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 transition-transform duration-300 group-hover:translate-y-[-4px]">
-                      <img 
-                        src={getCardUrl(player.cardPath, player)} 
-                        alt={player.nameJp} 
-                        class="w-full h-full object-cover" 
-                      />
-                    </div>
-
-                    {/* 選手名ボタン */}
-<div class="mt-4 px-1">
-  <a 
-    href={`/b-players?name=${encodeURIComponent(player.name)}`} 
-    class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden"
-  >
-    {/* コンテンツの配置（名前と矢印を両端に） */}
-    <div class="flex items-center justify-between px-6">
-      <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate mr-2">
-        {player.name}
-      </span>
-      
-      {/* 右端の▶︎アイコン：ホバーで少し右に動く演出 */}
-      <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
-        ▶︎
-      </span>
-    </div>
-
-    {/* ホバー時に光が走るエフェクト（装飾） */}
-    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
-  </a>
-</div>
-
-                  </div>
-                </div>
-              ))}
-            </div>
-          );
-        })}
-      </section>
     </div>
 
     <div class="fixed bottom-8 right-8 z-40">
