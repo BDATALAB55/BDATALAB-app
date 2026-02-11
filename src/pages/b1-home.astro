@@ -284,7 +284,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
               class={`rank-pane ${statType !== 'PTS' ? 'hidden' : ''} flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8 pt-12`}
             >
               {rankData.map((player, i) => (
-                <div class="flex-none w-[210px] snap-center">
+                <div class="flex-none w-[300px] md:w-[210px] snap-center">
                   <div class="relative group">
                     <div class="absolute -top-11 left-1 z-10 flex items-baseline">
                       <span class="text-4xl font-black italic text-white leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{i + 1}</span>
@@ -541,7 +541,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                 }
 
                 return `
-                  <div class="flex-none w-[210px] snap-center">
+                  <div class="flex-none w-[300px] md:w-[210px] snap-center">
                     <div class="relative group">
                       <div class="absolute -top-11 left-1 z-10 flex items-baseline">
                         <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
