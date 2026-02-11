@@ -469,7 +469,8 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
   // --- 3. ここから追加：カレンダーの制御ロジック ---
   const calendarEl = document.getElementById('calendar');
   const availableDates = reportGroups.map(g => g.id); // 試合がある日のIDリスト
-  let curY = 2026, curM = 1; // 初期表示: 2026年2月
+  // 1. 最初の宣言から =2026 などを消して、器（変数）だけ用意する
+  let curY, curM; 
 
   function renderCalendar(y, m) {
     if (!calendarEl) return;
@@ -497,21 +498,17 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     }
     calendarEl.innerHTML = html + '</div>';
 
-    // カレンダーの月移動ボタン
     document.getElementById('prevM').onclick = () => { curM--; if(curM<0){curM=11;curY--} renderCalendar(curY, curM); };
     document.getElementById('nextM').onclick = () => { curM++; if(curM>11){curM=0;curY++} renderCalendar(curY, curM); };
     
-    // 日付をクリックした時のレポート更新
     calendarEl.querySelectorAll('[data-date]').forEach(el => {
       el.onclick = () => {
         const targetDate = el.getAttribute('data-date');
         const group = reportGroups.find(g => g.id === targetDate);
         if (group) {
-          // 上部の日付テキストを更新
           const dateTitle = document.querySelector('.text-[32px].font-bold');
           if(dateTitle) dateTitle.innerText = `20${targetDate.substring(0,2)}.${targetDate.substring(2,4)}.${targetDate.substring(4,6)}`;
           
-          // レポートスライダーの中身を書き換え
           const slider = document.querySelector('.flex.overflow-x-auto.gap-8');
           slider.innerHTML = group.reports.map(r => `
             <div class="flex-none w-[300px] snap-center">
@@ -530,12 +527,12 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     });
   }
 
- // 最新のデータがある日付から年月を取得する
-const latestId = availableDates.length > 0 ? availableDates[0] : "260208";
-let curY = parseInt("20" + latestId.substring(0, 2));
-let curM = parseInt(latestId.substring(2, 4)) - 1; 
+  // 2. 最後の部分は let をつけずに、用意した変数に代入するだけにする
+  const latestId = availableDates.length > 0 ? availableDates[0] : "260208";
+  curY = parseInt("20" + latestId.substring(0, 2));
+  curM = parseInt(latestId.substring(2, 4)) - 1; 
 
-renderCalendar(curY, curM);
+  renderCalendar(curY, curM);
 </script>
 
 <style>
