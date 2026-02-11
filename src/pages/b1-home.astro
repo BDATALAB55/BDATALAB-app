@@ -86,9 +86,13 @@ const getCardUrl = (cardPathInJson, playerObject) => {
     // 2. その試合のカードに絞り込む
     const sameGameCards = allPlayerCards.filter(item => item.path.includes(`game_${gameId}_`));
 
-    // 3. JSONにある英字名（例: "JARRETT CULVER"）を取得して正規化
-    // 空白をアンダースコアに変換して、ファイル名(JARRETT_CULVER...)と合いやすくする
-    const targetNameEn = playerObject.name ? playerObject.name.toUpperCase().replace(/\s+/g, '_') : "";
+    // 3. JSONにある英字名を正規化
+    // 空白を _ に変換し、さらに ' を削除して実際のファイル名(SHAWN_OMARA等)と一致させる
+    const targetNameEn = playerObject.name 
+      ? playerObject.name.toUpperCase()
+          .replace(/\s+/g, '_') 
+          .replace(/'/g, '')     // ★ここを追加：アポストロフィを消す
+      : "";
     const targetNameJp = playerObject.nameJp || "";
 
     // 4. 適切なファイルを検索
