@@ -58,15 +58,29 @@ try {
       item.path.endsWith('.png')
     );
 
-    // ... (既存の reportGroups を作る処理はそのままでOK) ...
     const groups = {};
     reportFiles.forEach(file => {
       const parts = file.path.split('/');
       const folderName = parts[parts.length - 2];
+      const fileName = parts[parts.length - 1]; // 例: 20260208_505186_IBARAKI_FENAGOYA.png
+
+      // --- ファイル名から詳細情報を抽出 ---
+      const nameParts = fileName.replace('.png', '').split('_');
+      const fullDate = nameParts[0]; 
+      const gameId = nameParts[1];   
+      const teamA_raw = nameParts[2] || "AWAY";
+      const teamB_raw = nameParts[3] || "HOME";
+
+      // 詳細ページへの正しいリンクパスを生成
+      const targetSubFolder = `game_${gameId}_${teamA_raw}_${teamB_raw}_${fullDate}`;
+
       if (!groups[folderName]) groups[folderName] = { id: folderName, reports: [] };
+      
       groups[folderName].reports.push({
         path: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${file.path}`,
-        away: "AWAY", home: "HOME", link: `/b1-cards?folder=${folderName}`
+        away: teamA_raw, 
+        home: teamB_raw, 
+        link: `/b1-cards?folder=${folderName}/${targetSubFolder}` // ←ここが重要！
       });
     });
     reportGroups = Object.values(groups).sort((a, b) => b.id.localeCompare(a.id));
@@ -196,7 +210,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                 <a href={r.link} class="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-black/40 border-2 border-transparent bg-clip-padding relative active:scale-95 hover:scale-110 transition-transform group overflow-hidden">
                   <div class="absolute inset-0 p-[2px] rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 -z-10"></div>
                   <span class="text-[12px] font-black tracking-[0.2em] uppercase text-white">
-                    {r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/50 px-1">vs</span> {r.home}
+                      {r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/50 px-1 italic">vs</span> {r.home}
                   </span>
                 </a>
               </div>
