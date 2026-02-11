@@ -263,11 +263,14 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
   )) : <div class="text-gray-500 px-4">No reports found.</div>}
 </div>
         <div class="mt-16 flex justify-center">
-          <a href="/b1-reports" class="bg-blue-600 hover:bg-blue-700 hover:scale-105 text-white px-12 py-5 rounded-full text-sm font-black uppercase tracking-[0.25em] shadow-2xl transition-all">
-            Game Report Archive
-          </a>
-        </div>
-      </section>
+  <a href="/b1-reports" class="...">Game Report Archive</a>
+</div>
+
+<section class="mt-20 pb-10">
+  <div class="max-w-md mx-auto">
+    <div id="calendar" class="bg-black/20 p-6 rounded-3xl border border-white/5"></div>
+  </div>
+</section>
 
       <section class="mt-24">
         <h2 class="text-4xl font-black uppercase tracking-tighter mb-8">TEAM</h2>
@@ -420,8 +423,8 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
   </main>
 </Layout>
 
-<script>
-  // 既存のカルーセル・タブスクリプトを活かしつつ、ランキング切り替えを追加
+<script is:inline define:vars={{ reportGroups }}>
+  // 1. 既存のタブ切り替えロジック
   const initTabs = (btnClassName) => {
     const btns = document.querySelectorAll(`.${btnClassName}`);
     btns.forEach(btn => {
@@ -429,7 +432,6 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
         const tabGroup = btn.getAttribute('data-tab');
         const target = btn.getAttribute('data-target');
 
-        // ボタン表示の切り替え
         document.querySelectorAll(`[data-tab="${tabGroup}"]`).forEach(b => {
           b.classList.remove('bg-white', 'text-black');
           b.classList.add('bg-black/20', 'text-white/80');
@@ -437,7 +439,6 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
         btn.classList.add('bg-white', 'text-black');
         btn.classList.remove('bg-black/20', 'text-white/80');
 
-        // ランキング部門の表示切り替え（rank-btnの場合のみ）
         if (tabGroup === 'rank') {
           document.querySelectorAll('.rank-pane').forEach(pane => pane.classList.add('hidden'));
           document.getElementById(`rank-${target}`)?.classList.remove('hidden');
@@ -448,13 +449,12 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
   initTabs('tab-btn');
   initTabs('rank-btn');
 
-  // チームカルーセルの制御（ドットの動き）
+  // 2. 既存のチームカルーセル制御
   const teamCarousel = document.getElementById('team-carousel');
   const teamDots = document.querySelectorAll('[data-dot]');
   
   if (teamCarousel) {
     teamCarousel.addEventListener('scroll', () => {
-      // 横幅を元に、今何枚目のスライドか計算する
       const index = Math.round(teamCarousel.scrollLeft / teamCarousel.offsetWidth);
       teamDots.forEach((dot, i) => {
         dot.classList.toggle('w-6', i === index);
@@ -464,6 +464,73 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
       });
     });
   }
+
+  // --- 3. ここから追加：カレンダーの制御ロジック ---
+  const calendarEl = document.getElementById('calendar');
+  const availableDates = reportGroups.map(g => g.id); // 試合がある日のIDリスト
+  let curY = 2026, curM = 1; // 初期表示: 2026年2月
+
+  function renderCalendar(y, m) {
+    if (!calendarEl) return;
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const firstDay = new Date(y, m, 1).getDay();
+    const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+    
+    let html = `<div class="flex justify-between items-center mb-6 px-2 text-white font-black text-xs tracking-widest">
+      <button type="button" class="p-2 hover:text-blue-400" id="prevM">←</button>
+      <span>${monthNames[m]} ${y}</span>
+      <button type="button" class="p-2 hover:text-blue-400" id="nextM">→</button>
+    </div>
+    <div class="grid grid-cols-7 gap-1 text-[9px] text-center text-white/40 mb-4 font-bold uppercase">
+      <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+    </div>
+    <div class="grid grid-cols-7 gap-y-3">`;
+
+    for (let i = 0; i < firstDay; i++) html += '<div></div>';
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateId = `26${('0'+(m+1)).slice(-2)}${('0'+d).slice(-2)}`;
+      const hasData = availableDates.includes(dateId);
+      const activeStyle = hasData ? "bg-blue-600 text-white font-black cursor-pointer shadow-lg scale-110" : "text-white/10 pointer-events-none";
+      html += `<div class="aspect-square flex items-center justify-center rounded-full text-[12px] transition-all ${activeStyle}" data-date="${dateId}">${d}</div>`;
+    }
+    calendarEl.innerHTML = html + '</div>';
+
+    // カレンダーの月移動ボタン
+    document.getElementById('prevM').onclick = () => { curM--; if(curM<0){curM=11;curY--} renderCalendar(curY, curM); };
+    document.getElementById('nextM').onclick = () => { curM++; if(curM>11){curM=0;curY++} renderCalendar(curY, curM); };
+    
+    // 日付をクリックした時のレポート更新
+    calendarEl.querySelectorAll('[data-date]').forEach(el => {
+      el.onclick = () => {
+        const targetDate = el.getAttribute('data-date');
+        const group = reportGroups.find(g => g.id === targetDate);
+        if (group) {
+          // 上部の日付テキストを更新
+          const dateTitle = document.querySelector('.text-[32px].font-bold');
+          if(dateTitle) dateTitle.innerText = `20${targetDate.substring(0,2)}.${targetDate.substring(2,4)}.${targetDate.substring(4,6)}`;
+          
+          // レポートスライダーの中身を書き換え
+          const slider = document.querySelector('.flex.overflow-x-auto.gap-8');
+          slider.innerHTML = group.reports.map(r => `
+            <div class="flex-none w-[300px] snap-center">
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
+                <img src="${r.path}" class="w-full h-full object-cover" />
+              </div>
+              <div class="mt-6 px-1">
+                <a href="${r.link}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 py-3.5 rounded-full text-center">
+                  <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">${r.away} vs ${r.home}</span>
+                </a>
+              </div>
+            </div>`).join('');
+          slider.scrollTo({ left: 0, behavior: 'smooth' });
+        }
+      };
+    });
+  }
+
+  // カレンダー初期化
+  renderCalendar(curY, curM);
 </script>
 
 <style>
