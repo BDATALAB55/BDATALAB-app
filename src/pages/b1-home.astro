@@ -519,50 +519,56 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
               }).slice(0, 10);
 
               pane.innerHTML = sortedData.map((player, i) => {
-                // クライアント側での簡易画像URL解決ロジック
-                let cardUrl = "/no-player.png";
-                const gameMatch = player.card ? player.card.match(/game_(\d+)_/) : null;
-                const gameId = gameMatch ? gameMatch[1] : null;
+  // 1. デフォルトは「画像なし」
+  let cardUrl = "/no-player.png";
 
-                if (gameId && allPlayerCards.length > 0) {
-  // ★ここを修正（Astro側と合わせる）
-  const targetNameEn = player.name 
-    ? player.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') 
-    : "";
+  // 2. 試合IDを取得 (player.cardPath か player.card どちらからでも取れるように)
+  const sourcePath = player.cardPath || player.card || "";
+  const gameMatch = sourcePath.match(/game_(\d+)_/);
+  const gameId = gameMatch ? gameMatch[1] : null;
 
-  const realFile = allPlayerCards.find(item => {
-    const upPath = item.path.toUpperCase();
-    // 試合IDと名前の両方がパスに含まれているか
-    return upPath.includes(`GAME_${gameId}_`) && upPath.includes(targetNameEn);
-  });
+  if (gameId && allPlayerCards.length > 0) {
+    // 3. 検索用の名前を正規化（英語・日本語両方用意）
+    const targetEn = player.name ? player.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
+    const targetJp = player.nameJp ? player.nameJp.trim() : "";
 
-  if (realFile) {
-    cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
+    // 4. GitHubの全ファイルの中からマッチするものを探す
+    const realFile = allPlayerCards.find(item => {
+      const upPath = item.path.toUpperCase();
+      const hasGameId = upPath.includes(`GAME_${gameId}_`);
+      // 英語名か日本語名、どちらかが含まれていればOK
+      const hasName = (targetEn && upPath.includes(targetEn)) || (targetJp && upPath.includes(targetJp.toUpperCase()));
+      return hasGameId && hasName;
+    });
+
+    if (realFile) {
+      cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
+    }
   }
-}
 
-                return `
-                  <div class="flex-none w-[300px] md:w-[210px] snap-center">
-                    <div class="relative group">
-                      <div class="absolute -top-11 left-1 z-10 flex items-baseline">
-                        <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
-                        <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${['st', 'nd', 'rd'][i] || 'th'}</span>
-                      </div>
-                      <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
-                        <img src="${cardUrl}" alt="${player.nameJp}" class="w-full h-full object-cover" loading="lazy" />
-                      </div>
-                      <div class="mt-4 px-1">
-                        <a href="/b-players?name=${encodeURIComponent(player.name)}" class="relative group/btn block w-full bg-white/10 border border-white/10 py-3.5 rounded-full hover:bg-white/20 transition-all">
-                          <div class="flex items-center justify-between px-6">
-                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate pr-2">${player.name}</span>
-                            <span class="text-[10px] text-blue-400">▶︎</span>
-                          </div>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                `;
-              }).join('');
+  // 5. HTMLを生成（スタイルはあなたの元のコードを維持）
+  return `
+    <div class="flex-none w-[300px] md:w-[210px] snap-center">
+      <div class="relative group">
+        <div class="absolute -top-11 left-1 z-10 flex items-baseline">
+          <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
+          <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${['st', 'nd', 'rd'][i] || 'th'}</span>
+        </div>
+        <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
+          <img src="${cardUrl}" alt="${player.nameJp || ''}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='/no-player.png'" />
+        </div>
+        <div class="mt-4 px-1">
+          <a href="/b-players?name=${encodeURIComponent(player.name || '')}" class="relative group/btn block w-full bg-white/10 border border-white/10 py-3.5 rounded-full hover:bg-white/20 transition-all">
+            <div class="flex items-center justify-between px-6">
+              <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate pr-2">${player.name || ''}</span>
+              <span class="text-[10px] text-blue-400">▶︎</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+}).join('');
             });
           }
         }
