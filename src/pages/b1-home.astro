@@ -74,11 +74,12 @@ try {
   if (data && data.tree) {
     // 既存のレポート取得処理
     const reportFiles = data.tree.filter(item => 
-      item.path.includes('/B1/') && 
-      item.path.includes('260208') && 
-      item.path.endsWith('.png') &&
-      !item.path.includes('/Bplayers/')
-    );
+  item.path.includes('/B1/') && 
+  item.path.endsWith('.png') &&
+  !item.path.includes('/Bplayers/') &&
+  // 念のため、ファイル名が日付（6桁）で始まっているものだけに絞る
+  /^\d{6}/.test(item.path.split('/').pop())
+);
     
     // 【重要：追加】選手カードの全パスをリスト化
     // output/Bplayers/B1/ 以下にある全PNGファイルを拾う
@@ -529,8 +530,12 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     });
   }
 
-  // カレンダー初期化
-  renderCalendar(curY, curM);
+ // 最新のデータがある日付から年月を取得する
+const latestId = availableDates.length > 0 ? availableDates[0] : "260208";
+let curY = parseInt("20" + latestId.substring(0, 2));
+let curM = parseInt(latestId.substring(2, 4)) - 1; 
+
+renderCalendar(curY, curM);
 </script>
 
 <style>
@@ -542,5 +547,9 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     100% {
       transform: translateX(100%);
     }
+  }
+  [data-date].bg-blue-600 {
+    box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 </style>
