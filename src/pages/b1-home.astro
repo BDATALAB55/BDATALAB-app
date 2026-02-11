@@ -142,18 +142,17 @@ const getCardUrl = (cardPathInJson, playerObject) => {
     const sameGameCards = allPlayerCards.filter(item => item.path.includes(`game_${gameId}_`));
 
     // 3. JSONにある英字名を正規化
-    // 空白を _ に変換し、さらに ' を削除して実際のファイル名(SHAWN_OMARA等)と一致させる
+    // trim()で前後の空白を消し、空白を _ に変換、' を削除
     const targetNameEn = playerObject.name 
-      ? playerObject.name.toUpperCase()
+      ? playerObject.name.trim().toUpperCase()
           .replace(/\s+/g, '_') 
-          .replace(/'/g, '')     // ★ここを追加：アポストロフィを消す
+          .replace(/'/g, '')
       : "";
-    const targetNameJp = playerObject.nameJp || "";
+    const targetNameJp = playerObject.nameJp ? playerObject.nameJp.trim() : "";
 
     // 4. 適切なファイルを検索
     const realFile = sameGameCards.find(item => {
       const upperPath = item.path.toUpperCase();
-      // パスの中に "JARRETT_CULVER" または "ジャレット・カルバー" が含まれているか確認
       return (targetNameEn && upperPath.includes(targetNameEn)) || 
              (targetNameJp && upperPath.includes(targetNameJp.toUpperCase()));
     });
@@ -163,7 +162,6 @@ const getCardUrl = (cardPathInJson, playerObject) => {
     }
   }
 
-  // 見つからない場合のフォールバック
   return "/no-player.png";
 };
 
@@ -530,15 +528,21 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                 const gameId = gameMatch ? gameMatch[1] : null;
 
                 if (gameId && allPlayerCards.length > 0) {
-                  const targetNameEn = player.name ? player.name.toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
-                  const realFile = allPlayerCards.find(item => {
-                    const upPath = item.path.toUpperCase();
-                    return upPath.includes(`GAME_${gameId}_`) && upPath.includes(targetNameEn);
-                  });
-                  if (realFile) {
-                    cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
-                  }
-                }
+  // ★ここを修正（Astro側と合わせる）
+  const targetNameEn = player.name 
+    ? player.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') 
+    : "";
+
+  const realFile = allPlayerCards.find(item => {
+    const upPath = item.path.toUpperCase();
+    // 試合IDと名前の両方がパスに含まれているか
+    return upPath.includes(`GAME_${gameId}_`) && upPath.includes(targetNameEn);
+  });
+
+  if (realFile) {
+    cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
+  }
+}
 
                 return `
                   <div class="flex-none w-[300px] md:w-[210px] snap-center">
