@@ -235,6 +235,15 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
   <div id="report-slider" class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-4">
     </div>
 
+    <div class="mt-8 mb-12 flex justify-center">
+  <div id="calendar" class="w-full max-w-sm bg-black/20 p-6 rounded-3xl border border-white/5 shadow-2xl">
+    </div>
+</div>
+
+<div class="mt-16 flex justify-center">
+  <a href="/b1-reports" class="text-white/40 hover:text-white text-[11px] font-black uppercase tracking-widest transition-colors">Game Report Archive</a>
+</div>
+
   <div class="mt-16 flex justify-center">
     <a href="/b1-reports" class="text-white/40 hover:text-white text-[11px] font-black uppercase tracking-widest transition-colors">Game Report Archive</a>
   </div>
@@ -514,15 +523,24 @@ slider.innerHTML = group.reports.map(r => `
     });
   }
 
-  // 2. 最後の部分は let をつけずに、用意した変数に代入するだけにする
-  const latestId = availableDates.length > 0 ? availableDates[0] : "260208";
-  curY = parseInt("20" + latestId.substring(0, 2));
-  curM = parseInt(latestId.substring(2, 4)) - 1; 
+  // --- 修正後のスクリプト末尾 ---
+const latestId = availableDates.length > 0 ? availableDates[0] : "260208";
+curY = parseInt("20" + latestId.substring(0, 2));
+curM = parseInt(latestId.substring(2, 4)) - 1; 
 
-  renderCalendar(curY, curM);
+renderCalendar(curY, curM);
 
-  const initialEl = calendarEl.querySelector(`[data-date="${latestId}"]`);
-if (initialEl) initialEl.click();
+// カレンダーが描画された後に、最新の日付をシミュレートクリック
+setTimeout(() => {
+  const initialEl = document.querySelector(`[data-date="${latestId}"]`);
+  if (initialEl) {
+    initialEl.click();
+  } else {
+    // 万が一カレンダーにその日がなくても、スライダーだけは動かす
+    const group = reportGroups.find(g => g.id === latestId);
+    if(group) updateSlider(group, latestId); 
+  }
+}, 100);
 </script>
 
 <style>
