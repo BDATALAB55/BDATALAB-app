@@ -222,35 +222,43 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     <div class="max-w-6xl mx-auto px-6">
       
       <section class="mt-12">
-        <div class="flex justify-between items-end mb-8">
-          <div>
-            <h2 class="text-4xl font-black uppercase tracking-tighter mb-4">GAME REPORT</h2>
-            <div class="flex flex-col gap-1">
-              <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
-              <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em] date-display">{displayToday}</span>
-            </div>
-          </div>
-          <div class="text-right leading-none">
-            <span class="text-7xl font-black italic opacity-20 block game-count-display">{todayGameCount}</span>
-            <span class="text-[12px] font-bold opacity-40 uppercase tracking-[0.3em]">Games</span>
-          </div>
-        </div>
+  <div class="flex justify-between items-end mb-4">
+    <div>
+      <h2 class="text-4xl font-black uppercase tracking-tighter mb-4">GAME REPORT</h2>
+      <div class="md:hidden flex gap-2 mb-4">
+        <button data-view-target="report-slider" data-view-mode="slide" class="view-switch-btn active bg-white/20 p-2 rounded-lg">
+          <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M2 13h20v2H2zm0-4h20v2H2zm0-4h20v2H2zm0 12h20v2H2z"/></svg>
+        </button>
+        <button data-view-target="report-slider" data-view-mode="grid" class="view-switch-btn bg-black/40 p-2 rounded-lg">
+          <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
+        </button>
+      </div>
+      <div class="flex flex-col gap-1">
+        <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
+        <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em] date-display">{displayToday}</span>
+      </div>
+    </div>
+  </div>
 
-        <div id="report-slider" class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-4">
-        </div>
+  <div id="report-slider" class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-4">
+  </div>
 
-        <div class="mt-8 mb-12 flex justify-center">
-          <div id="calendar" class="w-full max-w-sm bg-black/20 p-6 rounded-3xl border border-white/5 shadow-2xl">
-          </div>
-        </div>
-      </section>
+  <div class="mt-8 mb-12 flex justify-center">
+    <div id="calendar" class="w-full max-w-sm bg-black/20 p-6 rounded-3xl border border-white/5 shadow-2xl">
+    </div>
+  </div>
+</section>
 
       <section class="mt-24">
-        <h2 class="text-4xl font-black uppercase tracking-tighter mb-8">Today's RANK 10</h2>
-        <div class="flex flex-col gap-1 mb-10">
-          <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
-          <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em] rank-date-display">{displayToday}</span>
-        </div>
+  <h2 class="text-4xl font-black uppercase tracking-tighter mb-4">Today's RANK 10</h2>
+  <div class="md:hidden flex gap-2 mb-4">
+    <button data-view-target="rank-container" data-view-mode="slide" class="view-switch-btn active bg-white/20 p-2 rounded-lg">
+      <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M2 13h20v2H2zm0-4h20v2H2zm0-4h20v2H2zm0 12h20v2H2z"/></svg>
+    </button>
+    <button data-view-target="rank-container" data-view-mode="grid" class="view-switch-btn bg-black/40 p-2 rounded-lg">
+      <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
+    </button>
+  </div>
 
         <div class="flex flex-col md:flex-row md:items-end gap-4 mb-10">
           <div class="flex flex-nowrap gap-2 w-full max-w-sm">
@@ -275,11 +283,13 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
           
           return (
             <div 
-              id={`rank-${statType}`} 
-              class={`rank-pane ${statType !== 'PTS' ? 'hidden' : ''} flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8 pt-12`}
-            >
-              {rankData.map((player, i) => (
-                <div class="flex-none w-[300px] md:w-[210px] snap-center">
+  id={`rank-${statType}`} 
+  /* 'rank-pane' クラスを維持。モード切替用のクラスはJSで制御するため、ここでは最小限に */
+  class={`rank-pane ${statType !== 'PTS' ? 'hidden' : ''} flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8 pt-12`}
+>
+  {rankData.map((player, i) => (
+    /* 子要素に 'rank-card' クラスを付与 */
+    <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
                   <div class="relative group">
                     <div class="absolute -top-11 left-1 z-10 flex items-baseline">
                       <span class="text-4xl font-black italic text-white leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{i + 1}</span>
@@ -412,7 +422,54 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
   initTabs('tab-btn');
   initTabs('rank-btn');
 
-  // --- 2. チームカルーセル (Mobile) ---
+  // --- 2. 表示モード切り替えロジック ---
+  let currentViewMode = 'slide';
+  const applyViewMode = () => {
+    // ランキングパネルの制御
+    const rankPanes = document.querySelectorAll('.rank-pane');
+    rankPanes.forEach(pane => {
+      const cards = pane.querySelectorAll('.rank-card');
+      if (currentViewMode === 'grid') {
+        pane.classList.remove('flex', 'overflow-x-auto', 'snap-x');
+        pane.classList.add('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-10', 'overflow-visible');
+        cards.forEach(c => c.classList.remove('flex-none', 'w-[300px]', 'snap-center'));
+      } else {
+        pane.classList.add('flex', 'overflow-x-auto', 'snap-x');
+        pane.classList.remove('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-10', 'overflow-visible');
+        cards.forEach(c => c.classList.add('flex-none', 'w-[300px]', 'snap-center'));
+      }
+    });
+
+    // レポートスライダーの制御
+    const reportSlider = document.getElementById('report-slider');
+    if (reportSlider) {
+      const reportCards = reportSlider.children;
+      if (currentViewMode === 'grid') {
+        reportSlider.classList.remove('flex', 'overflow-x-auto', 'snap-x');
+        reportSlider.classList.add('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-10', 'overflow-visible');
+        Array.from(reportCards).forEach(c => c.classList.remove('flex-none', 'w-[300px]', 'snap-center'));
+      } else {
+        reportSlider.classList.add('flex', 'overflow-x-auto', 'snap-x');
+        reportSlider.classList.remove('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-10', 'overflow-visible');
+        Array.from(reportCards).forEach(c => c.classList.add('flex-none', 'w-[300px]', 'snap-center'));
+      }
+    }
+  };
+
+  const switchBtns = document.querySelectorAll('.view-switch-btn');
+  switchBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentViewMode = btn.getAttribute('data-view-mode');
+      switchBtns.forEach(b => {
+        const isActive = b.getAttribute('data-view-mode') === currentViewMode;
+        b.classList.toggle('bg-white/20', isActive);
+        b.classList.toggle('bg-black/40', !isActive);
+      });
+      applyViewMode();
+    });
+  });
+
+  // --- 3. チームカルーセル (Mobile) ---
   const teamCarousel = document.getElementById('team-carousel');
   const teamDots = document.querySelectorAll('[data-dot]');
   if (teamCarousel) {
@@ -427,7 +484,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     });
   }
 
-  // --- 3. カレンダー & データ更新ロジック ---
+  // --- 4. カレンダー & データ更新ロジック ---
   const calendarEl = document.getElementById('calendar');
   const availableDates = reportGroups.map(g => g.id);
   let curY, curM;
@@ -451,7 +508,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     for (let i = 0; i < firstDay; i++) html += '<div></div>';
 
     for (let d = 1; d <= daysInMonth; d++) {
-      const yearSuffix = String(y).slice(-2); // 修正: cconst -> const
+      const yearSuffix = String(y).slice(-2);
       const dateId = `${yearSuffix}${('0'+(m+1)).slice(-2)}${('0'+d).slice(-2)}`;
       const hasData = availableDates.includes(dateId);
       const activeStyle = hasData ? "bg-blue-600 text-white font-black cursor-pointer shadow-lg scale-110" : "text-white/10 pointer-events-none";
@@ -462,7 +519,6 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     document.getElementById('prevM').onclick = () => { curM--; if(curM<0){curM=11;curY--} renderCalendar(curY, curM); };
     document.getElementById('nextM').onclick = () => { curM++; if(curM>11){curM=0;curY++} renderCalendar(curY, curM); };
     
-    // 日付クリックイベントの登録
     calendarEl.querySelectorAll('[data-date]').forEach(el => {
       el.onclick = () => {
         const targetDate = el.getAttribute('data-date');
@@ -471,19 +527,13 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
 
         if (group) {
           const displayStr = `20${targetDate.substring(0, 2)}.${targetDate.substring(2, 4)}.${targetDate.substring(4, 6)}`;
-
-          // 1. 日付表示をすべて更新
           document.querySelectorAll('.date-display, .rank-date-display').forEach(d => {
             d.innerText = displayStr;
           });
 
-          // 2. ゲーム数を更新
-          const gameCountEl = document.querySelector('.game-count-display');
-          if (gameCountEl) gameCountEl.innerText = group.reports.length;
-
-          // 3. レポートスライダーの更新
           const slider = document.getElementById('report-slider');
           if (slider) {
+            // 修正箇所：不要な applyViewMode() の文字を削除
             slider.innerHTML = group.reports.map(r => `
               <div class="flex-none w-[300px] snap-center">
                 <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
@@ -504,7 +554,6 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
             slider.scrollTo({ left: 0, behavior: 'smooth' });
           }
 
-          // 4. ランキングセクションの更新
           if (rankingData) {
             ['PTS', 'REB', 'AST'].forEach(statType => {
               const pane = document.getElementById(`rank-${statType}`);
@@ -525,20 +574,18 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                 if (gameId && allPlayerCards.length > 0) {
                   const targetEn = player.name ? player.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
                   const targetJp = player.nameJp ? player.nameJp.trim() : "";
-
                   const realFile = allPlayerCards.find(item => {
                     const upPath = item.path.toUpperCase();
                     return upPath.includes(`GAME_${gameId}_`) && 
                            ((targetEn && upPath.includes(targetEn)) || (targetJp && upPath.includes(targetJp.toUpperCase())));
                   });
-
                   if (realFile) {
                     cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
                   }
                 }
 
                 return `
-                  <div class="flex-none w-[300px] md:w-[210px] snap-center">
+                  <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
                     <div class="relative group">
                       <div class="absolute -top-11 left-1 z-10 flex items-baseline">
                         <span class="text-4xl font-black italic text-white leading-none drop-shadow-lg">${i + 1}</span>
@@ -561,19 +608,18 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
               }).join('');
             });
           }
+          // HTMLをすべて書き換えた後に現在のモードを適用
+          applyViewMode();
         }
       };
     });
   }
 
-  // 初期化：最新の日付に基づいてカレンダーを表示
   const latestId = availableDates.length > 0 ? availableDates.sort().reverse()[0] : "260208";
   curY = parseInt("20" + latestId.substring(0, 2));
   curM = parseInt(latestId.substring(2, 4)) - 1;
-
   renderCalendar(curY, curM);
 
-  // カレンダー描画後に最新日をクリック（初期表示の更新）
   setTimeout(() => {
     const initialEl = document.querySelector(`[data-date="${latestId}"]`);
     if (initialEl) initialEl.click();
