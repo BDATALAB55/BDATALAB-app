@@ -387,7 +387,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
 </Layout>
 
 <script is:inline define:vars={{ reportGroups, allRankings, allPlayerCards }}>
-  // 1. 既存のタブ切り替えロジック
+  // --- 1. タブ切り替え ---
   const initTabs = (btnClassName) => {
     const btns = document.querySelectorAll(`.${btnClassName}`);
     btns.forEach(btn => {
@@ -412,10 +412,9 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
   initTabs('tab-btn');
   initTabs('rank-btn');
 
-  // 2. 既存のチームカルーセル制御
+  // --- 2. チームカルーセル (Mobile) ---
   const teamCarousel = document.getElementById('team-carousel');
   const teamDots = document.querySelectorAll('[data-dot]');
-  
   if (teamCarousel) {
     teamCarousel.addEventListener('scroll', () => {
       const index = Math.round(teamCarousel.scrollLeft / teamCarousel.offsetWidth);
@@ -428,11 +427,10 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     });
   }
 
-  // --- 3. ここから追加：カレンダーの制御ロジック ---
+  // --- 3. カレンダー & データ更新ロジック ---
   const calendarEl = document.getElementById('calendar');
-  const availableDates = reportGroups.map(g => g.id); // 試合がある日のIDリスト
-  // 1. 最初の宣言から =2026 などを消して、器（変数）だけ用意する
-  let curY, curM; 
+  const availableDates = reportGroups.map(g => g.id);
+  let curY, curM;
 
   function renderCalendar(y, m) {
     if (!calendarEl) return;
@@ -453,7 +451,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     for (let i = 0; i < firstDay; i++) html += '<div></div>';
 
     for (let d = 1; d <= daysInMonth; d++) {
-      cconst yearSuffix = String(y).slice(-2);
+      const yearSuffix = String(y).slice(-2); // 修正: cconst -> const
       const dateId = `${yearSuffix}${('0'+(m+1)).slice(-2)}${('0'+d).slice(-2)}`;
       const hasData = availableDates.includes(dateId);
       const activeStyle = hasData ? "bg-blue-600 text-white font-black cursor-pointer shadow-lg scale-110" : "text-white/10 pointer-events-none";
@@ -464,14 +462,14 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     document.getElementById('prevM').onclick = () => { curM--; if(curM<0){curM=11;curY--} renderCalendar(curY, curM); };
     document.getElementById('nextM').onclick = () => { curM++; if(curM>11){curM=0;curY++} renderCalendar(curY, curM); };
     
+    // 日付クリックイベントの登録
     calendarEl.querySelectorAll('[data-date]').forEach(el => {
       el.onclick = () => {
         const targetDate = el.getAttribute('data-date');
         const group = reportGroups.find(g => g.id === targetDate);
-        const rankingData = allRankings[targetDate]; // ★追加：クリックした日のランキングデータを取得
+        const rankingData = allRankings[targetDate];
 
         if (group) {
-          // 形式を 2026.02.08 に整える
           const displayStr = `20${targetDate.substring(0, 2)}.${targetDate.substring(2, 4)}.${targetDate.substring(4, 6)}`;
 
           // 1. 日付表示をすべて更新
@@ -480,7 +478,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
           });
 
           // 2. ゲーム数を更新
-          const gameCountEl = document.querySelector('.text-7xl.font-black.italic');
+          const gameCountEl = document.querySelector('.game-count-display');
           if (gameCountEl) gameCountEl.innerText = group.reports.length;
 
           // 3. レポートスライダーの更新
@@ -489,7 +487,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
             slider.innerHTML = group.reports.map(r => `
               <div class="flex-none w-[300px] snap-center">
                 <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
-                  <img src="${r.path}" class="w-full h-full object-cover" />
+                  <img src="${r.path}" class="w-full h-full object-cover" loading="lazy" />
                 </div>
                 <div class="mt-6 px-1">
                   <a href="${r.link}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
@@ -499,7 +497,6 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                       </span>
                       <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
                     </div>
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
                   </a>
                 </div>
               </div>
@@ -507,7 +504,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
             slider.scrollTo({ left: 0, behavior: 'smooth' });
           }
 
-          // 4. ★追加：ランキングセクション（PTS, REB, AST）の更新
+          // 4. ランキングセクションの更新
           if (rankingData) {
             ['PTS', 'REB', 'AST'].forEach(statType => {
               const pane = document.getElementById(`rank-${statType}`);
@@ -520,82 +517,67 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
               }).slice(0, 10);
 
               pane.innerHTML = sortedData.map((player, i) => {
-  // 1. デフォルトは「画像なし」
-  let cardUrl = "/no-player.png";
+                let cardUrl = "/no-player.png";
+                const sourcePath = player.cardPath || player.card || "";
+                const gameMatch = sourcePath.match(/game_(\d+)_/);
+                const gameId = gameMatch ? gameMatch[1] : null;
 
-  // 2. 試合IDを取得 (player.cardPath か player.card どちらからでも取れるように)
-  const sourcePath = player.cardPath || player.card || "";
-  const gameMatch = sourcePath.match(/game_(\d+)_/);
-  const gameId = gameMatch ? gameMatch[1] : null;
+                if (gameId && allPlayerCards.length > 0) {
+                  const targetEn = player.name ? player.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
+                  const targetJp = player.nameJp ? player.nameJp.trim() : "";
 
-  if (gameId && allPlayerCards.length > 0) {
-    // 3. 検索用の名前を正規化（英語・日本語両方用意）
-    const targetEn = player.name ? player.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
-    const targetJp = player.nameJp ? player.nameJp.trim() : "";
+                  const realFile = allPlayerCards.find(item => {
+                    const upPath = item.path.toUpperCase();
+                    return upPath.includes(`GAME_${gameId}_`) && 
+                           ((targetEn && upPath.includes(targetEn)) || (targetJp && upPath.includes(targetJp.toUpperCase())));
+                  });
 
-    // 4. GitHubの全ファイルの中からマッチするものを探す
-    const realFile = allPlayerCards.find(item => {
-      const upPath = item.path.toUpperCase();
-      const hasGameId = upPath.includes(`GAME_${gameId}_`);
-      // 英語名か日本語名、どちらかが含まれていればOK
-      const hasName = (targetEn && upPath.includes(targetEn)) || (targetJp && upPath.includes(targetJp.toUpperCase()));
-      return hasGameId && hasName;
-    });
+                  if (realFile) {
+                    cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
+                  }
+                }
 
-    if (realFile) {
-      cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
-    }
-  }
-
-  // 5. HTMLを生成（スタイルはあなたの元のコードを維持）
-  return `
-    <div class="flex-none w-[300px] md:w-[210px] snap-center">
-      <div class="relative group">
-        <div class="absolute -top-11 left-1 z-10 flex items-baseline">
-          <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
-          <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${['st', 'nd', 'rd'][i] || 'th'}</span>
-        </div>
-        <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
-          <img src="${cardUrl}" alt="${player.nameJp || ''}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='/no-player.png'" />
-        </div>
-        <div class="mt-4 px-1">
-          <a href="/b-players?name=${encodeURIComponent(player.name || '')}" class="relative group/btn block w-full bg-white/10 border border-white/10 py-3.5 rounded-full hover:bg-white/20 transition-all">
-            <div class="flex items-center justify-between px-6">
-              <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate pr-2">${player.name || ''}</span>
-              <span class="text-[10px] text-blue-400">▶︎</span>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
-  `;
-}).join('');
+                return `
+                  <div class="flex-none w-[300px] md:w-[210px] snap-center">
+                    <div class="relative group">
+                      <div class="absolute -top-11 left-1 z-10 flex items-baseline">
+                        <span class="text-4xl font-black italic text-white leading-none drop-shadow-lg">${i + 1}</span>
+                        <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${['st', 'nd', 'rd'][i] || 'th'}</span>
+                      </div>
+                      <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
+                        <img src="${cardUrl}" alt="${player.nameJp || ''}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='/no-player.png'" />
+                      </div>
+                      <div class="mt-4 px-1">
+                        <a href="/b-players?name=${encodeURIComponent(player.name || '')}" class="relative group/btn block w-full bg-white/10 border border-white/10 py-3.5 rounded-full hover:bg-white/20 transition-all">
+                          <div class="flex items-center justify-between px-6">
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate pr-2">${player.name || ''}</span>
+                            <span class="text-[10px] text-blue-400">▶︎</span>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('');
             });
           }
         }
       };
-      });
-      }
-      
-
-  // --- 修正後のスクリプト末尾 ---
-const latestId = availableDates.length > 0 ? availableDates[0] : "260208";
-curY = parseInt("20" + latestId.substring(0, 2));
-curM = parseInt(latestId.substring(2, 4)) - 1; 
-
-renderCalendar(curY, curM);
-
-// カレンダーが描画された後に、最新の日付をシミュレートクリック
-setTimeout(() => {
-  const initialEl = document.querySelector(`[data-date="${latestId}"]`);
-  if (initialEl) {
-    initialEl.click();
-  } else {
-    // 万が一カレンダーにその日がなくても、スライダーだけは動かす
-    const group = reportGroups.find(g => g.id === latestId);
-    if(group) updateSlider(group, latestId); 
+    });
   }
-}, 100);
+
+  // 初期化：最新の日付に基づいてカレンダーを表示
+  const latestId = availableDates.length > 0 ? availableDates.sort().reverse()[0] : "260208";
+  curY = parseInt("20" + latestId.substring(0, 2));
+  curM = parseInt(latestId.substring(2, 4)) - 1;
+
+  renderCalendar(curY, curM);
+
+  // カレンダー描画後に最新日をクリック（初期表示の更新）
+  setTimeout(() => {
+    const initialEl = document.querySelector(`[data-date="${latestId}"]`);
+    if (initialEl) initialEl.click();
+  }, 100);
 </script>
 
 <style>
