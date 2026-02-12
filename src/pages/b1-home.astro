@@ -453,7 +453,8 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     for (let i = 0; i < firstDay; i++) html += '<div></div>';
 
     for (let d = 1; d <= daysInMonth; d++) {
-      const dateId = `26${('0'+(m+1)).slice(-2)}${('0'+d).slice(-2)}`;
+      cconst yearSuffix = String(y).slice(-2);
+      const dateId = `${yearSuffix}${('0'+(m+1)).slice(-2)}${('0'+d).slice(-2)}`;
       const hasData = availableDates.includes(dateId);
       const activeStyle = hasData ? "bg-blue-600 text-white font-black cursor-pointer shadow-lg scale-110" : "text-white/10 pointer-events-none";
       html += `<div class="aspect-square flex items-center justify-center rounded-full text-[12px] transition-all ${activeStyle}" data-date="${dateId}">${d}</div>`;
