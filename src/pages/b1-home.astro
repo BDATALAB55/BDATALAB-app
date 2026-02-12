@@ -424,15 +424,15 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
 
   // --- 2. 表示モード切り替えロジック ---
   let currentViewMode = 'slide';
+
   const applyViewMode = () => {
     // ランキングパネルの制御
-    const applyViewMode = () => {
     const rankPanes = document.querySelectorAll('.rank-pane');
     rankPanes.forEach(pane => {
       const cards = pane.querySelectorAll('.rank-card');
       if (currentViewMode === 'grid') {
-        pane.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'pb-8', 'pt-12'); // pt-12を一旦消す
-        // mt-16（上の段との間隔）を追加し、gridの縦の間隔を gap-y-16 くらいに広げる
+        pane.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'pb-8', 'pt-12');
+        // gap-y-20 で縦の間隔を広くし、pt-16 で一番上の数字の被りを防ぐ
         pane.classList.add('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-20', 'overflow-visible', 'pt-16'); 
         cards.forEach(c => c.classList.remove('flex-none', 'w-[300px]', 'snap-center'));
       } else {
@@ -535,7 +535,6 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
 
           const slider = document.getElementById('report-slider');
           if (slider) {
-            // 修正箇所：不要な applyViewMode() の文字を削除
             slider.innerHTML = group.reports.map(r => `
               <div class="flex-none w-[300px] snap-center">
                 <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
@@ -610,7 +609,6 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
               }).join('');
             });
           }
-          // HTMLをすべて書き換えた後に現在のモードを適用
           applyViewMode();
         }
       };
