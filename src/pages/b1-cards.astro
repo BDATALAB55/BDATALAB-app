@@ -15,6 +15,9 @@ const folderName = segments[1] || "";
 const folderParts = folderName.split('_');
 const gameId = folderParts[1] || ""; 
 
+// 日付の表示形式を整形 (例: 2026.02.08)
+const displayDate = dateId.replace(/-/g, '.');
+
 let awayData = [];
 let homeData = [];
 let displayTeamAway = "AWAY";
@@ -129,17 +132,35 @@ const homeFinalConf = findConfig(homeId);
 ---
 <Layout title="B1 CARDS | B-Data Lab">
   <div class="app-container bg-[#373A36] min-h-screen text-white font-avenir relative">
-    <header class="pt-12 pb-6 px-8 border-b border-white/5 text-center relative">
-      <button onclick="history.back()" class="absolute left-8 top-12 text-white/40 hover:text-white transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
-        </svg>
-      </button>
-      <h1 class="text-2xl font-black uppercase tracking-[0.25em]">B1 CARDS</h1>
+    
+    <header class="h-24 px-8 flex items-center justify-end relative">
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-3">
+          <a href="https://x.com/b_data_lab" target="_blank" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+            <span class="sr-only">X</span>
+          </a>
+          <span class="text-white/20 text-xs">|</span>
+          <a href="https://note.com/b_data_lab" target="_blank" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
+            <span class="font-black text-[10px]">n</span>
+            <span class="sr-only">note</span>
+          </a>
+          <span class="text-white/20 text-xs ml-1">note</span>
+        </div>
+        <div class="text-[22px] font-black tracking-tighter text-[#7D88A3] opacity-60">BDATALAB</div>
+      </div>
     </header>
 
-    <div class="py-10 space-y-16 pb-48">
-      <section class="px-8 flex flex-col items-center">
+    <div class="px-8 pt-4 pb-16 space-y-12">
+      <section>
+        <h2 class="text-[44px] font-black italic leading-none tracking-tight">GAME REPORT</h2>
+        <div class="mt-2 flex items-center gap-4">
+          <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest">Latest Update</span>
+          <span class="text-[32px] font-black leading-none">{displayDate}</span>
+        </div>
+      </section>
+
+      <section class="flex flex-col items-center">
         <div class="w-full md:max-w-[500px] mx-auto cursor-pointer card-trigger rounded-xl overflow-hidden border border-white/10 shadow-2xl bg-black/40 min-h-[200px] flex items-center justify-center" data-img={reportImagePath}>
           <img src={reportImagePath} class="w-full h-auto block" onerror="this.src='https://placehold.jp/24/333333/ffffff/400x500.png?text=B1%20REPORT%20NOT%20FOUND'" />
         </div>
@@ -155,7 +176,7 @@ const homeFinalConf = findConfig(homeId);
         { data: homeData, label: displayTeamHome, conf: homeFinalConf }
       ].map((team) => (
         <section>
-          <div class="px-8 mb-6">
+          <div class="mb-6">
             <a 
               href={`/b1-team?team=${encodeURIComponent(team.conf.display)}`}
               class={`${team.conf.color} px-6 py-2 text-[15px] font-black uppercase rounded-full inline-block shadow-lg hover:brightness-110 hover:scale-105 transition-all`}
@@ -164,7 +185,7 @@ const homeFinalConf = findConfig(homeId);
             </a>
           </div>
           
-          <div class="flex overflow-x-auto gap-6 px-8 no-scrollbar pb-8 snap-x snap-mandatory">
+          <div class="flex overflow-x-auto gap-6 no-scrollbar pb-8 snap-x snap-mandatory">
             {team.data.length > 0 ? (
               team.data.map((p) => (
                 <div class="flex-none w-[80vw] max-w-[320px] snap-center">
@@ -179,7 +200,7 @@ const homeFinalConf = findConfig(homeId);
                 </div>
               ))
             ) : (
-              <div class="px-8 w-full py-12 border border-dashed border-white/10 rounded-2xl text-center text-white/20 uppercase text-[10px] tracking-[0.4em]">
+              <div class="w-full py-12 border border-dashed border-white/10 rounded-2xl text-center text-white/20 uppercase text-[10px] tracking-[0.4em]">
                 No Player Cards Found
               </div>
             )}
