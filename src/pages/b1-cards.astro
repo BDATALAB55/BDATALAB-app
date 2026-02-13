@@ -171,7 +171,12 @@ const homeFinalConf = findConfig(homeId);
       ].map((team) => (
         <section class="mt-24">
           <div class="mb-10">
-            <a href={`/b1-team?team=${encodeURIComponent(team.conf.display)}`} class={`${team.conf.color} px-8 py-3 text-[14px] font-black uppercase rounded-full inline-block shadow-xl hover:brightness-110 hover:scale-105 transition-all tracking-widest`}>{team.label}</a>
+            <a href={`/b1-team?team=${encodeURIComponent(team.conf.display)}`} class={`${team.conf.color} group/team px-8 py-3 text-[14px] font-black uppercase rounded-full inline-block shadow-xl hover:brightness-110 hover:scale-105 transition-all tracking-widest min-w-[180px]`}>
+  <div class="flex items-center justify-between gap-4">
+    <span class="flex-1 text-center">{team.label}</span>
+    <span class="text-blue-400 group-hover/team:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
+  </div>
+</a>
           </div>
           <div class="player-container flex overflow-x-auto gap-8 no-scrollbar pb-12 snap-x snap-mandatory">
   {team.data.length > 0 ? (
@@ -181,9 +186,13 @@ const homeFinalConf = findConfig(homeId);
                     <img src={p.imagePath} alt={p.name} class="w-full h-auto block" loading="lazy" />
                   </div>
                   <div class="mt-6 px-1">
-                    <a href={`/b-players?name=${encodeURIComponent(p.name)}`} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-4 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden text-center">
-                      <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">{p.name}</span>
-                    </a>
+                    <a href={`/b-players?name=${encodeURIComponent(p.name)}`} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-4 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
+  <div class="flex items-center justify-between px-6">
+    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 flex-1 text-center ml-4">{p.name}</span>
+    <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
+  </div>
+  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
+</a>
                   </div>
                 </div>
               ))
@@ -243,7 +252,7 @@ const homeFinalConf = findConfig(homeId);
       if (currentViewMode === 'grid') {
         // グリッド表示（2列）
         container.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'pb-12');
-        container.classList.add('grid', 'grid-cols-2', 'gap-4', 'pt-4');
+        container.classList.add('grid', 'grid-cols-2', 'gap-2', 'pt-4');
         cards.forEach(c => c.classList.remove('flex-none', 'w-[280px]', 'snap-center'));
       } else {
         // スライド表示（1列・横スクロール）
