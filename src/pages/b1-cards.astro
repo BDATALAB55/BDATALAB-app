@@ -15,16 +15,8 @@ const folderName = segments[1] || "";
 const folderParts = folderName.split('_');
 const gameId = folderParts[1] || ""; 
 
-// --- 日付の表示形式を整形 (例: 2026.02.08) ---
-// YYYYMMDD形式から変換、またはハイフンをドットに
-let displayDate = dateId;
-if (dateId.length === 6) {
-  displayDate = `20${dateId.substring(0,2)}.${dateId.substring(2,4)}.${dateId.substring(4,6)}`;
-} else if (dateId.length === 8) {
-  displayDate = `${dateId.substring(0,4)}.${dateId.substring(4,6)}.${dateId.substring(6,8)}`;
-} else {
-  displayDate = dateId.replace(/-/g, '.');
-}
+// 日付の表示形式を整形 (例: 2026.02.08)
+const displayDate = dateId.replace(/-/g, '.');
 
 let awayData = [];
 let homeData = [];
@@ -34,7 +26,6 @@ let awayId = "";
 let homeId = "";
 let reportImagePath = "";
 
-// TEAM_MASTER 等の定義は変更なしのため維持（中略）
 const TEAM_MASTER = {
   "HOKKAIDO": { card: "LEVANGA_HOKKAIDO", display: "HOKKAIDO", color: "bg-[#8FC320] text-white" },
   "SENDAI": { card: "SENDAI_89ERS", display: "SENDAI", color: "bg-[#E9E611] text-black" },
@@ -75,7 +66,6 @@ const findConfig = (key) => {
   return { card: key, display: key, color: "bg-gray-700 text-white" };
 };
 
-// --- 【データ取得処理】 (中略) ---
 try {
   const listApi = `https://api.github.com/repos/${GITHUB_REPO}/contents/output/Bplayers/B1/${dateId}?t=${Date.now()}`;
   const res = await fetch(listApi, { headers: token ? { "Authorization": `token ${token}` } : {} });
@@ -83,10 +73,12 @@ try {
 
   if (Array.isArray(items)) {
     const realFolder = items.find(item => item.name.split('_')[1] === gameId && item.type === 'dir');
+    
     if (realFolder) {
       const folderPath = realFolder.path;
       const rawBase = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${folderPath}`;
       const parts = realFolder.name.split('_');
+      
       const awayConf = findConfig(parts[2]);
       const homeConf = findConfig(parts[3]);
       displayTeamAway = awayConf.display;
@@ -96,16 +88,29 @@ try {
 
       const filesRes = await fetch(realFolder.url, { headers: token ? { "Authorization": `token ${token}` } : {} });
       const files = await filesRes.json();
+
       if (Array.isArray(files)) {
         files.forEach(f => {
           if (!f.name.toLowerCase().endsWith('.png')) return;
+          
           const fileNameNoExt = f.name.replace('.png', '');
           const nameParts = fileNameNoExt.split('_');
-          const cleanNameParts = nameParts.filter(p => !p.match(/^\d+$/));
+          
+          const cleanNameParts = nameParts.filter(p => 
+            !p.match(/^\d+$/) && 
+            !awayConf.card.includes(p) && 
+            !homeConf.card.includes(p) && 
+            !['89ERS', 'BRAVE', 'JETS', 'ROBOTS', 'BREX', 'ALTIRI', 'VELCA', 'SUSANOOMAGIC', 'LEVANGA'].includes(p.toUpperCase())
+          );
           const playerName = cleanNameParts.join(' ').trim();
+
           const playerObj = { name: playerName, imagePath: `${rawBase}/${f.name}` };
-          if (f.name.toUpperCase().includes(awayConf.card.toUpperCase())) awayData.push(playerObj);
-          else if (f.name.toUpperCase().includes(homeConf.card.toUpperCase())) homeData.push(playerObj);
+
+          if (f.name.toUpperCase().includes(awayConf.card.toUpperCase())) {
+            awayData.push(playerObj);
+          } else if (f.name.toUpperCase().includes(homeConf.card.toUpperCase())) {
+            homeData.push(playerObj);
+          }
         });
       }
 
@@ -114,7 +119,9 @@ try {
       const reportFiles = await reportRes.json();
       if (Array.isArray(reportFiles)) {
         const matchFile = reportFiles.find(f => f.name.includes(gameId) && f.name.toLowerCase().endsWith('.png'));
-        if (matchFile) reportImagePath = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/reports/B1/${dateId}/${matchFile.name}`;
+        if (matchFile) {
+          reportImagePath = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/reports/B1/${dateId}/${matchFile.name}`;
+        }
       }
     }
   }
@@ -124,55 +131,42 @@ const awayFinalConf = findConfig(awayId);
 const homeFinalConf = findConfig(homeId);
 ---
 <Layout title="B1 CARDS | B-Data Lab">
-  <main class="bg-[#373A36] min-h-screen text-white font-avenir pb-32 overflow-x-hidden relative">
+  <div class="app-container bg-[#373A36] min-h-screen text-white font-avenir relative">
     
-    <header class="sticky top-0 z-50 bg-[#373A36]/90 backdrop-blur-md border-b border-white/10">
-      <div class="pt-12 pb-6 px-6 max-w-6xl mx-auto w-full">
-        <div class="flex items-end justify-end w-full">
-          <div class="flex flex-col items-end text-right space-y-3">
-            <a href="/b1-home" class="hover:opacity-80 transition-opacity">
-              <h2 class="text-xl md:text-3xl font-black tracking-widest uppercase leading-none"
-                  style="color: #2E3C57; -webkit-text-stroke: 1px white; text-stroke: 1px white; paint-order: stroke fill;">
-                  BDATALAB
-              </h2>
-            </a>
-            <div class="flex items-center gap-3 md:gap-5">
-              <a href="https://x.com/BDataLab5x5" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-1.5 transition-all">
-                <div class="w-7 h-7 md:w-8 md:h-8 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
-                  <svg class="w-3.5 h-3.5 md:w-4 md:h-4 fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                </div>
-                <span class="hidden sm:inline text-[10px] font-black tracking-widest uppercase text-white/40 group-hover:text-white transition-colors">X</span>
-              </a>
-              <div class="h-3 w-[1px] bg-white/20"></div>
-              <a href="https://note.com/bdatalab5x5" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-1.5 transition-all">
-                <div class="w-7 h-7 md:w-8 md:h-8 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-[#23bb9d] transition-colors">
-                   <span class="text-[12px] font-black text-white">n</span>
-                </div>
-                <span class="text-[10px] font-black tracking-widest lowercase text-white/40 group-hover:text-white transition-colors">note</span>
-              </a>
-            </div>
-          </div>
+    <header class="h-24 px-8 flex items-center justify-end relative">
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-3">
+          <a href="https://x.com/b_data_lab" target="_blank" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+            <span class="sr-only">X</span>
+          </a>
+          <span class="text-white/20 text-xs">|</span>
+          <a href="https://note.com/b_data_lab" target="_blank" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
+            <span class="font-black text-[10px]">n</span>
+            <span class="sr-only">note</span>
+          </a>
+          <span class="text-white/20 text-xs ml-1">note</span>
         </div>
+        <div class="text-[22px] font-black tracking-tighter text-[#7D88A3] opacity-60">BDATALAB</div>
       </div>
     </header>
 
-    <div class="max-w-6xl mx-auto px-6 pt-12">
-      
-      <section class="mb-12">
-        <h2 class="text-5xl font-black uppercase tracking-[calc(-0.02em)] mb-4 leading-none">GAME REPORT</h2>
-        <div class="flex flex-col gap-1.5">
-          <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
-          <span class="text-white text-[32px] md:text-[38px] font-black uppercase leading-none tracking-[0.05em]">{displayDate}</span>
+    <div class="px-8 pt-4 pb-16 space-y-12">
+      <section>
+        <h2 class="text-[44px] font-black italic leading-none tracking-tight">GAME REPORT</h2>
+        <div class="mt-2 flex items-center gap-4">
+          <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest">Latest Update</span>
+          <span class="text-[32px] font-black leading-none">{displayDate}</span>
         </div>
       </section>
 
-      <section class="flex flex-col items-center mb-20">
-        <div class="w-full md:max-w-[500px] mx-auto cursor-pointer card-trigger rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black/40 min-h-[200px] flex items-center justify-center transition-transform hover:scale-[1.02]" data-img={reportImagePath}>
+      <section class="flex flex-col items-center">
+        <div class="w-full md:max-w-[500px] mx-auto cursor-pointer card-trigger rounded-xl overflow-hidden border border-white/10 shadow-2xl bg-black/40 min-h-[200px] flex items-center justify-center" data-img={reportImagePath}>
           <img src={reportImagePath} class="w-full h-auto block" onerror="this.src='https://placehold.jp/24/333333/ffffff/400x500.png?text=B1%20REPORT%20NOT%20FOUND'" />
         </div>
-        <div class="mt-10 text-center">
-          <span class="text-[22px] font-black tracking-[0.25em] uppercase">
-            {displayTeamAway} <span class="text-blue-500 mx-4 text-[16px] italic opacity-80">vs</span> {displayTeamHome}
+        <div class="mt-6 text-center">
+          <span class="text-[16px] font-black tracking-[0.2em] uppercase">
+            {displayTeamAway} <span class="text-blue-500 mx-2 text-[12px]">vs</span> {displayTeamHome}
           </span>
         </div>
       </section>
@@ -181,32 +175,32 @@ const homeFinalConf = findConfig(homeId);
         { data: awayData, label: displayTeamAway, conf: awayFinalConf },
         { data: homeData, label: displayTeamHome, conf: homeFinalConf }
       ].map((team) => (
-        <section class="mt-24">
-          <div class="mb-10">
+        <section>
+          <div class="mb-6">
             <a 
               href={`/b1-team?team=${encodeURIComponent(team.conf.display)}`}
-              class={`${team.conf.color} px-8 py-3 text-[14px] font-black uppercase rounded-full inline-block shadow-xl hover:brightness-110 hover:scale-105 transition-all tracking-widest`}
+              class={`${team.conf.color} px-6 py-2 text-[15px] font-black uppercase rounded-full inline-block shadow-lg hover:brightness-110 hover:scale-105 transition-all`}
             >
               {team.label}
             </a>
           </div>
           
-          <div class="flex overflow-x-auto gap-8 no-scrollbar pb-12 snap-x snap-mandatory">
+          <div class="flex overflow-x-auto gap-6 no-scrollbar pb-8 snap-x snap-mandatory">
             {team.data.length > 0 ? (
               team.data.map((p) => (
-                <div class="flex-none w-[280px] md:w-[320px] snap-center">
-                  <div class="cursor-pointer card-trigger rounded-2xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]" data-img={p.imagePath}>
+                <div class="flex-none w-[80vw] max-w-[320px] snap-center">
+                  <div class="cursor-pointer card-trigger rounded-2xl overflow-hidden border border-white/10 bg-black/20 shadow-xl" data-img={p.imagePath}>
                     <img src={p.imagePath} alt={p.name} class="w-full h-auto block" loading="lazy" />
                   </div>
-                  <div class="mt-6 px-1">
-                    <a href={`/b-players?name=${encodeURIComponent(p.name)}`} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-4 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden text-center">
-                      <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">{p.name}</span>
+                  <div class="mt-4 flex justify-center">
+                    <a href={`/b-players?name=${encodeURIComponent(p.name)}`} class="bg-white/10 border border-white/10 hover:bg-white/20 px-10 py-2.5 rounded-full transition-all active:scale-95 min-w-[140px] text-center">
+                      <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/80">{p.name}</span>
                     </a>
                   </div>
                 </div>
               ))
             ) : (
-              <div class="w-full py-20 border border-dashed border-white/10 rounded-3xl text-center text-white/20 uppercase text-[12px] tracking-[0.5em] bg-black/10">
+              <div class="w-full py-12 border border-dashed border-white/10 rounded-2xl text-center text-white/20 uppercase text-[10px] tracking-[0.4em]">
                 No Player Cards Found
               </div>
             )}
@@ -216,24 +210,23 @@ const homeFinalConf = findConfig(homeId);
     </div>
 
     <div class="fixed bottom-8 left-8 z-40">
-        <button onclick="history.back()" class="bg-gray-800/80 backdrop-blur-md text-white px-6 py-4 rounded-full font-black text-[11px] uppercase tracking-widest shadow-2xl active:scale-95 border border-white/10">← Back</button>
+        <button onclick="history.back()" class="bg-white/10 backdrop-blur-md text-white px-6 py-4 rounded-full font-black text-[11px] uppercase tracking-widest shadow-2xl active:scale-95 border border-white/10">← Back</button>
     </div>
     <div class="fixed bottom-8 right-8 z-40">
-      <a href="/b1-home" class="bg-gray-800/80 backdrop-blur-md text-white px-8 py-4 rounded-full font-black text-[11px] uppercase tracking-widest shadow-2xl active:scale-105 transition-all border border-white/10">B1 Home</a>
+      <a href="/b1-home" class="bg-white/10 backdrop-blur-md text-white px-8 py-4 rounded-full font-black text-[11px] uppercase tracking-widest shadow-2xl active:scale-95 border border-white/10">B1 Home</a>
     </div>
 
-    <div id="modal" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center p-6 backdrop-blur-xl">
+    <div id="modal" class="fixed inset-0 bg-black/98 z-50 hidden flex-col items-center justify-center p-6 backdrop-blur-md">
       <div class="absolute top-8 right-8 text-white/40 text-4xl cursor-pointer p-4 hover:text-white transition-colors" id="close">&times;</div>
-      <img id="modal-img" src="" class="max-w-full max-h-[80vh] shadow-2xl rounded-2xl mb-12" />
-      <a id="download-btn" href="" download class="bg-white text-black px-14 py-4 rounded-full font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all">
+      <img id="modal-img" src="" class="max-w-full max-h-[85vh] shadow-2xl rounded-xl mb-12" />
+      <a id="download-btn" href="" download class="bg-white text-black px-14 py-4 rounded-full font-black uppercase tracking-widest text-[11px] hover:bg-gray-200 transition-colors">
         Download Card
       </a>
     </div>
-  </main>
+  </div>
 </Layout>
 
 <script>
-  // スクリプト部分は変更なし
   const modal = document.getElementById('modal');
   const modalImg = document.getElementById('modal-img') as HTMLImageElement;
   const close = document.getElementById('close');
