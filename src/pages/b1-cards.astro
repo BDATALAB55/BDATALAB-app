@@ -151,9 +151,19 @@ const homeFinalConf = findConfig(homeId);
         <div class="w-full md:max-w-[500px] mx-auto cursor-pointer card-trigger rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black/40 min-h-[200px] flex items-center justify-center transition-transform hover:scale-[1.02]" data-img={reportImagePath}>
           <img src={reportImagePath} class="w-full h-auto block" onerror="this.src='https://placehold.jp/24/333333/ffffff/400x500.png?text=B1%20REPORT%20NOT%20FOUND'" />
         </div>
-        <div class="mt-8 text-center">
-          <span class="text-[20px] font-black tracking-[0.2em] uppercase">{displayTeamAway} <span class="text-blue-500 mx-3 text-[14px] italic opacity-70">vs</span> {displayTeamHome}</span>
-        </div>
+        <div class="mt-8 text-center w-full">
+  <div class="flex flex-col items-start md:items-center"> <span class="text-[20px] font-black tracking-[0.2em] uppercase">{displayTeamAway} <span class="text-blue-500 mx-3 text-[14px] italic opacity-70">vs</span> {displayTeamHome}</span>
+    
+    <div class="flex gap-2 mt-6 md:hidden">
+      <button data-view-mode="slide" class="view-switch-btn active bg-white/20 p-2 rounded-lg transition-all">
+        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M2 13h20v2H2zm0-4h20v2H2zm0-4h20v2H2zm0 12h20v2H2z"/></svg>
+      </button>
+      <button data-view-mode="grid" class="view-switch-btn bg-black/40 p-2 rounded-lg transition-all">
+        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
+      </button>
+    </div>
+    </div>
+</div>
       </section>
       {[
         { data: awayData, label: displayTeamAway, conf: awayFinalConf },
@@ -163,10 +173,10 @@ const homeFinalConf = findConfig(homeId);
           <div class="mb-10">
             <a href={`/b1-team?team=${encodeURIComponent(team.conf.display)}`} class={`${team.conf.color} px-8 py-3 text-[14px] font-black uppercase rounded-full inline-block shadow-xl hover:brightness-110 hover:scale-105 transition-all tracking-widest`}>{team.label}</a>
           </div>
-          <div class="flex overflow-x-auto gap-8 no-scrollbar pb-12 snap-x snap-mandatory">
-            {team.data.length > 0 ? (
-              team.data.map((p) => (
-                <div class="flex-none w-[280px] md:w-[320px] snap-center">
+          <div class="player-container flex overflow-x-auto gap-8 no-scrollbar pb-12 snap-x snap-mandatory">
+  {team.data.length > 0 ? (
+    team.data.map((p) => (
+      <div class="player-card flex-none w-[280px] md:w-[320px] snap-center">
                   <div class="cursor-pointer card-trigger rounded-2xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]" data-img={p.imagePath}>
                     <img src={p.imagePath} alt={p.name} class="w-full h-auto block" loading="lazy" />
                   </div>
@@ -216,6 +226,50 @@ const homeFinalConf = findConfig(homeId);
   modal?.addEventListener('click', (e) => {
     if (e.target === modal) close?.click();
   });
+
+// --- モバイル表示モード切り替えロジック ---
+  let currentViewMode = 'slide';
+
+  const applyViewMode = () => {
+    // PC（768px以上）では常にスライド形式を強制
+    if (window.innerWidth >= 768) {
+      currentViewMode = 'slide';
+    }
+
+    const containers = document.querySelectorAll('.player-container');
+    containers.forEach(container => {
+      const cards = container.querySelectorAll('.player-card');
+      
+      if (currentViewMode === 'grid') {
+        // グリッド表示（2列）
+        container.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'pb-12');
+        container.classList.add('grid', 'grid-cols-2', 'gap-4', 'pt-4');
+        cards.forEach(c => c.classList.remove('flex-none', 'w-[280px]', 'snap-center'));
+      } else {
+        // スライド表示（1列・横スクロール）
+        container.classList.add('flex', 'overflow-x-auto', 'snap-x', 'pb-12');
+        container.classList.remove('grid', 'grid-cols-2', 'gap-4', 'pt-4');
+        cards.forEach(c => c.classList.add('flex-none', 'w-[280px]', 'md:w-[320px]', 'snap-center'));
+      }
+    });
+  };
+
+  const switchBtns = document.querySelectorAll('.view-switch-btn');
+  switchBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentViewMode = btn.getAttribute('data-view-mode') || 'slide';
+      switchBtns.forEach(b => {
+        const isActive = b.getAttribute('data-view-mode') === currentViewMode;
+        b.classList.toggle('bg-white/20', isActive); // 活性
+        b.classList.toggle('bg-black/40', !isActive); // 非活性
+      });
+      applyViewMode();
+    });
+  });
+
+  // PCに画面を広げた時に自動でスライド表示に戻るようにする
+  window.addEventListener('resize', applyViewMode);
+
 </script>
 <style is:global>
   .no-scrollbar::-webkit-scrollbar { display: none; }
