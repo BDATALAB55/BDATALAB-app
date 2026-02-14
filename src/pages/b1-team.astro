@@ -134,17 +134,17 @@ try {
     <header class="custom-page-header pt-12 pb-6 px-6 max-w-6xl mx-auto w-full relative shrink-0">
       <div class="flex items-end w-full relative mb-1">
         <div class="flex-1">
-          <div class="flex items-baseline gap-3 md:gap-7 font-extrabold font-avenir uppercase whitespace-nowrap">
+          <div class="flex items-baseline gap-3 md:gap-7 font-bold font-avenir uppercase whitespace-nowrap">
             <span class={isReversed 
-              ? "text-[clamp(1.5rem,6vw,4rem)] tracking-[0.05em] shrink-0 leading-none" 
-              : "text-[clamp(0.8rem,2.5vw,1.5rem)] opacity-60 tracking-[0.4em] shrink-0 leading-none"}>
-              {currentTeam.city}
-            </span>
-            <span class={isReversed 
-              ? "text-[clamp(0.8rem,2.5vw,1.5rem)] opacity-60 tracking-[0.4em] shrink-0 leading-none" 
-              : "text-[clamp(1.5rem,6vw,4rem)] tracking-[0.05em] shrink-0 leading-none"}>
-              {currentTeam.name}
-            </span>
+  ? "text-[clamp(1.5rem,6vw,4rem)] tracking-[0.05em] shrink-0 leading-none" 
+  : "text-[clamp(1.5rem,6vw,4rem)] opacity-60 tracking-[0.4em] shrink-0 leading-none"}>
+  {currentTeam.city}
+</span>
+<span class={isReversed 
+  ? "text-[clamp(1.5rem,6vw,4rem)] opacity-60 tracking-[0.4em] shrink-0 leading-none" 
+  : "text-[clamp(1.5rem,6vw,4rem)] tracking-[0.05em] shrink-0 leading-none"}>
+  {currentTeam.name}
+</span>
           </div>
         </div>
       </div>
@@ -219,25 +219,25 @@ try {
       </section>
     </div>
 
-    <footer class="w-full py-40 flex flex-col items-center justify-center gap-10 bg-black/20 shrink-0 border-t border-white/5 mt-20">
+    <footer class="w-full py-16 flex flex-col items-center justify-center gap-6 bg-black/10 shrink-0 border-t border-white/5 mt-20">
       <div class="text-center">
-        <h2 class="text-7xl md:text-[10rem] font-black tracking-[0.25em] uppercase leading-none mb-4" 
-            style="color: #2E3C57; -webkit-text-stroke: 1.5px white; paint-order: stroke fill;">
+        <h2 class="text-2xl md:text-3xl font-black tracking-[0.3em] uppercase leading-none mb-2" 
+            style="color: #2E3C57; -webkit-text-stroke: 1px rgba(255,255,255,0.8); paint-order: stroke fill;">
           BDATALAB
         </h2>
-        <p class="text-[12px] font-bold text-white/30 tracking-[0.7em] uppercase">B.League Data Analysis</p>
+        <p class="text-[9px] font-bold text-white/20 tracking-[0.4em] uppercase">B.League Data Analysis</p>
       </div>
 
-      <div class="flex items-center gap-16">
-        <a href="https://x.com/BDataLab5x5" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-3 group">
-          <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-all border border-white/10 shadow-2xl scale-110">
-            <svg class="w-7 h-7 fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      <div class="flex items-center gap-6">
+        <a href="https://x.com/BDataLab5x5" target="_blank" rel="noopener noreferrer" class="group">
+          <div class="w-9 h-9 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-all border border-white/5">
+            <svg class="w-3.5 h-3.5 fill-white/60 group-hover:fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </div>
         </a>
-        <div class="h-12 w-[1px] bg-white/10"></div>
-        <a href="https://note.com/bdatalab5x5" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-3 group">
-          <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-[#23bb9d] transition-all border border-white/10 shadow-2xl scale-110">
-             <span class="text-[26px] font-black text-white">n</span>
+        <div class="h-4 w-[1px] bg-white/10"></div>
+        <a href="https://note.com/bdatalab5x5" target="_blank" rel="noopener noreferrer" class="group">
+          <div class="w-9 h-9 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-[#23bb9d]/80 transition-all border border-white/5">
+             <span class="text-[16px] font-black text-white/60 group-hover:text-white">n</span>
           </div>
         </a>
       </div>
