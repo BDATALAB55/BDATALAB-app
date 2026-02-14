@@ -144,7 +144,10 @@ const getCardUrl = (cardPathInJson, playerObject) => {
 
     // 3. 検索する名前を正規化 (ROBERT FRANKS -> ROBERT_FRANKS)
     const targetNameEn = playerObject.name 
-      ? playerObject.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '')
+      ? playerObject.name.trim().toUpperCase()
+      .replace("SHAWN OMARA", "SEAN OMARA")
+      .replace(/\s+/g, '_')
+      .replace(/'/g, '')
       : "";
 
     // 4. 適切なファイルを検索
@@ -584,7 +587,10 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                 const gameId = gameMatch ? gameMatch[1] : null;
 
                 if (gameId && allPlayerCards.length > 0) {
-                  const targetEn = player.name ? player.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
+                  const targetEn = player.name ? player.name.trim().toUpperCase()
+                  .replace("SHAWN OMARA", "SEAN OMARA")
+                  .replace(/\s+/g, '_')
+                  .replace(/'/g, '') : "";
                   const targetJp = player.nameJp ? player.nameJp.trim() : "";
                   const realFile = allPlayerCards.find(item => {
                     const upPath = item.path.toUpperCase();
