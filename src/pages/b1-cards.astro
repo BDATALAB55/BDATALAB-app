@@ -252,9 +252,12 @@ const homeFinalConf = findConfig(homeId);
       if (currentViewMode === 'grid') {
         // グリッド表示（2列）
         container.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'pb-12');
-        container.classList.add('grid', 'grid-cols-2', 'gap-2', 'pt-4');
-        cards.forEach(c => c.classList.remove('flex-none', 'w-[280px]', 'snap-center'));
-      } else {
+        pane.classList.add('grid', 'grid-cols-2', 'gap-x-1.5', 'gap-y-20', 'overflow-visible', 'pt-16');
+        cards.forEach(c => {
+    c.classList.remove('flex-none', 'w-[300px]', 'snap-center');
+    c.classList.add('w-full'); // 追加：親のグリッド幅いっぱいに広げる
+  });
+} else {
         // スライド表示（1列・横スクロール）
         container.classList.add('flex', 'overflow-x-auto', 'snap-x', 'pb-12');
         container.classList.remove('grid', 'grid-cols-2', 'gap-4', 'pt-4');
