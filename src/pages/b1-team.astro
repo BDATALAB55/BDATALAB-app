@@ -132,26 +132,53 @@ try {
   <main class="bg-[#373A36] min-h-screen text-white font-avenir overflow-x-hidden flex flex-col">
     
     <header class="custom-page-header pt-12 pb-6 px-6 max-w-6xl mx-auto w-full relative shrink-0">
-      <div class="flex items-end w-full relative mb-1">
-        <div class="flex-1">
-          <div class="flex items-baseline gap-3 md:gap-7 font-bold font-avenir uppercase whitespace-nowrap">
-            <span class={isReversed 
-  ? "text-[clamp(1.8rem,8vw,4rem)] tracking-[0.05em] shrink-0 leading-none" 
-  : "text-[clamp(1.8rem,8vw,4rem)] opacity-60 tracking-[0.05em] shrink-0 leading-none"}>
-  {currentTeam.city}
-</span>
-<span class={isReversed 
-  ? "text-[clamp(1.8rem,8vw,4rem)] opacity-60 tracking-[0.05em] shrink-0 leading-none" 
-  : "text-[clamp(1.8rem,8vw,4rem)] tracking-[0.05em] shrink-0 leading-none"}>
-  {currentTeam.name}
-</span>
-          </div>
-        </div>
+  <div class="flex items-end w-full relative mb-1">
+    <div class="flex-1">
+      <div class="flex items-baseline gap-3 md:gap-7 font-bold font-avenir uppercase whitespace-nowrap">
+        {(() => {
+          // 文字数に応じてモバイル時のスタイルを計算
+          const totalLength = currentTeam.city.length + currentTeam.name.length;
+          
+          // 基本設定 (PCでは無視され、モバイルのclampの下限に影響)
+          let mobileTracking = "0.05em";
+          let mobileSize = "8vw"; // デフォルトの計算用
+          
+          if (totalLength > 20) {
+            mobileTracking = "-0.05em"; // かなり詰める
+            mobileSize = "6.5vw";      // 小さくする
+          } else if (totalLength > 15) {
+            mobileTracking = "-0.02em"; // 少し詰める
+            mobileSize = "7.2vw";
+          }
+
+          const commonClass = "tracking-[0.05em] shrink-0 leading-none";
+          // モバイルのみに適用するインラインスタイル
+          const dynamicStyle = `letter-spacing: ${mobileTracking}; font-size: clamp(1.5rem, ${mobileSize}, 4rem);`;
+
+          return (
+            <>
+              <span 
+                class={`${commonClass} ${isReversed ? "" : "opacity-60"}`}
+                style={dynamicStyle}
+              >
+                {currentTeam.city}
+              </span>
+              <span 
+                class={`${commonClass} ${isReversed ? "opacity-60" : ""}`}
+                style={dynamicStyle}
+              >
+                {currentTeam.name}
+              </span>
+            </>
+          );
+        })()}
       </div>
-      <div class="absolute bottom-1 left-6 right-6 h-[3px] md:h-[5px]" 
-           style={`background-color: ${currentTeam.color}; box-shadow: 0 4px 15px ${currentTeam.color}66;`}>
-      </div>
-    </header>
+    </div>
+  </div>
+  <div class="absolute bottom-1 left-6 right-6 h-[3px] md:h-[5px]" 
+       style={`background-color: ${currentTeam.color}; box-shadow: 0 4px 15px ${currentTeam.color}66;`}>
+  </div>
+</header>
 
     <div class="max-w-6xl mx-auto px-6 flex-grow w-full">
       <section class="mt-16">
