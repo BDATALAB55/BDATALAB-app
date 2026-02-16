@@ -187,21 +187,25 @@ const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgN
 
 <div class="max-w-6xl mx-auto px-6 flex-grow w-full">
 
-<section class="mt-16 flex flex-col items-center">
-  <div class="w-full max-w-[450px] md:max-w-[650px] mb-6">
+<section class="mt-16 flex flex-col">
+  <div class="w-full mb-6">
     <h2 class="text-4xl font-bold uppercase tracking-tight leading-none mb-4">TEAM STATS</h2>
   </div>
 
   {teamStatsPath ? (
-    <div class="w-full flex justify-center pb-12 transition-all duration-500">
-      <div class="report-card flex-none w-full max-w-[450px] md:max-w-[650px]">
+    /* 3. justify-start に変更して左寄せ、下のカードと頭を揃える */
+    <div class="w-full flex justify-start pb-12 transition-all duration-500">
+      
+      /* 4. max-w を [850px] に拡大。aspect比を画像に合わせて調整 ([3/2.2]など) */
+      <div class="report-card flex-none w-full max-w-[500px] md:max-w-[850px]">
         <div class="mb-4 flex items-center gap-2 px-2">
           <div class="w-2 h-2 rounded-full bg-blue-500"></div>
           <span class="text-[16px] font-black tracking-wider text-white/90 uppercase">Season Average</span>
         </div>
         
-        <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2] relative">
-          <img src={teamStatsPath} alt="Team Stats" class="w-full h-full object-cover" />
+        /* 5. 画像が横長なので aspect比を [3/2.2] 付近に設定すると大きく表示されます */
+        <div class="rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/2.2] relative">
+          <img src={teamStatsPath} alt="Team Stats" class="w-full h-full object-contain bg-black/20" />
         </div>
       </div>
     </div>
