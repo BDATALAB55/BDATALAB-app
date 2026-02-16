@@ -186,14 +186,18 @@ const homeFinalConf = findConfig(homeId);
                     <img src={p.imagePath} alt={p.name} class="w-full h-auto block" loading="lazy" />
                   </div>
                   <div class="mt-6 px-1">
-                    <a href={`/b-players?name=${encodeURIComponent(p.name)}`} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-4 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
-  <div class="flex items-center justify-between px-6">
-    <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 flex-1 text-center ml-4">{p.name}</span>
-    <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
-  </div>
-  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
-</a>
-                  </div>
+  <a href={`/b-players?name=${encodeURIComponent(p.name)}`} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-4 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
+    <div class="flex items-center justify-between px-6">
+      <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 flex-1 text-left truncate pr-2">
+        {p.name}
+      </span>
+      <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
+        ▶︎
+      </span>
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
+  </a>
+</div>
                 </div>
               ))
             ) : (
