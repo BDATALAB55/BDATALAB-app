@@ -262,6 +262,12 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
 
       <section class="mt-24">
   <h2 class="text-4xl font-black uppercase tracking-tighter mb-4">Today's RANK 10</h2>
+  
+  <div class="mb-6">
+    <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
+    <br />
+    <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em] rank-date-display">{displayToday}</span>
+  </div>
   <div class="md:hidden flex gap-2 mb-4">
     <button data-view-target="rank-container" data-view-mode="slide" class="view-switch-btn active bg-white/20 p-2 rounded-lg">
       <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M2 13h20v2H2zm0-4h20v2H2zm0-4h20v2H2zm0 12h20v2H2z"/></svg>
