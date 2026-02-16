@@ -193,19 +193,19 @@ const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgN
   </div>
 
   {teamStatsPath ? (
-    /* 3. justify-start に変更して左寄せ、下のカードと頭を揃える */
     <div class="w-full flex justify-start pb-12 transition-all duration-500">
-      
-      /* 4. max-w を [850px] に拡大。aspect比を画像に合わせて調整 ([3/2.2]など) */
-      <div class="report-card flex-none w-full max-w-[500px] md:max-w-[850px]">
+      <div class="flex-none w-full max-w-[500px] md:max-w-[850px]">
         <div class="mb-4 flex items-center gap-2 px-2">
           <div class="w-2 h-2 rounded-full bg-blue-500"></div>
           <span class="text-[16px] font-black tracking-wider text-white/90 uppercase">Season Average</span>
         </div>
         
-        /* 5. 画像が横長なので aspect比を [3/2.2] 付近に設定すると大きく表示されます */
-        <div class="rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/2.2] relative">
-          <img src={teamStatsPath} alt="Team Stats" class="w-full h-full object-contain bg-black/20" />
+        <div class="rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[16/11] relative">
+          <img 
+            src={teamStatsPath} 
+            alt="Team Stats" 
+            class="w-full h-full object-contain p-2" 
+          />
         </div>
       </div>
     </div>
