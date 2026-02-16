@@ -126,6 +126,11 @@ try {
 } catch (e) {
   console.error("Fetch failed:", e);
 }
+const TEAM_STATS_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/Team/B1`;
+
+// currentTeam.searchKey (例: 89ERS) を使用してファイル名を特定
+const teamStatsImgName = currentTeam.searchKey ? `TS_${currentTeam.searchKey}_R23.png` : null;
+const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgName}?t=${Date.now()}` : null;
 ---
 
 <Layout title={`${teamId} | B-Data Lab`}>
@@ -181,6 +186,48 @@ try {
 </header>
 
     <div class="max-w-6xl mx-auto px-6 flex-grow w-full">
+
+<section class="mt-16">
+        <div class="flex justify-between items-end mb-6">
+          <div>
+            <h2 class="text-4xl font-bold uppercase tracking-tight leading-none mb-4">TEAM STATS</h2>
+          </div>
+          <div class="text-right leading-none">
+            <span class="text-7xl font-bold italic opacity-20 block tracking-[-0.1em] leading-none">R23</span>
+            <span class="text-[12px] font-bold opacity-40 uppercase tracking-[0.3em]">Season</span>
+          </div>
+        </div>
+
+        {teamStatsPath ? (
+          <div class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-12 transition-all duration-500">
+            <div class="report-card flex-none w-[320px] snap-center">
+              <div class="mb-4 flex items-center gap-2 px-2">
+                <div class="w-2 h-2 rounded-full bg-[#2D3A56]"></div>
+                <span class="text-[16px] font-black tracking-wider text-white/90 uppercase">Season Average</span>
+              </div>
+              
+              <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2] relative">
+                <img src={teamStatsPath} alt="Team Stats" class="w-full h-full object-cover" />
+              </div>
+
+              <div class="mt-6 px-1">
+                <div class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 py-3.5 rounded-full shadow-xl overflow-hidden">
+                  <div class="flex items-center justify-center px-6">
+                    <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
+                      Team Analysis
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div class="py-20 text-center border-2 border-dashed border-white/5 rounded-3xl">
+            <p class="text-white/20 font-black uppercase tracking-widest italic">No team stats found</p>
+          </div>
+        )}
+      </section>
+
       <section class="mt-16">
   <div class="flex justify-between items-end mb-6">
     <div>
