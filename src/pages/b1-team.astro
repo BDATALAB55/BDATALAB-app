@@ -185,26 +185,21 @@ const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgN
   </div>
 </header>
 
-    <div class="max-w-6xl mx-auto px-6 flex-grow w-full">
+<div class="max-w-6xl mx-auto px-6 flex-grow w-full">
 
 <section class="mt-16 flex flex-col items-center">
-  
   <div class="w-full max-w-[450px] md:max-w-[650px] mb-6">
     <h2 class="text-4xl font-bold uppercase tracking-tight leading-none mb-4">TEAM STATS</h2>
   </div>
 
   {teamStatsPath ? (
-    /* 3. 横スクロール(flex)を解除し、中央に配置されるように調整 */
     <div class="w-full flex justify-center pb-12 transition-all duration-500">
-      
-      /* 4. w-[320px] を max-w に変更してサイズを大きく (例: 450px〜650px) */
       <div class="report-card flex-none w-full max-w-[450px] md:max-w-[650px]">
         <div class="mb-4 flex items-center gap-2 px-2">
           <div class="w-2 h-2 rounded-full bg-blue-500"></div>
           <span class="text-[16px] font-black tracking-wider text-white/90 uppercase">Season Average</span>
         </div>
         
-        /* 5. aspect比を維持しつつ、w-fullで親のサイズいっぱいに表示 */
         <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2] relative">
           <img src={teamStatsPath} alt="Team Stats" class="w-full h-full object-cover" />
         </div>
