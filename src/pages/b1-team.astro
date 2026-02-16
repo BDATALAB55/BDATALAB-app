@@ -195,16 +195,18 @@ const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgN
   {teamStatsPath ? (
     <div class="w-full flex justify-start pb-12 transition-all duration-500">
       <div class="flex-none w-full max-w-[500px] md:max-w-[850px]">
+        {/* ヘッダーラベル部分 */}
         <div class="mb-4 flex items-center gap-2 px-2">
           <div class="w-2 h-2 rounded-full bg-blue-500"></div>
           <span class="text-[16px] font-black tracking-wider text-white/90 uppercase">Season Average</span>
         </div>
         
-        <div class="rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[16/11] relative">
+        {/* 画像エリア：枠や背景指定（bg-black/40など）をすべて削除 */}
+        <div class="w-full relative">
           <img 
             src={teamStatsPath} 
             alt="Team Stats" 
-            class="w-full h-full object-contain p-2" 
+            class="w-full h-auto block drop-shadow-2xl" 
           />
         </div>
       </div>
