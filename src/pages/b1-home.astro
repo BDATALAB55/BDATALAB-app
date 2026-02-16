@@ -229,7 +229,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
           <div>
             <h2 class="text-4xl font-black uppercase tracking-tighter mb-4">GAME REPORT</h2>
             <div class="flex flex-col gap-1">
-              <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
+              <span class="text-[#2D3A56] text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
               <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em] date-display">{displayToday}</span>
             </div>
           </div>
@@ -264,7 +264,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
   <h2 class="text-4xl font-black uppercase tracking-tighter mb-4">Today's RANK 10</h2>
   
   <div class="mb-6">
-    <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
+    <span class="text-[#2D3A56] text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
     <br />
     <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em] rank-date-display">{displayToday}</span>
   </div>
@@ -332,7 +332,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                           <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate mr-2">
                             {player.name}
                           </span>
-                          <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
+                          <span class="flex-shrink-0 text-[10px] text-[#2D3A56] group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
                             ▶︎
                           </span>
                         </div>
@@ -515,9 +515,9 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
     const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
     
     let html = `<div class="flex justify-between items-center mb-6 px-2 text-white font-black text-xs tracking-widest">
-      <button type="button" class="p-2 hover:text-blue-400" id="prevM">←</button>
+      <button type="button" class="p-2 hover:text-[#2D3A56]" id="prevM">←</button>
       <span>${monthNames[m]} ${y}</span>
-      <button type="button" class="p-2 hover:text-blue-400" id="nextM">→</button>
+      <button type="button" class="p-2 hover:text-[#2D3A56]" id="nextM">→</button>
     </div>
     <div class="grid grid-cols-7 gap-1 text-[9px] text-center text-white/40 mb-4 font-bold uppercase">
       <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
@@ -530,7 +530,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
       const yearSuffix = String(y).slice(-2);
       const dateId = `${yearSuffix}${('0'+(m+1)).slice(-2)}${('0'+d).slice(-2)}`;
       const hasData = availableDates.includes(dateId);
-      const activeStyle = hasData ? "bg-blue-600 text-white font-black cursor-pointer shadow-lg scale-110" : "text-white/10 pointer-events-none";
+      const activeStyle = hasData ? "bg-[#2D3A56] text-white font-black cursor-pointer shadow-lg scale-110" : "text-white/10 pointer-events-none";
       html += `<div class="aspect-square flex items-center justify-center rounded-full text-[12px] transition-all ${activeStyle}" data-date="${dateId}">${d}</div>`;
     }
     calendarEl.innerHTML = html + '</div>';
@@ -566,7 +566,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                       <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
                         ${r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> ${r.home}
                       </span>
-                      <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
+                      <span class="flex-shrink-0 text-[10px] text-[#2D3A56] group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
                     </div>
                   </a>
                 </div>
@@ -622,7 +622,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
                         <a href="/b-players?name=${encodeURIComponent(player.name || '')}" class="relative group/btn block w-full bg-white/10 border border-white/10 py-3.5 rounded-full hover:bg-white/20 transition-all">
                           <div class="flex items-center justify-between px-6">
                             <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate pr-2">${player.name || ''}</span>
-                            <span class="text-[10px] text-blue-400">▶︎</span>
+                            <span class="text-[10px] text-[#2D3A56]">▶︎</span>
                           </div>
                         </a>
                       </div>
@@ -659,7 +659,7 @@ const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length 
       transform: translateX(100%);
     }
   }
-  [data-date].bg-blue-600 {
+  [data-date].bg-[#2D3A56] {
     box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
