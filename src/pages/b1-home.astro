@@ -402,14 +402,13 @@ const TEAM_STATS_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/ma
         <div id="standing-east" class="standing-pane flex overflow-x-auto gap-6 no-scrollbar snap-x pb-4">
           {standings.east.map((teamId, i) => (
             <div class="flex-none w-[280px] md:w-[320px] snap-center">
-              <div class="mb-3 flex items-end gap-2 px-2">
-                <div class="flex items-baseline opacity-20">
+              <div class="mb-3 px-2">
+                <div class="flex items-baseline text-white">
                   <span class="text-5xl font-black italic leading-none">{i + 1}</span>
-                  <span class="text-xl font-bold uppercase ml-1 italic">
+                  <span class="text-lg font-bold uppercase ml-0.5 italic leading-none">
                     {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
                   </span>
                 </div>
-                <span class="text-[10px] font-black tracking-widest opacity-60 uppercase">{teamId}</span>
               </div>
               <div class="rounded-2xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]">
                 <img 
@@ -426,14 +425,13 @@ const TEAM_STATS_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/ma
         <div id="standing-west" class="standing-pane hidden flex overflow-x-auto gap-6 no-scrollbar snap-x pb-4">
           {standings.west.map((teamId, i) => (
             <div class="flex-none w-[280px] md:w-[320px] snap-center">
-              <div class="mb-3 flex items-end gap-2 px-2">
-                <div class="flex items-baseline opacity-20">
+              <div class="mb-3 px-2">
+                <div class="flex items-baseline text-white">
                   <span class="text-5xl font-black italic leading-none">{i + 1}</span>
-                  <span class="text-xl font-bold uppercase ml-1 italic">
+                  <span class="text-lg font-bold uppercase ml-0.5 italic leading-none">
                     {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
                   </span>
                 </div>
-                <span class="text-[10px] font-black tracking-widest opacity-60 uppercase">{teamId}</span>
               </div>
               <div class="rounded-2xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]">
                 <img 
