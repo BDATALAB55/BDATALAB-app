@@ -307,14 +307,15 @@ const TEAM_STATS_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/ma
   class={`rank-pane ${statType !== 'PTS' ? 'hidden' : ''} flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8 pt-12`}
 >
   {rankData.map((player, i) => (
-  <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
-    <div class="relative group">
-      <div class="absolute -top-11 left-1 z-10 flex items-baseline">
-        <span class="text-4xl font-black italic text-white leading-none drop-shadow-lg">{i + 1}</span>
-        <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">
-          {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
-        </span>
-      </div>
+    /* 子要素に 'rank-card' クラスを付与 */
+    <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
+                  <div class="relative group">
+                    <div class="absolute -top-11 left-1 z-10 flex items-baseline">
+                      <span class="text-4xl font-black italic text-white leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{i + 1}</span>
+                      <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
+                        {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
+                      </span>
+                    </div>
 
                     <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 transition-transform duration-300 group-hover:translate-y-[-4px]">
                       <img 
@@ -394,8 +395,8 @@ const TEAM_STATS_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/ma
         </div>
 
         <div class="grid grid-cols-2 gap-4 max-w-sm mb-10">
-          <button data-tab="standing" data-target="east" class="tab-btn bg-white text-black py-4 rounded-xl text-[14px] font-black uppercase tracking-widest text-center hover:scale-105 transition-all">East</button>
-          <button data-tab="standing" data-target="west" class="tab-btn bg-black/20 text-white/80 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest text-center hover:bg-white/10 hover:scale-105 transition-all border border-white/5">West</button>
+          <button data-tab="standing" data-target="east" class="tab-btn bg-white text-black py-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-center hover:scale-105 transition-all">East</button>
+          <button data-tab="standing" data-target="west" class="tab-btn bg-black/20 text-white/80 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-center hover:bg-white/10 hover:scale-105 transition-all border border-white/5">West</button>
         </div>
 
         <div id="standing-east" class="standing-pane flex overflow-x-auto gap-6 no-scrollbar snap-x pb-4">
@@ -630,7 +631,6 @@ const TEAM_STATS_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/ma
                 const sourcePath = player.cardPath || player.card || "";
                 const gameMatch = sourcePath.match(/game_(\d+)_/);
                 const gameId = gameMatch ? gameMatch[1] : null;
-                const suffix = (i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th');
 
                 if (gameId && allPlayerCards.length > 0) {
                   const targetEn = player.name ? player.name.trim().toUpperCase()
@@ -652,32 +652,20 @@ const TEAM_STATS_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/ma
                   <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
                     <div class="relative group">
                       <div class="absolute -top-11 left-1 z-10 flex items-baseline">
-                        <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
-                        <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${suffix}</span>
+                        <span class="text-4xl font-black italic text-white leading-none drop-shadow-lg">${i + 1}</span>
+                        <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${['st', 'nd', 'rd'][i] || 'th'}</span>
                       </div>
                       <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
                         <img src="${cardUrl}" alt="${player.nameJp || ''}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='/no-player.png'" />
                       </div>
-
-<div class="mt-4 px-1 space-y-2"> 
-<a href="/b1-team?team=${player.team}" class="block w-full py-2 bg-black/40 border border-white/5 rounded-lg text-center hover:bg-white/10 transition-colors mb-2">
-  <span class="text-[9px] font-black tracking-widest text-white/40 uppercase">${player.team}</span>
-</a>
-  <a 
-    href={`/b-players?name=${encodeURIComponent(player.name)}`} 
-    class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden"
-  >
-    <div class="flex items-center justify-between px-6">
-      <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate mr-2">
-        {player.name}
-      </span>
-      <span class="flex-shrink-0 text-[10px] text-[#2D3A56] group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
-        ▶︎
-      </span>
-    </div>
-    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
-  </a>
-</div>
+                      <div class="mt-4 px-1">
+                        <a href="/b-players?name=${encodeURIComponent(player.name || '')}" class="relative group/btn block w-full bg-white/10 border border-white/10 py-3.5 rounded-full hover:bg-white/20 transition-all">
+                          <div class="flex items-center justify-between px-6">
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate pr-2">${player.name || ''}</span>
+                            <span class="text-[10px] text-[#2D3A56]">▶︎</span>
+                          </div>
+                        </a>
+                      </div>
                     </div>
                   </div>
                 `;
