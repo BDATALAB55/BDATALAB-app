@@ -307,15 +307,14 @@ const TEAM_STATS_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/ma
   class={`rank-pane ${statType !== 'PTS' ? 'hidden' : ''} flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8 pt-12`}
 >
   {rankData.map((player, i) => (
-    /* 子要素に 'rank-card' クラスを付与 */
-    <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
-                  <div class="relative group">
-                    <div class="absolute -top-11 left-1 z-10 flex items-baseline">
-                      <span class="text-4xl font-black italic text-white leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{i + 1}</span>
-                      <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">
-                        {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
-                      </span>
-                    </div>
+  <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
+    <div class="relative group">
+      <div class="absolute -top-11 left-1 z-10 flex items-baseline">
+        <span class="text-4xl font-black italic text-white leading-none drop-shadow-lg">{i + 1}</span>
+        <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">
+          {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
+        </span>
+      </div>
 
                     <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 transition-transform duration-300 group-hover:translate-y-[-4px]">
                       <img 
@@ -631,6 +630,7 @@ const TEAM_STATS_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/ma
                 const sourcePath = player.cardPath || player.card || "";
                 const gameMatch = sourcePath.match(/game_(\d+)_/);
                 const gameId = gameMatch ? gameMatch[1] : null;
+                const suffix = (i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th');
 
                 if (gameId && allPlayerCards.length > 0) {
                   const targetEn = player.name ? player.name.trim().toUpperCase()
@@ -652,11 +652,9 @@ const TEAM_STATS_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/ma
                   <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
                     <div class="relative group">
                       <div class="absolute -top-11 left-1 z-10 flex items-baseline">
-  <span class="text-5xl font-black italic text-white leading-none drop-shadow-2xl">{i + 1}</span>
-  <span class="text-[12px] font-bold uppercase ml-0.5 text-white/80 drop-shadow-lg">
-    {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}
-  </span>
-</div>
+                        <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
+                        <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${suffix}</span>
+                      </div>
                       <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
                         <img src="${cardUrl}" alt="${player.nameJp || ''}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='/no-player.png'" />
                       </div>
