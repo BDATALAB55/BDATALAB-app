@@ -114,7 +114,7 @@ const awayFinalConf = findConfig(awayId);
 const homeFinalConf = findConfig(homeId);
 ---
 <Layout title="B1 CARDS | B-Data Lab">
-  <main class="bg-[#373A36] min-h-screen text-white font-avenir pb-32 overflow-x-hidden relative">
+  <main class="bg-[#373A36] min-h-screen text-white font-avenir overflow-x-hidden relative">
 
     <div class="max-w-6xl mx-auto px-6 pt-12">
       <section class="mb-12">
@@ -151,7 +151,7 @@ const homeFinalConf = findConfig(homeId);
             <a href={`/b1-team?team=${encodeURIComponent(team.conf.display)}`} class={`${team.conf.color} group/team px-8 py-3 text-[14px] font-black uppercase rounded-full inline-block shadow-xl hover:brightness-110 hover:scale-105 transition-all tracking-widest min-w-[180px]`}>
   <div class="flex items-center justify-between gap-4">
     <span class="flex-1 text-center">{team.label}</span>
-    <span class="text-blue-400 group-hover/team:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
+    <span class="text-#2E3C57 group-hover/team:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
   </div>
 </a>
           </div>
@@ -168,7 +168,7 @@ const homeFinalConf = findConfig(homeId);
       <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 flex-1 text-left truncate pr-2">
         {p.name}
       </span>
-      <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
+      <span class="flex-shrink-0 text-[10px] text-#2E3C57 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
         ▶︎
       </span>
     </div>
@@ -202,7 +202,7 @@ const homeFinalConf = findConfig(homeId);
       <a id="download-btn" href="" download class="bg-white text-black px-14 py-4 rounded-full font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all">Download Card</a>
     </div>
 
-<footer class="w-full py-16 flex flex-col items-center justify-center gap-6 bg-black/10 shrink-0 border-t border-white/5 mt-20">
+<footer class="w-full pt-16 pb-0 flex flex-col items-center justify-center gap-6 bg-black/10 shrink-0 border-t border-white/5 mt-20">
       <div class="text-center">
         <h2 class="text-2xl md:text-3xl font-black tracking-[0.4em] uppercase leading-none" 
             style="color: #2E3C57; -webkit-text-stroke: 1px rgba(255,255,255,0.7); paint-order: stroke fill;">
