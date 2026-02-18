@@ -288,7 +288,7 @@ const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgN
       </section>
     </div>
 
-    <footer class="w-full py-16 flex flex-col items-center justify-center gap-6 bg-black/10 shrink-0 border-t border-white/5 mt-20">
+    <footer class="w-full pt-16 pb-32 flex flex-col items-center justify-center gap-6 bg-black/10 shrink-0 border-t border-white/5 mt-20">
       <div class="text-center">
         <h2 class="text-2xl md:text-3xl font-black tracking-[0.4em] uppercase leading-none" 
             style="color: #2E3C57; -webkit-text-stroke: 1px rgba(255,255,255,0.7); paint-order: stroke fill;">
@@ -312,10 +312,14 @@ const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgN
     </footer>
 
     <div class="fixed bottom-8 left-8 z-50">
-        <button onclick="history.back()" class="bg-white/10 backdrop-blur-xl text-white px-8 py-5 rounded-full font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl border border-white/20 active:scale-90 transition-all">← Back</button>
+        <button onclick="history.back()" class="bg-white/10 backdrop-blur-xl text-white px-8 h-[58px] rounded-full font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl border border-white/20 active:scale-90 transition-all flex items-center justify-center">
+          ← Back
+        </button>
     </div>
     <div class="fixed bottom-8 right-8 z-50">
-      <a href="/b1-home" class="bg-gray-800/80 backdrop-blur-xl text-white px-10 py-5 rounded-full font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl border border-white/10 active:scale-90 transition-all">B1 Home</a>
+      <a href="/b1-home" class="bg-gray-800/80 backdrop-blur-xl text-white px-10 h-[58px] rounded-full font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl border border-white/10 active:scale-90 transition-all flex items-center justify-center">
+        B1 Home
+      </a>
     </div>
 
   </main>
