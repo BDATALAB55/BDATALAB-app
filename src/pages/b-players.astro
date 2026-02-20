@@ -186,9 +186,7 @@ if (playerName) {
       // availableDatesMap[dateKey] が存在するかチェック
       const hasData = !!availableDatesMap[dateKey]; 
       
-      const activeStyle = hasData 
-        ? "bg-blue-600 text-white font-black cursor-pointer shadow-[0_0_15px_rgba(37,99,235,0.5)] border border-white/20 scale-110 hover:scale-125" 
-        : "text-white/10 pointer-events-none";
+      const activeStyle = hasData ? "bg-[#2D3A56] text-white font-black cursor-pointer shadow-lg scale-110" : "text-white/10 pointer-events-none";
 
       html += `
         <div class="flex justify-center items-center">
