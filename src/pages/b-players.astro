@@ -188,19 +188,31 @@ if (playerName) {
       const dateKey = `${String(y).substring(2)}${String(m + 1).padStart(2, '0')}${String(d).padStart(2, '0')}`;
       const isGameDay = availableDatesMap[dateKey];
 
+      const activeStyle = hasData 
+      ? "bg-blue-600 text-white font-black cursor-pointer shadow-[0_0_15px_rgba(37,99,235,0.5)] border border-white/20 scale-110 hover:scale-125" 
+      : "text-white/10 pointer-events-none";
+
       html += `
-        <div class="flex justify-center items-center h-8">
-          ${isGameDay ? 
-            `<button onclick="document.getElementById('card-${dateKey}')?.scrollIntoView({behavior:'smooth', block:'center'})" 
-               class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white text-[10px] font-black shadow-[0_0_15px_rgba(37,99,235,0.5)] border border-white/20 hover:scale-110 transition-transform">
-               ${d}
-             </button>` : 
-            `<span class="text-white/10 text-[10px] font-bold">${d}</span>`
-          }
-        </div>`;
-    }
-    calendarEl.innerHTML = html + `</div>`;
+      <div class="aspect-square flex items-center justify-center rounded-full text-[12px] transition-all ${activeStyle}" 
+           ${hasData ? `data-date="${dateKey}"` : ''}>
+        ${d}
+      </div>`;
   }
+
+    calendarEl.innerHTML = html + `</div>`;
+
+    document.getElementById('prevM').onclick = () => { curM--; if(curM<0){curM=11;curY--} renderCalendar(curY, curM); };
+  document.getElementById('nextM').onclick = () => { curM++; if(curM>11){curM=0;curY++} renderCalendar(curY, curM); };
+
+  // 日付クリック時のデータ更新ロジックを再登録
+  calendarEl.querySelectorAll('[data-date]').forEach(el => {
+    el.onclick = () => {
+      const targetDate = el.getAttribute('data-date');
+      // ここから下に「データを更新するロジック（el.onclick = () => { ... } の中身）」が続くようにしてください
+      updateDashboard(targetDate); // 既存の更新処理を関数にまとめている場合はそれを呼ぶ
+    };
+  });
+}
 
   renderCalendar(currentY, currentM);
 </script>
