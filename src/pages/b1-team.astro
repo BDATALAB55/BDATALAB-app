@@ -340,21 +340,25 @@ window.applyViewMode = function(mode) {
   const btnList = document.getElementById('btn-list');
 
   if (mode === 'grid') {
-    pane.classList.remove('flex', 'overflow-x-auto', 'snap-x');
-    pane.classList.add('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-10'); // gapをHOMEに合わせ調整
-    cards.forEach(c => c.classList.remove('flex-none', 'w-[320px]', 'snap-center'));
+    pane.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'gap-8'); // gap-8を解除
+    pane.classList.add('grid', 'grid-cols-2', 'gap-x-2', 'gap-y-8'); // 左右の隙間を狭く(gap-x-2)
+    cards.forEach(c => {
+      c.classList.remove('flex-none', 'w-[320px]', 'snap-center');
+      c.classList.add('w-full'); // 幅を100%にしてグリッド枠に合わせる
+    });
     
-    // ボタンの見た目切り替え
     btnGrid.classList.add('bg-white/20');
     btnGrid.classList.remove('bg-black/40');
     btnList.classList.add('bg-black/40');
     btnList.classList.remove('bg-white/20');
   } else {
-    pane.classList.add('flex', 'overflow-x-auto', 'snap-x');
-    pane.classList.remove('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-10');
-    cards.forEach(c => c.classList.add('flex-none', 'w-[320px]', 'snap-center'));
+    pane.classList.add('flex', 'overflow-x-auto', 'snap-x', 'gap-8');
+    pane.classList.remove('grid', 'grid-cols-2', 'gap-x-2', 'gap-y-8');
+    cards.forEach(c => {
+      c.classList.add('flex-none', 'w-[320px]', 'snap-center');
+      c.classList.remove('w-full');
+    });
 
-    // ボタンの見た目切り替え
     btnList.classList.add('bg-white/20');
     btnList.classList.remove('bg-black/40');
     btnGrid.classList.add('bg-black/40');
