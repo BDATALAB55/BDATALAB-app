@@ -379,9 +379,9 @@ window.applyViewMode = function(mode) {
         <div class="font-black text-[13px] tracking-[0.3em] uppercase">${monthNames[m]} ${y}</div>
         <button onclick="changeMonth(1)" class="text-white/30 hover:text-white transition-colors text-lg">→</button>
       </div>
-      <div class="grid grid-cols-7 gap-1 text-center text-[9px] font-black text-white/10 mb-6 tracking-widest">
-        <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
-      </div>
+      <div class="grid grid-cols-7 gap-1 text-[9px] text-center text-white/40 mb-4 font-bold uppercase">
+      <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+    </div>
       <div class="grid grid-cols-7 gap-y-4 gap-x-2">`;
     for (let i = 0; i < firstDay; i++) html += `<div></div>`;
     for (let d = 1; d <= daysInMonth; d++) {
@@ -390,7 +390,7 @@ window.applyViewMode = function(mode) {
       html += `
         <div class="flex items-center justify-center">
           ${link ? 
-            `<a href="${link}" class="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white text-[12px] font-black shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all border border-white/20">${d}</a>` : 
+            `<a href="${link}" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#2D3A56] text-white text-[12px] font-black shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all border border-white/20">${d}</a>` : 
             `<span class="text-white/10 text-[12px] font-bold">${d}</span>`
           }
         </div>`;
