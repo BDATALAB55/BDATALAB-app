@@ -148,81 +148,82 @@ if (playerName) {
 
 <script is:inline define:vars={{ availableDatesMap }}>
   let currentY = 2026;
-  let currentM = 0;
+  let currentM = 1; // 2月
 
+  // 初期の表示年月をデータの最新日に合わせる
   const dateKeys = Object.keys(availableDatesMap).sort((a,b) => b.localeCompare(a));
   if (dateKeys.length > 0) {
     currentY = 2000 + parseInt(dateKeys[0].substring(0,2));
     currentM = parseInt(dateKeys[0].substring(2,4)) - 1;
   }
 
-  window.changeMonth = function(delta) {
-    currentM += delta;
-    if (currentM < 0) { currentM = 11; currentY--; }
-    else if (currentM > 11) { currentM = 0; currentY++; }
-    renderCalendar(currentY, currentM);
-  };
-
   function renderCalendar(y, m) {
-  const calendarEl = document.getElementById('calendar');
-  if (!calendarEl) return;
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) return;
 
-  const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-  const firstDay = new Date(y, m, 1).getDay();
-  const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+    const firstDay = new Date(y, m, 1).getDay();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
 
-  // ヘッダー部分：見た目を統一
-  let html = `
-    <div class="flex justify-between items-center mb-6 px-2 text-white font-black text-xs tracking-widest">
-      <button type="button" class="p-2 hover:text-blue-400 transition-colors" id="prevM">←</button>
-      <span>${monthNames[m]} ${y}</span>
-      <button type="button" class="p-2 hover:text-blue-400 transition-colors" id="nextM">→</button>
-    </div>
-    <div class="grid grid-cols-7 gap-1 text-[9px] text-center text-white/40 mb-4 font-bold uppercase">
-      <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
-    </div>
-    <div class="grid grid-cols-7 gap-y-3">`;
+    // ヘッダー
+    let html = `
+      <div class="flex justify-between items-center mb-6 px-2 text-white font-black text-xs tracking-widest">
+        <button type="button" class="p-2 hover:text-blue-400 transition-colors" id="prevM">←</button>
+        <span>${monthNames[m]} ${y}</span>
+        <button type="button" class="p-2 hover:text-blue-400 transition-colors" id="nextM">→</button>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-[9px] text-center text-white/40 mb-4 font-bold uppercase">
+        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+      </div>
+      <div class="grid grid-cols-7 gap-y-3">`;
 
-  for (let i = 0; i < firstDay; i++) html += `<div></div>`;
+    for (let i = 0; i < firstDay; i++) html += `<div></div>`;
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const yearSuffix = String(y).slice(-2);
-    const dateKey = `${yearSuffix}${String(m + 1).padStart(2, '0')}${String(d).padStart(2, '0')}`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const yearSuffix = String(y).slice(-2);
+      const dateKey = `${yearSuffix}${String(m + 1).padStart(2, '0')}${String(d).padStart(2, '0')}`;
+      
+      // availableDatesMap[dateKey] が存在するかチェック
+      const hasData = !!availableDatesMap[dateKey]; 
+      
+      const activeStyle = hasData 
+        ? "bg-blue-600 text-white font-black cursor-pointer shadow-[0_0_15px_rgba(37,99,235,0.5)] border border-white/20 scale-110 hover:scale-125" 
+        : "text-white/10 pointer-events-none";
+
+      html += `
+        <div class="flex justify-center items-center">
+          <div class="w-8 h-8 flex items-center justify-center rounded-full text-[11px] transition-all ${activeStyle}" 
+               ${hasData ? `data-date="${dateKey}"` : ''}>
+            ${d}
+          </div>
+        </div>`;
+    }
     
-    // データがあるかチェック（B1ホーム側のロジックに合わせる）
-    const hasData = availableDates.includes(dateKey); 
-    
-    // 見た目のクラス設定：青い丸のデザインを適用
-    const activeStyle = hasData 
-      ? "bg-blue-600 text-white font-black cursor-pointer shadow-[0_0_15px_rgba(37,99,235,0.5)] border border-white/20 scale-110 hover:scale-125" 
-      : "text-white/10 pointer-events-none";
+    calendarEl.innerHTML = html + `</div>`;
 
-    // 重要な変更：onclickに直接書かず、data-date属性を付与して後でイベントを貼る
-    html += `
-      <div class="aspect-square flex items-center justify-center rounded-full text-[12px] transition-all ${activeStyle}" 
-           ${hasData ? `data-date="${dateKey}"` : ''}>
-        ${d}
-      </div>`;
-  }
-  
-  calendarEl.innerHTML = html + `</div>`;
-
-  // --- ロジック部分の紐付け ---
-  
-  // 月移動ボタンのイベント
-  document.getElementById('prevM').onclick = () => { curM--; if(curM<0){curM=11;curY--} renderCalendar(curY, curM); };
-  document.getElementById('nextM').onclick = () => { curM++; if(curM>11){curM=0;curY++} renderCalendar(curY, curM); };
-
-  // 日付クリック時のデータ更新ロジックを再登録
-  calendarEl.querySelectorAll('[data-date]').forEach(el => {
-    el.onclick = () => {
-      const targetDate = el.getAttribute('data-date');
-      // ここから下に「データを更新するロジック（el.onclick = () => { ... } の中身）」が続くようにしてください
-      updateDashboard(targetDate); // 既存の更新処理を関数にまとめている場合はそれを呼ぶ
+    // 月移動イベント
+    document.getElementById('prevM').onclick = () => { 
+      currentM--; if(currentM < 0){ currentM = 11; currentY--; } 
+      renderCalendar(currentY, currentM); 
     };
-  });
-}
+    document.getElementById('nextM').onclick = () => { 
+      currentM++; if(currentM > 11){ currentM = 0; currentY++; } 
+      renderCalendar(currentY, currentM); 
+    };
 
+    // 日付クリックイベント（スクロールロジックをここに記載）
+    calendarEl.querySelectorAll('[data-date]').forEach(el => {
+      el.onclick = () => {
+        const targetDate = el.getAttribute('data-date');
+        const targetEl = document.getElementById(`card-${targetDate}`);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        }
+      };
+    });
+  }
+
+  // 初回実行
   renderCalendar(currentY, currentM);
 </script>
 
