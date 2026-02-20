@@ -89,10 +89,10 @@ if (playerName) {
     <main class="max-w-7xl mx-auto px-8 mt-12">
       <div class="flex justify-between items-end mb-10">
         <div>
-           <h2 class="text-3xl font-black uppercase tracking-tight italic">BOX SCORE</h2>
+           <h2 class="text-4xl font-bold uppercase tracking-tight leading-none mb-4">BOX SCORE</h2>
         </div>
         <div class="text-right leading-none">
-          <span class="text-7xl md:text-8xl font-black italic opacity-20 block tracking-[-0.1em]">{totalGames}</span>
+          <span class="text-7xl md:text-8xl font-bold italic opacity-20 block tracking-[-0.1em]">{totalGames}</span>
           <span class="text-[12px] font-bold opacity-40 uppercase tracking-[0.3em]">GAMES</span>
         </div>
       </div>
@@ -103,7 +103,7 @@ if (playerName) {
             <div id={`card-${card.displayDate}`} class="flex-none w-[320px] snap-start">
               <div class="mb-4 flex items-center gap-2 px-1">
                 <div class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
-                <span class="text-[14px] font-black text-white/80 tracking-widest">
+                <span class="text-[20px] font-black text-white/80 tracking-widest">
                   {card.fullDate.substring(0,4)}.{card.fullDate.substring(4,6)}.{card.fullDate.substring(6,8)}
                 </span>
               </div>
