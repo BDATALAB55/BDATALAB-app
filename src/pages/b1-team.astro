@@ -367,42 +367,44 @@ window.applyViewMode = function(mode) {
     else if (currentM > 11) { currentM = 0; currentY++; }
     renderCalendar(currentY, currentM);
   };
+
   function renderCalendar(y, m) {
-    const calendarEl = document.getElementById('calendar');
-    if(!calendarEl) return;
-    const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-    const firstDay = new Date(y, m, 1).getDay();
-    const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const calendarEl = document.getElementById('calendar');
+  if(!calendarEl) return;
+  const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
 
-    let html = `
-      <div class="flex justify-between items-center mb-10 px-2">
-        <button onclick="changeMonth(-1)" class="text-white/30 hover:text-white transition-colors text-lg">←</button>
-        <div class="font-black text-[13px] tracking-[0.3em] uppercase">${monthNames[m]} ${y}</div>
-        <button onclick="changeMonth(1)" class="text-white/30 hover:text-white transition-colors text-lg">→</button>
-      </div>
-
-      <div class="grid grid-cols-7 gap-1 text-[9px] text-center text-white/40 mb-4 font-bold uppercase">
+  let html = `
+    <div class="flex justify-between items-center mb-10 px-2">
+      <button onclick="changeMonth(-1)" class="text-white/30 hover:text-white transition-colors text-lg">←</button>
+      <div class="font-black text-[13px] tracking-[0.3em] uppercase">${monthNames[m]} ${y}</div>
+      <button onclick="changeMonth(1)" class="text-white/30 hover:text-white transition-colors text-lg">→</button>
+    </div>
+    <div class="grid grid-cols-7 gap-1 text-[9px] text-center text-white/40 mb-4 font-bold uppercase">
       <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
     </div>
+    <div class="grid grid-cols-7 gap-y-4 gap-x-1">`; // 丸を大きくするため gap-x を少し狭めました
 
-      <div class="grid grid-cols-7 gap-y-4 gap-x-2">`;
-    for (let i = 0; i < firstDay; i++) html += `<div></div>`;
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = `${String(y).substring(2)}${String(m + 1).padStart(2, '0')}${String(d).padStart(2, '0')}`;
-      const link = availableDatesMap[dateStr];
+  for (let i = 0; i < firstDay; i++) html += `<div></div>`;
+  
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${String(y).substring(2)}${String(m + 1).padStart(2, '0')}${String(d).padStart(2, '0')}`;
+    const link = availableDatesMap[dateStr];
 
-      const activeStyle = hasData ? "bg-[#2D3A56] text-white font-black cursor-pointer shadow-lg scale-110" : "text-white/10 pointer-events-none";
+    // データがある日のスタイル（ホバーなし・青い光）
+    const activeStyle = "bg-[#2D3A56] text-white font-black shadow-[0_0_15px_rgba(59,130,246,0.8)] border border-blue-400/30";
 
-      html += `
-        <div class="flex items-center justify-center">
-          ${link ? 
-            `<a href="${link}" class="w-11 h-11 flex items-center justify-center rounded-full text-[11px] transition-all ${activeStyle}" 
-            `<span class="text-white/10 text-[12px] font-bold">${d}</span>`
-          }
-        </div>`;
-    }
-    calendarEl.innerHTML = html + `</div>`;
+    html += `
+      <div class="flex items-center justify-center">
+        ${link ? 
+          `<a href="${link}" class="w-11 h-11 flex items-center justify-center rounded-full text-[12px] ${activeStyle}">${d}</a>` : 
+          `<span class="text-white/10 text-[12px] font-bold">${d}</span>`
+        }
+      </div>`;
   }
+  calendarEl.innerHTML = html + `</div>`;
+}
   renderCalendar(currentY, currentM);
 </script>
 
