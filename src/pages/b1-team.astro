@@ -228,12 +228,11 @@ const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgN
     <div>
       <h2 class="text-4xl font-bold uppercase tracking-tight leading-none mb-4">GAME REPORT</h2>
       
-      <div class="flex gap-3 md:hidden">
-        <button onclick="applyViewMode('list')" id="btn-list" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-all border border-white/10">
-          <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/></svg>
+      <div class="flex gap-2 md:hidden"> <button onclick="applyViewMode('list')" id="btn-list" class="view-switch-btn active bg-white/20 p-2 rounded-lg border border-white/10 transition-all">
+          <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M2 13h20v2H2zm0-4h20v2H2zm0-4h20v2H2zm0 12h20v2H2z"/></svg>
         </button>
-        <button onclick="applyViewMode('grid')" id="btn-grid" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/20 transition-all border border-white/5 opacity-50">
-          <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/></svg>
+        <button onclick="applyViewMode('grid')" id="btn-grid" class="view-switch-btn bg-black/40 p-2 rounded-lg border border-white/10 transition-all">
+          <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
         </button>
       </div>
     </div>
@@ -333,7 +332,7 @@ const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgN
     currentY = 2000 + parseInt(dates[0].substring(0,2));
     currentM = parseInt(dates[0].substring(2,4)) - 1;
   }
-// 表示切り替え機能
+// 修正後（チームページの415行目付近）
 window.applyViewMode = function(mode) {
   const pane = document.getElementById('report-pane');
   const cards = document.querySelectorAll('.report-card');
@@ -342,22 +341,24 @@ window.applyViewMode = function(mode) {
 
   if (mode === 'grid') {
     pane.classList.remove('flex', 'overflow-x-auto', 'snap-x');
-    pane.classList.add('grid', 'grid-cols-2', 'gap-x-1.5', 'gap-y-12');
-    cards.forEach(c => {
-      c.classList.remove('flex-none', 'w-[320px]', 'snap-center');
-      c.classList.add('w-full');
-    });
-    btnGrid.style.opacity = "1";
-    btnList.style.opacity = "0.5";
+    pane.classList.add('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-10'); // gapをHOMEに合わせ調整
+    cards.forEach(c => c.classList.remove('flex-none', 'w-[320px]', 'snap-center'));
+    
+    // ボタンの見た目切り替え
+    btnGrid.classList.add('bg-white/20');
+    btnGrid.classList.remove('bg-black/40');
+    btnList.classList.add('bg-black/40');
+    btnList.classList.remove('bg-white/20');
   } else {
     pane.classList.add('flex', 'overflow-x-auto', 'snap-x');
-    pane.classList.remove('grid', 'grid-cols-2', 'gap-x-1.5', 'gap-y-12');
-    cards.forEach(c => {
-      c.classList.add('flex-none', 'w-[320px]', 'snap-center');
-      c.classList.remove('w-full');
-    });
-    btnGrid.style.opacity = "0.5";
-    btnList.style.opacity = "1";
+    pane.classList.remove('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-10');
+    cards.forEach(c => c.classList.add('flex-none', 'w-[320px]', 'snap-center'));
+
+    // ボタンの見た目切り替え
+    btnList.classList.add('bg-white/20');
+    btnList.classList.remove('bg-black/40');
+    btnGrid.classList.add('bg-black/40');
+    btnGrid.classList.remove('bg-white/20');
   }
 };
 
@@ -447,16 +448,11 @@ window.applyViewMode = function(mode) {
   }
 
 /* PCサイズ (768px以上) では常に横スクロール形式を維持 */
-  @media (min-width: 768px) {
-    #report-pane {
-      display: flex !important;
-      overflow-x: auto !important;
-      flex-wrap: nowrap !important;
-    }
+  
     .report-card {
       width: 320px !important;
       flex: none !important;
     }
-  }
+  
 
 </style>
