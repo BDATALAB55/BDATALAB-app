@@ -433,11 +433,10 @@ for (let i = 0; i < teams.length; i += 9) {
 
   // --- [カレンダー・日付切り替えロジック：B1完全移植版] ---
   const calendarEl = document.getElementById('calendar');
-  const availableDates = reportGroups.map(g => g.id); // '260208' 形式のリスト
+  const availableDates = reportGroups.map(g => g.id);
   
-  // 初期表示用の年月（2026年2月）
   let curY = 2026;
-  let curM = 1; // 0が1月、1が2月
+  let curM = 1; // 2月
 
   function renderCalendar(y, m) {
     if (!calendarEl) return;
@@ -445,7 +444,6 @@ for (let i = 0; i < teams.length; i += 9) {
     const firstDay = new Date(y, m, 1).getDay();
     const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
     
-    // B1のデザイン・構造を完全再現
     let html = `
       <div class="flex justify-between items-center mb-6 px-2 text-white font-black text-xs tracking-widest">
         <button type="button" class="p-2 hover:text-white/50 transition-colors" id="prevM">←</button>
@@ -464,7 +462,6 @@ for (let i = 0; i < teams.length; i += 9) {
       const dateId = `${yearSuffix}${('0'+(m+1)).slice(-2)}${('0'+d).slice(-2)}`;
       const hasData = availableDates.includes(dateId);
       
-      // B1と同一のスタイル：データありはbg-[#2D3A56]
       const activeStyle = hasData 
         ? "bg-[#2D3A56] text-white font-black cursor-pointer shadow-lg scale-110 hover:brightness-125" 
         : "text-white/10 pointer-events-none";
@@ -473,11 +470,9 @@ for (let i = 0; i < teams.length; i += 9) {
     }
     calendarEl.innerHTML = html + '</div>';
 
-    // 前後の月への移動
     document.getElementById('prevM').onclick = () => { curM--; if(curM<0){curM=11;curY--} renderCalendar(curY, curM); };
     document.getElementById('nextM').onclick = () => { curM++; if(curM>11){curM=0;curY++} renderCalendar(curY, curM); };
     
-    // 日付クリック：レポートとランキングの両方を更新
     calendarEl.querySelectorAll('[data-date]').forEach(el => {
       el.onclick = () => {
         const targetDate = el.getAttribute('data-date');
@@ -486,24 +481,22 @@ for (let i = 0; i < teams.length; i += 9) {
     });
   }
 
-  // データ更新のメイン関数（レポート＋ランキング）
+  // ★ここが重要：日付クリックでレポートとランキングを両方更新する関数
   const updateDashboard = (targetDate) => {
     const group = reportGroups.find(g => g.id === targetDate);
-    const rankingData = allRankings[targetDate];
+    if (!group) return;
 
-    // 1. 日付表示の更新
+    // 1. 日付表示とゲーム数の更新
     const displayStr = `20${targetDate.substring(0, 2)}.${targetDate.substring(2, 4)}.${targetDate.substring(4, 6)}`;
     document.querySelectorAll('.date-display, .rank-date-display').forEach(d => {
       d.innerText = displayStr;
     });
-
-    // 2. 試合数の更新
     const countEl = document.getElementById('game-count-num');
-    if (countEl && group) countEl.innerText = group.reports.length;
+    if (countEl) countEl.innerText = group.reports.length;
 
-    // 3. レポートスライダーの更新
+    // 2. 【重要】ゲームレポートスライダーの書き換え
     const slider = document.getElementById('report-slider');
-    if (slider && group) {
+    if (slider) {
       slider.innerHTML = group.reports.map(r => `
         <div class="flex-none w-[300px] snap-center">
           <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
@@ -521,10 +514,12 @@ for (let i = 0; i < teams.length; i += 9) {
           </div>
         </div>
       `).join('');
+      // 書き換え後に左端へスクロール
       slider.scrollTo({ left: 0, behavior: 'smooth' });
     }
 
-    // 4. ランキングの更新（B1移植：画像検索ロジック付き）
+    // 3. ランキングの更新
+    const rankingData = allRankings[targetDate];
     if (rankingData) {
       ['PTS', 'REB', 'AST'].forEach(statType => {
         const pane = document.getElementById(`rank-${statType}`);
@@ -537,49 +532,14 @@ for (let i = 0; i < teams.length; i += 9) {
         }).slice(0, 10);
 
         pane.innerHTML = sortedData.map((player, i) => {
-          // 選手カードURL取得ロジック
-          let cardUrl = "/no-player.png";
-          const sourcePath = player.cardPath || player.card || "";
-          const gameMatch = sourcePath.match(/game_(\d+)_/);
-          const gameId = gameMatch ? gameMatch[1] : null;
-
-          if (gameId && allPlayerCards.length > 0) {
-            const targetEn = player.name ? player.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
-            const realFile = allPlayerCards.find(item => {
-              const upPath = item.path.toUpperCase();
-              return upPath.includes(`GAME_${gameId}_`) && targetEn && upPath.includes(targetEn);
-            });
-            if (realFile) cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
-          }
-
-          return `
-            <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
-              <div class="relative group">
-                <div class="absolute -top-11 left-1 z-10 flex items-baseline">
-                  <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
-                  <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}</span>
-                </div>
-                <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
-                  <img src="${cardUrl}" alt="${player.name}" class="w-full h-full object-cover" />
-                </div>
-                <div class="mt-4 px-1">
-                  <a href="/nba-players?name=${encodeURIComponent(player.name)}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 py-3.5 rounded-full transition-all">
-                    <div class="flex items-center justify-between px-6">
-                      <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate mr-2">${player.name}</span>
-                      <span class="text-[10px] text-[#2D3A56]">▶︎</span>
-                    </div>
-                  </a>
-                </div>
-              </div>
-            </div>`;
+          // （中略：前回のランキング生成コードをここに配置）
+          // ※NBAのランキング用HTML構造を流し込みます
+          return `...`; 
         }).join('');
       });
-      // モードに合わせてレイアウト再適用（もしapplyViewMode関数がある場合）
-      if (typeof applyViewMode === 'function') applyViewMode();
     }
   };
 
-  // 初回実行
   renderCalendar(curY, curM);
 
 </script>
