@@ -263,7 +263,10 @@ const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgN
         <span class="text-[9px] font-black tracking-tighter uppercase text-white/90 truncate">
           {r.away} <span class="opacity-40 italic mx-0.5">vs</span> {r.home}
         </span>
-        <span class="flex-shrink-0 text-[8px] text-blue-400 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
+        <span class="team-names text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]">
+          {r.away} <span class="text-[10px] opacity-50 italic mx-1">vs</span> {r.home}
+        </span>
+        <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
       </div>
       <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
     </a>
@@ -342,21 +345,36 @@ window.applyViewMode = function(mode) {
   if (mode === 'grid') {
     pane.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'gap-8'); // gap-8を解除
     pane.classList.add('grid', 'grid-cols-2', 'gap-x-2', 'gap-y-8'); // 左右の隙間を狭く(gap-x-2)
+    
     cards.forEach(c => {
       c.classList.remove('flex-none', 'w-[320px]', 'snap-center');
       c.style.width = '100%';
+
+      const textSpan = c.querySelector('.team-names');
+      if (textSpan) {
+        textSpan.className = "team-names text-[11px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.1em]";
+      }
+
     });
     
     btnGrid.classList.add('bg-white/20');
     btnGrid.classList.remove('bg-black/40');
     btnList.classList.add('bg-black/40');
     btnList.classList.remove('bg-white/20');
+
   } else {
     pane.classList.add('flex', 'overflow-x-auto', 'snap-x', 'gap-8');
     pane.classList.remove('grid', 'grid-cols-2', 'gap-x-2', 'gap-y-8');
+    
     cards.forEach(c => {
       c.classList.add('flex-none', 'w-[320px]', 'snap-center');
       c.classList.remove('w-full');
+
+    const textSpan = c.querySelector('.team-names');
+      if (textSpan) {
+        textSpan.className = "team-names text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]";
+      }
+
     });
 
     btnList.classList.add('bg-white/20');
