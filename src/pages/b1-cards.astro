@@ -159,23 +159,23 @@ const homeFinalConf = findConfig(homeId);
   {team.data.length > 0 ? (
     team.data.map((p) => (
       <div class="player-card flex-none w-[280px] md:w-[320px] snap-center">
-                  <div class="cursor-pointer card-trigger rounded-2xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]" data-img={p.imagePath}>
-                    <img src={p.imagePath} alt={p.name} class="w-full h-auto block" loading="lazy" />
-                  </div>
-                  <div class="mt-6 px-1">
-  <a href={`/b-players?name=${encodeURIComponent(p.name)}`} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-4 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
-    <div class="flex items-center justify-between px-6">
-      <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 flex-1 text-left truncate pr-2">
-        {p.name}
-      </span>
-      <span class="flex-shrink-0 text-[10px] text-[#2E3C57] group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">
-        ▶︎
-      </span>
-    </div>
-    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
-  </a>
+  <div class="cursor-pointer card-trigger rounded-xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]" data-img={p.imagePath}>
+    <img src={p.imagePath} alt={p.name} class="w-full h-auto block" loading="lazy" />
+  </div>
+
+  <div class="mt-4 px-0"> <a href={`/b-players?name=${encodeURIComponent(p.name)}`} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
+      <div class="flex items-center justify-between px-2">
+        <span class="text-[9px] font-black uppercase tracking-tighter text-white/90 flex-1 text-left truncate pr-1">
+          {p.name}
+        </span>
+        <span class="flex-shrink-0 text-[8px] text-[#2E3C57] group-hover/btn:translate-x-1 transition-transform">
+          ▶︎
+        </span>
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
+    </a>
+  </div>
 </div>
-                </div>
               ))
             ) : (
               <div class="w-full py-20 border border-dashed border-white/10 rounded-3xl text-center text-white/20 uppercase text-[12px] tracking-[0.5em] bg-black/10">No Player Cards Found</div>
@@ -255,28 +255,29 @@ const homeFinalConf = findConfig(homeId);
   let currentViewMode = 'slide';
 
   const applyViewMode = () => {
-    // PC（768px以上）では常にスライド形式を強制
-    if (window.innerWidth >= 768) {
-      currentViewMode = 'slide';
+  const containers = document.querySelectorAll('.player-container');
+  containers.forEach(container => {
+    const cards = container.querySelectorAll('.player-card');
+    
+    if (currentViewMode === 'grid') {
+      // グリッド表示（2列）
+      container.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'pb-12');
+      container.classList.add('grid', 'grid-cols-2', 'gap-x-2', 'gap-y-8', 'pt-4'); // gap-xを狭く
+      cards.forEach(c => {
+        c.classList.remove('flex-none', 'w-[280px]', 'snap-center');
+        (c as HTMLElement).style.width = '100%'; // 幅を100%に強制
+      });
+    } else {
+      // スライド表示
+      container.classList.add('flex', 'overflow-x-auto', 'snap-x', 'pb-12');
+      container.classList.remove('grid', 'grid-cols-2', 'gap-x-2', 'gap-y-8', 'pt-4');
+      cards.forEach(c => {
+        c.classList.add('flex-none', 'w-[280px]', 'md:w-[320px]', 'snap-center');
+        (c as HTMLElement).style.width = ''; // スタイルをリセット
+      });
     }
-
-    const containers = document.querySelectorAll('.player-container');
-    containers.forEach(container => {
-      const cards = container.querySelectorAll('.player-card');
-      
-      if (currentViewMode === 'grid') {
-        // グリッド表示（2列）
-        container.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'pb-12');
-        container.classList.add('grid', 'grid-cols-2', 'gap-2', 'pt-4');
-        cards.forEach(c => c.classList.remove('flex-none', 'w-[280px]', 'snap-center'));
-      } else {
-        // スライド表示（1列・横スクロール）
-        container.classList.add('flex', 'overflow-x-auto', 'snap-x', 'pb-12');
-        container.classList.remove('grid', 'grid-cols-2', 'gap-4', 'pt-4');
-        cards.forEach(c => c.classList.add('flex-none', 'w-[280px]', 'md:w-[320px]', 'snap-center'));
-      }
-    });
-  };
+  });
+};
 
   const switchBtns = document.querySelectorAll('.view-switch-btn');
   switchBtns.forEach(btn => {
@@ -296,7 +297,29 @@ const homeFinalConf = findConfig(homeId);
 
 </script>
 <style is:global>
+  /* スライド（横スクロール）時のみ固定幅を適用 */
+  .player-container.flex .player-card {
+    width: 280px !important;
+    flex: none !important;
+  }
+
+  @media (min-width: 768px) {
+    .player-container.flex .player-card {
+      width: 320px !important;
+    }
+  }
+
+  /* グリッド時は強制的に100% */
+  .player-container.grid .player-card {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   .font-avenir { font-family: 'Avenir Next', 'Helvetica Neue', Arial, sans-serif; }
+  
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
 </style>
