@@ -293,21 +293,32 @@ for (let i = 0; i < teams.length; i += 9) {
         </div>
       </section>
 
-      <section class="mt-32">
-  <h2 class="text-4xl font-black uppercase tracking-tighter mb-8">Today's RANK 10</h2>
-  
-  <div class="flex flex-nowrap gap-2 mb-10 max-w-sm">
-    {['PTS', 'REB', 'AST'].map((stat, i) => (
-      <button 
-        data-tab="rank" 
-        data-target={stat} 
-        class={`rank-btn flex-1 py-4 rounded-xl text-[12px] font-black tracking-widest uppercase transition-all border border-white/5 
-          ${i === 0 ? 'bg-white text-black' : 'bg-black/20 text-white/80 hover:bg-white/10'}`}
-      >
-        {stat}
-      </button>
-    ))}
-  </div>
+      <section class="mt-24">
+        <h2 class="text-4xl font-black uppercase tracking-tighter mb-4">Today's RANK 10</h2>
+        
+        <div class="mb-6">
+          <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
+          <br />
+          <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em] rank-date-display">{displayToday}</span>
+        </div>
+
+        <div class="flex flex-col md:flex-row md:items-end gap-4 mb-10">
+          <div class="flex flex-nowrap gap-2 w-full max-w-sm">
+            {['PTS', 'REB', 'AST'].map((stat, i) => (
+              <button 
+                data-tab="rank" 
+                data-target={stat}
+                class={`rank-btn flex-1 py-4 rounded-xl text-[12px] font-black tracking-widest uppercase transition-all border border-white/5 
+                  ${i === 0 ? 'bg-white text-black' : 'bg-black/20 text-white/80 hover:bg-white/10'}`}
+              >
+                {stat}
+              </button>
+            ))}
+          </div>
+          <p class="text-white text-[10px] font-medium leading-none mb-1 opacity-80">
+            ※数値が同じ場合は出場時間が短い選手を上位にしています
+          </p>
+        </div>
 
   {['PTS', 'REB', 'AST'].map((statType) => {
     // それぞれのトップ10データを選択
