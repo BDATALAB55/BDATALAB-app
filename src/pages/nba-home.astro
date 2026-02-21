@@ -236,9 +236,9 @@ for (let i = 0; i < teams.length; i += 9) {
         </div>
 
         <div class="mt-8 mb-12 flex justify-center">
-          <div id="calendar" class="w-full max-w-sm bg-black/20 p-6 rounded-3xl border border-white/5 shadow-2xl">
-            </div>
-        </div>
+  <div id="calendar" class="w-full max-w-sm bg-black/20 p-6 rounded-3xl border border-white/5 shadow-2xl">
+    </div>
+</div>
         
       </section>
 
@@ -431,88 +431,156 @@ for (let i = 0; i < teams.length; i += 9) {
   initTabs('tab-btn');
   initTabs('rank-btn');
 
-  // --- [カレンダー・日付切り替えロジック] ---
+  // --- [カレンダー・日付切り替えロジック：B1完全移植版] ---
   const calendarEl = document.getElementById('calendar');
-  const dateDisplay = document.querySelector('.date-display');
-  const rankDateDisplay = document.querySelector('.rank-date-display');
+  const availableDates = reportGroups.map(g => g.id); // '260208' 形式のリスト
+  
+  // 初期表示用の年月（2026年2月）
+  let curY = 2026;
+  let curM = 1; // 0が1月、1が2月
 
-  const updateDashboard = (dateKey) => {
-    const group = reportGroups.find(g => g.id === dateKey);
-    const slider = document.querySelector('section:first-of-type .flex.overflow-x-auto');
+  function renderCalendar(y, m) {
+    if (!calendarEl) return;
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const firstDay = new Date(y, m, 1).getDay();
+    const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
     
-    if (group && slider) {
-      // 日付表示の更新
-      if (dateDisplay) dateDisplay.textContent = group.date;
-      if (rankDateDisplay) rankDateDisplay.textContent = group.date;
+    // B1のデザイン・構造を完全再現
+    let html = `
+      <div class="flex justify-between items-center mb-6 px-2 text-white font-black text-xs tracking-widest">
+        <button type="button" class="p-2 hover:text-white/50 transition-colors" id="prevM">←</button>
+        <span>${monthNames[m]} ${y}</span>
+        <button type="button" class="p-2 hover:text-white/50 transition-colors" id="nextM">→</button>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-[9px] text-center text-white/40 mb-4 font-bold uppercase">
+        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+      </div>
+      <div class="grid grid-cols-7 gap-y-3">`;
 
-      // ★ここで提示いただいた「移植コード」を使用します
+    for (let i = 0; i < firstDay; i++) html += '<div></div>';
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const yearSuffix = String(y).slice(-2);
+      const dateId = `${yearSuffix}${('0'+(m+1)).slice(-2)}${('0'+d).slice(-2)}`;
+      const hasData = availableDates.includes(dateId);
+      
+      // B1と同一のスタイル：データありはbg-[#2D3A56]
+      const activeStyle = hasData 
+        ? "bg-[#2D3A56] text-white font-black cursor-pointer shadow-lg scale-110 hover:brightness-125" 
+        : "text-white/10 pointer-events-none";
+        
+      html += `<div class="aspect-square flex items-center justify-center rounded-full text-[12px] transition-all ${activeStyle}" data-date="${dateId}">${d}</div>`;
+    }
+    calendarEl.innerHTML = html + '</div>';
+
+    // 前後の月への移動
+    document.getElementById('prevM').onclick = () => { curM--; if(curM<0){curM=11;curY--} renderCalendar(curY, curM); };
+    document.getElementById('nextM').onclick = () => { curM++; if(curM>11){curM=0;curY++} renderCalendar(curY, curM); };
+    
+    // 日付クリック：レポートとランキングの両方を更新
+    calendarEl.querySelectorAll('[data-date]').forEach(el => {
+      el.onclick = () => {
+        const targetDate = el.getAttribute('data-date');
+        updateDashboard(targetDate);
+      };
+    });
+  }
+
+  // データ更新のメイン関数（レポート＋ランキング）
+  const updateDashboard = (targetDate) => {
+    const group = reportGroups.find(g => g.id === targetDate);
+    const rankingData = allRankings[targetDate];
+
+    // 1. 日付表示の更新
+    const displayStr = `20${targetDate.substring(0, 2)}.${targetDate.substring(2, 4)}.${targetDate.substring(4, 6)}`;
+    document.querySelectorAll('.date-display, .rank-date-display').forEach(d => {
+      d.innerText = displayStr;
+    });
+
+    // 2. 試合数の更新
+    const countEl = document.getElementById('game-count-num');
+    if (countEl && group) countEl.innerText = group.reports.length;
+
+    // 3. レポートスライダーの更新
+    const slider = document.getElementById('report-slider');
+    if (slider && group) {
       slider.innerHTML = group.reports.map(r => `
         <div class="flex-none w-[300px] snap-center">
           <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
             <img src="${r.path}" class="w-full h-full object-cover" loading="lazy" />
           </div>
-          <div class="mt-6 flex justify-center">
-            <a href="${r.link}" class="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-black/40 border-2 border-transparent bg-clip-padding relative active:scale-95 hover:scale-110 transition-transform group overflow-hidden">
-              <div class="absolute inset-0 p-[2px] rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 -z-10"></div>
-              <span class="text-[12px] font-black tracking-[0.2em] uppercase text-white">
-                ${r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/50 px-1">vs</span> ${r.home}
-              </span>
+          <div class="mt-6 px-1">
+            <a href="${r.link}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
+              <div class="flex items-center justify-between px-6">
+                <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
+                  ${r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> ${r.home}
+                </span>
+                <span class="flex-shrink-0 text-[10px] text-[#2D3A56] group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
+              </div>
             </a>
           </div>
         </div>
       `).join('');
+      slider.scrollTo({ left: 0, behavior: 'smooth' });
     }
-    
-    // ランキングの更新ロジック等（必要であればここに追加）
+
+    // 4. ランキングの更新（B1移植：画像検索ロジック付き）
+    if (rankingData) {
+      ['PTS', 'REB', 'AST'].forEach(statType => {
+        const pane = document.getElementById(`rank-${statType}`);
+        if (!pane) return;
+
+        const statKey = statType.toLowerCase();
+        const sortedData = (rankingData[statKey] || []).sort((a, b) => {
+          if (b[statKey] !== a[statKey]) return b[statKey] - a[statKey];
+          return (a.min || "").localeCompare(b.min || "");
+        }).slice(0, 10);
+
+        pane.innerHTML = sortedData.map((player, i) => {
+          // 選手カードURL取得ロジック
+          let cardUrl = "/no-player.png";
+          const sourcePath = player.cardPath || player.card || "";
+          const gameMatch = sourcePath.match(/game_(\d+)_/);
+          const gameId = gameMatch ? gameMatch[1] : null;
+
+          if (gameId && allPlayerCards.length > 0) {
+            const targetEn = player.name ? player.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
+            const realFile = allPlayerCards.find(item => {
+              const upPath = item.path.toUpperCase();
+              return upPath.includes(`GAME_${gameId}_`) && targetEn && upPath.includes(targetEn);
+            });
+            if (realFile) cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
+          }
+
+          return `
+            <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
+              <div class="relative group">
+                <div class="absolute -top-11 left-1 z-10 flex items-baseline">
+                  <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
+                  <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}</span>
+                </div>
+                <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
+                  <img src="${cardUrl}" alt="${player.name}" class="w-full h-full object-cover" />
+                </div>
+                <div class="mt-4 px-1">
+                  <a href="/nba-players?name=${encodeURIComponent(player.name)}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 py-3.5 rounded-full transition-all">
+                    <div class="flex items-center justify-between px-6">
+                      <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate mr-2">${player.name}</span>
+                      <span class="text-[10px] text-[#2D3A56]">▶︎</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+      });
+      // モードに合わせてレイアウト再適用（もしapplyViewMode関数がある場合）
+      if (typeof applyViewMode === 'function') applyViewMode();
+    }
   };
 
-  // カレンダーの生成（B1版から移植）
-  // カレンダーの生成
-  if (calendarEl) {
-    const renderCalendar = () => {
-      // reportGroupsにある日付だけを抽出
-      const availableDates = reportGroups.map(g => g.id);
-      
-      // カレンダーの枠を作成
-      calendarEl.innerHTML = `
-        <div class="flex flex-col gap-4">
-          <div class="text-[10px] font-black tracking-[0.2em] uppercase text-white/40 border-b border-white/10 pb-2">Recent Games</div>
-          <div class="grid grid-cols-4 gap-2">
-            ${reportGroups.slice(0, 8).map((group, idx) => `
-              <button 
-                data-date="${group.id}" 
-                class="calendar-day py-3 rounded-xl border transition-all flex flex-col items-center gap-1
-                ${idx === 0 ? 'bg-white text-black border-white shadow-lg shadow-white/10' : 'bg-white/5 text-white border-white/10 hover:bg-white/10'}"
-              >
-                <span class="text-[8px] font-bold opacity-50 uppercase">${group.date.split('.')[1]}/${group.date.split('.')[2]}</span>
-                <span class="text-[14px] font-black italic tracking-tighter">${group.id.substring(4,6)}</span>
-              </button>
-            `).join('')}
-          </div>
-        </div>
-      `;
-
-      // 日付クリックイベントの登録
-      calendarEl.querySelectorAll('.calendar-day').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const date = btn.getAttribute('data-date');
-          
-          // ボタンの見た目更新
-          calendarEl.querySelectorAll('.calendar-day').forEach(b => {
-            b.classList.remove('bg-white', 'text-black', 'border-white', 'shadow-lg');
-            b.classList.add('bg-white/5', 'text-white', 'border-white/10');
-          });
-          btn.classList.add('bg-white', 'text-black', 'border-white', 'shadow-lg');
-          btn.classList.remove('bg-white/5', 'text-white', 'border-white/10');
-
-          // ダッシュボード更新関数を呼び出し
-          updateDashboard(date);
-        });
-      });
-    };
-
-    renderCalendar();
-  }
+  // 初回実行
+  renderCalendar(curY, curM);
 
 </script>
 
