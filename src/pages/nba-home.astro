@@ -9,7 +9,7 @@ const IMAGE_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/ou
 
 const token = process.env.GITHUB_TOKEN;
 
-let reportGroups = [];
+
 
 // --- [修正1] ランキングデータの読み込み ---
 const rankingFiles = import.meta.glob('../data/rankings/NBA/*.json', { eager: true });
