@@ -165,13 +165,13 @@ const homeFinalConf = findConfig(homeId);
 
   <div class="mt-4 px-0"> <a href={`/b-players?name=${encodeURIComponent(p.name)}`} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
       <div class="flex items-center justify-between px-2">
-        <span class="text-[9px] font-black uppercase tracking-tighter text-white/90 flex-1 text-left truncate pr-1">
-          {p.name}
-        </span>
-        <span class="flex-shrink-0 text-[8px] text-[#2E3C57] group-hover/btn:translate-x-1 transition-transform">
-          ▶︎
-        </span>
-      </div>
+  <span class="team-names ml-1.5 text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]">
+    {p.name}
+  </span>
+  <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform">
+    ▶︎
+  </span>
+</div>
       <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
     </a>
   </div>
@@ -266,6 +266,10 @@ const homeFinalConf = findConfig(homeId);
       cards.forEach(c => {
         c.classList.remove('flex-none', 'w-[280px]', 'snap-center');
         (c as HTMLElement).style.width = '100%'; // 幅を100%に強制
+        const textSpan = c.querySelector('.team-names');
+    if (textSpan) {
+      textSpan.className = "team-names ml-1.5 text-[11px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.1em]";
+    }
       });
     } else {
       // スライド表示
@@ -274,6 +278,10 @@ const homeFinalConf = findConfig(homeId);
       cards.forEach(c => {
         c.classList.add('flex-none', 'w-[280px]', 'md:w-[320px]', 'snap-center');
         (c as HTMLElement).style.width = ''; // スタイルをリセット
+        const textSpan = c.querySelector('.team-names');
+    if (textSpan) {
+      textSpan.className = "team-names ml-1.5 text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]";
+    }
       });
     }
   });
