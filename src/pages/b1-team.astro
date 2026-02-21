@@ -260,7 +260,7 @@ const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgN
   <div class="mt-3 px-0">
     <a href={r.link} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
       <div class="flex items-center justify-between px-2">
-        <span class="team-names text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]">
+        <span class="team-names ml-1.5 text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]">
           {r.away} <span class="text-[10px] opacity-50 italic mx-1">vs</span> {r.home}
         </span>
         <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
@@ -349,7 +349,7 @@ window.applyViewMode = function(mode) {
 
       const textSpan = c.querySelector('.team-names');
       if (textSpan) {
-        textSpan.className = "team-names text-[11px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.1em]";
+        textSpan.className = "team-names ml-1.5 text-[11px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.1em]";
       }
 
     });
@@ -369,7 +369,7 @@ window.applyViewMode = function(mode) {
 
     const textSpan = c.querySelector('.team-names');
       if (textSpan) {
-        textSpan.className = "team-names text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]";
+        textSpan.className = "team-names ml-1.5 text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]";
       }
 
     });
