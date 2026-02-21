@@ -162,6 +162,18 @@ const teams = [
   { id: 'UTA', color: 'bg-[#002B5C]' }, { id: 'WAS', color: 'bg-[#002B5C]' },
 ];
 
+// --- 追加：都市名変換マップ ---
+const cityNameMap = {
+  "ATL": "Atlanta", "BOS": "Boston", "BKN": "Brooklyn", "CHA": "Charlotte",
+  "CHI": "Chicago", "CLE": "Cleveland", "DAL": "Dallas", "DEN": "Denver",
+  "DET": "Detroit", "GSW": "Golden State", "HOU": "Houston", "IND": "Indiana",
+  "LAC": "LA Clippers", "LAL": "LA Lakers", "MEM": "Memphis", "MIA": "Miami",
+  "MIL": "Milwaukee", "MIN": "Minnesota", "NOP": "New Orleans", "NYK": "New York",
+  "OKC": "Oklahoma City", "ORL": "Orlando", "PHI": "Philadelphia", "PHX": "Phoenix",
+  "POR": "Portland", "SAC": "Sacramento", "SAS": "San Antonio", "TOR": "Toronto",
+  "UTA": "Utah", "WAS": "Washington"
+};
+
 const today = reportGroups.length > 0 ? reportGroups[0].date : "2026.01.24";
 const displayToday = today;
 const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length : 0;
@@ -222,7 +234,7 @@ for (let i = 0; i < teams.length; i += 9) {
           </div>
         </div>
 
-        <div class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-4">
+        <div id="report-slider" class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-4">
           {reportGroups.length > 0 ? reportGroups[0].reports.map(r => (
             <div class="flex-none w-[300px] snap-center">
               <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
@@ -488,9 +500,8 @@ for (let i = 0; i < teams.length; i += 9) {
     });
   }
 
-  // データ更新のメイン関数
   const updateDashboard = (targetDate) => {
-    // 1. 選択された日付に一致するレポートグループを探す
+    // 1. データの特定
     const group = reportGroups.find(g => g.id === targetDate);
     const rankingData = allRankings[targetDate];
 
@@ -499,7 +510,7 @@ for (let i = 0; i < teams.length; i += 9) {
       return;
     }
 
-    // 2. ヘッダーの日付表示とゲーム数を更新
+    // 2. 表示上の日付とゲーム数を更新
     const displayStr = `20${targetDate.substring(0, 2)}.${targetDate.substring(2, 4)}.${targetDate.substring(4, 6)}`;
     document.querySelectorAll('.date-display, .rank-date-display').forEach(d => {
       d.innerText = displayStr;
@@ -507,10 +518,9 @@ for (let i = 0; i < teams.length; i += 9) {
     const countEl = document.getElementById('game-count-num');
     if (countEl) countEl.innerText = group.reports.length;
 
-    // 3. 【ここが最重要】レポートスライダーの中身を、選んだ日付のデータで「作り直す」
+    // 3. ゲームレポートスライダーの書き換え
     const slider = document.getElementById('report-slider');
     if (slider) {
-      // 一旦中身を空にしてから、新しい日付のレポート（group.reports）を回す
       slider.innerHTML = group.reports.map(r => `
         <div class="flex-none w-[300px] snap-center">
           <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
@@ -528,8 +538,6 @@ for (let i = 0; i < teams.length; i += 9) {
           </div>
         </div>
       `).join('');
-      
-      // 切り替え後、スライダーを左端に戻す
       slider.scrollTo({ left: 0, behavior: 'smooth' });
     }
 
