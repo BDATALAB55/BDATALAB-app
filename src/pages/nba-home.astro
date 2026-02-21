@@ -38,7 +38,7 @@ try {
     );
 
     allPlayerCards = data.tree.filter(item => 
-    item.path.includes('output/NBAplayers/NBA/') && 
+    item.path.includes('output/players/') &&
     item.path.endsWith('.png')
   );
 
@@ -93,20 +93,33 @@ const rebRank10 = (initialData.reb || []).sort((a, b) => sortRank(a, b, 'reb')).
 const astRank10 = (initialData.ast || []).sort((a, b) => sortRank(a, b, 'ast')).slice(0, 10);
 
 const getCardUrl = (cardPathInJson, playerObject) => {
-  if (!cardPathInJson) return "/no-player.png";
-  const gameMatch = cardPathInJson.match(/game_(\d+)_/);
+  if (!cardPathInJson || allPlayerCards.length === 0) return "/no-player.png";
+  
+  // JSON内のパスから game_id と日付(YYYYMMDD) を抽出
+  // 例: ".../260220/NBA_Cards_0022500806_20260220/..."
+  const gameMatch = cardPathInJson.match(/game_(\d+)_/i) || cardPathInJson.match(/Cards_(\d+)_/i);
   const gameId = gameMatch ? gameMatch[1] : null;
 
-  if (gameId && allPlayerCards.length > 0) {
-    const sameGameCards = allPlayerCards.filter(item => item.path.includes(`game_${gameId}_`));
-    const targetNameEn = playerObject.name ? playerObject.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
+  // 検索用の選手名を作成 (例: "Anthony Edwards" -> "ANTHONY_EDWARDS")
+  const targetName = playerObject.name ? playerObject.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
 
-    const realFile = sameGameCards.find(item => {
-      const upperPath = item.path.toUpperCase();
-      return targetNameEn && upperPath.includes(targetNameEn);
-    });
-    if (realFile) return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${encodeURI(realFile.path)}`;
+  // 全画像リストから、GameID と 選手名 の両方を含むファイルを探す
+  const realFile = allPlayerCards.find(item => {
+    const upperPath = item.path.toUpperCase();
+    // フォルダ名にGameIDが含まれ、かつファイル名に選手名が含まれているか
+    return (gameId ? upperPath.includes(gameId) : true) && upperPath.includes(targetName);
+  });
+
+  if (realFile) {
+    return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${encodeURI(realFile.path)}`;
   }
+
+  // 見つからない場合は、名前だけで再検索（GameIDがズレている場合への保険）
+  const fallbackFile = allPlayerCards.find(item => item.path.toUpperCase().includes(targetName));
+  if (fallbackFile) {
+    return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${encodeURI(fallbackFile.path)}`;
+  }
+
   return "/no-player.png";
 };
 
