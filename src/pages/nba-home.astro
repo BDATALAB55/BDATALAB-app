@@ -95,27 +95,42 @@ const astRank10 = (initialData.ast || []).sort((a, b) => sortRank(a, b, 'ast')).
 const getCardUrl = (cardPathInJson, playerObject) => {
   if (!cardPathInJson || allPlayerCards.length === 0) return "/no-player.png";
   
-  // JSON内のパスから game_id と日付(YYYYMMDD) を抽出
-  // 例: ".../260220/NBA_Cards_0022500806_20260220/..."
+  // JSON内のパスから Game ID を抽出
   const gameMatch = cardPathInJson.match(/game_(\d+)_/i) || cardPathInJson.match(/Cards_(\d+)_/i);
   const gameId = gameMatch ? gameMatch[1] : null;
 
-  // 検索用の選手名を作成 (例: "Anthony Edwards" -> "ANTHONY_EDWARDS")
-  const targetName = playerObject.name ? playerObject.name.trim().toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
+  // 検索用の名前を生成
+  // 1. 空白をアンダースコアに
+  // 2. 特殊文字（'など）は削除せず、大文字化して比較する
+  const rawName = playerObject.name ? playerObject.name.trim().toUpperCase() : "";
+  const nameWithUnderscore = rawName.replace(/\s+/g, '_');
+  
+  // 特殊文字を除去したパターンも用意（念のため）
+  const nameClean = nameWithUnderscore.replace(/['.]/g, '');
 
-  // 全画像リストから、GameID と 選手名 の両方を含むファイルを探す
+  // 全画像リストから検索
   const realFile = allPlayerCards.find(item => {
     const upperPath = item.path.toUpperCase();
-    // フォルダ名にGameIDが含まれ、かつファイル名に選手名が含まれているか
-    return (gameId ? upperPath.includes(gameId) : true) && upperPath.includes(targetName);
+    
+    // 同じGameIDのフォルダ内にあるかチェック
+    const isSameGame = gameId ? upperPath.includes(gameId) : true;
+    
+    // 名前が含まれているか（'あり、'なし、両方チェック）
+    const matchName = upperPath.includes(nameWithUnderscore) || upperPath.includes(nameClean);
+    
+    return isSameGame && matchName;
   });
 
   if (realFile) {
     return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${encodeURI(realFile.path)}`;
   }
 
-  // 見つからない場合は、名前だけで再検索（GameIDがズレている場合への保険）
-  const fallbackFile = allPlayerCards.find(item => item.path.toUpperCase().includes(targetName));
+  // フォールバック：GameIDを無視して名前だけで再検索
+  const fallbackFile = allPlayerCards.find(item => {
+    const p = item.path.toUpperCase();
+    return p.includes(nameWithUnderscore) || p.includes(nameClean);
+  });
+
   if (fallbackFile) {
     return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${encodeURI(fallbackFile.path)}`;
   }
