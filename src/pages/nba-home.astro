@@ -22,63 +22,68 @@ Object.entries(rankingFiles).forEach(([path, content]) => {
 let reportGroups = [];
 let allPlayerCards = []; // [追加] 選手個別のカード画像リスト用
 
+// --- ここからデータ取得ロジック修正 ---
 try {
   const res = await fetch(RECURSIVE_API, {
     headers: token ? { 
-      "Authorization": `token ${token}`,
-      "Accept": "application/vnd.github.v3+json"
+      "Authorization": `Bearer ${token}`, 
+      "Accept": "application/vnd.github.v3+json" 
     } : { "Accept": "application/vnd.github.v3+json" }
   });
   const data = await res.json();
 
-  if (data.tree) {
-    const allFiles = data.tree.filter(item => 
+  if (data && data.tree) {
+    // 1. NBAのレポート画像を抽出 (パスに /NBA/ を含み、.png で終わるもの)
+    const reportFiles = data.tree.filter(item => 
       item.path.includes('output/reports/NBA/') && 
-      item.path.toLowerCase().endsWith('.png')
+      item.path.endsWith('.png')
     );
 
-    allPlayerCards = data.tree.filter(item => 
-    item.path.includes('output/players/') &&
-    item.path.endsWith('.png')
-  );
-
     const groups = {};
-    allFiles.forEach(file => {
-      const pathParts = file.path.split('/');
-      const nbaIndex = pathParts.indexOf('NBA');
-      if (nbaIndex === -1 || pathParts.length <= nbaIndex + 2) return;
-      const folderName = pathParts[nbaIndex + 1]; 
-      const fileName = pathParts[nbaIndex + 2];
-      if (!/^\d+$/.test(folderName)) return;
+    
+    reportFiles.forEach(file => {
+      const fileName = file.path.split('/').pop(); // 例: NBA_20260220_0022500802_CHA_CLE.png
+      
+      // ファイル名から 260220 (6桁) を抽出する
+      // NBA_202[60220] の部分を抜き出す
+      const dateMatch = fileName.match(/NBA_20(\d{6})/);
+      if (!dateMatch) return;
+      
+      const dateKey = dateMatch[1]; // "260220"
+      const folderName = dateKey; 
 
       const nameParts = fileName.replace('.png', '').split('_');
-      
-      const fullDate = nameParts[2] || "";
-      const gameId = nameParts[3] || "";
-      const teamA = nameParts[nameParts.length - 2] || "AWAY";
-      const teamB = nameParts[nameParts.length - 1] || "HOME";
+      // nameParts = ["NBA", "20260220", "0022500802", "CHA", "CLE"]
+      const gameId = nameParts[2];   
+      const teamA_raw = nameParts[3] || "AWAY";
+      const teamB_raw = nameParts[4] || "HOME";
 
-      if (!groups[folderName]) {
-        groups[folderName] = {
-          id: folderName,
-          date: `20${folderName.substring(0,2)}.${folderName.substring(2,4)}.${folderName.substring(4,6)}`,
-          reports: []
-        };
+      // 都市名変換 (cityNameMapを使用)
+      const teamA = cityNameMap[teamA_raw.toUpperCase()] || teamA_raw;
+      const teamB = cityNameMap[teamB_raw.toUpperCase()] || teamB_raw;
+
+      // リンク先の生成 (B1の構成に合わせる)
+      const targetSubFolder = `game_${gameId}_${teamA_raw}_${teamB_raw}_20${dateKey}`;
+
+      if (!groups[dateKey]) {
+        groups[dateKey] = { id: dateKey, reports: [] };
       }
       
-      const cardFolderName = `NBA_Cards_${gameId}_${fullDate}`;
-
-      groups[folderName].reports.push({
-        path: `${IMAGE_BASE_URL}/${folderName}/${fileName}?t=${Date.now()}`,
-        away: teamA, home: teamB,
-        link: `/nba-cards?folder=${folderName}/${cardFolderName}`
+      groups[dateKey].reports.push({
+        path: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${file.path}`,
+        away: teamA,
+        home: teamB,
+        link: `/nba-cards?folder=${dateKey}/${targetSubFolder}` // nba-cards へのパス
       });
     });
+
+    // 日付順に並び替え
     reportGroups = Object.values(groups).sort((a, b) => b.id.localeCompare(a.id));
   }
 } catch (e) {
   console.error("Fetch Error:", e);
 }
+// --- ここまで修正 ---
 
 const availableDates = Object.keys(allRankings).sort().reverse(); 
 const latestDateKey = availableDates[0] || "260124"; // 安全策
