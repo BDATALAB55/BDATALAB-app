@@ -246,29 +246,29 @@ const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgN
           <div id="report-pane" class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-12 transition-all duration-500">
             {allTeamReports.map(r => (
               <div class="report-card flex-none w-[320px] snap-center">
-                <div class="mb-4 flex items-center gap-2 px-2">
-                  <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                  <span class="text-[16px] font-black tracking-wider text-white/90">{r.date}</span>
-                </div>
-                
-                <a href={r.path} download={r.fileName} class="block cursor-pointer active:scale-95 transition-transform">
-                  <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2] relative group">
-                     <img src={r.path} alt="Report" class="w-full h-full object-cover" />
-                  </div>
-                </a>
+  <div class="mb-2 flex items-center gap-1.5 px-1">
+    <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+    <span class="text-[13px] font-black tracking-wider text-white/90">{r.date}</span>
+  </div>
+  
+  <a href={r.path} download={r.fileName} class="block cursor-pointer active:scale-95 transition-transform">
+    <div class="rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 relative group">
+      <img src={r.path} alt="Report" class="w-full h-auto block" />
+    </div>
+  </a>
 
-                <div class="mt-6 px-1">
-                  <a href={r.link} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
-                    <div class="flex items-center justify-between px-3">
-                      <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90 truncate">
-                        {r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> {r.home}
-                      </span>
-                      <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
-                    </div>
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
-                  </a>
-                </div>
-              </div>
+  <div class="mt-3 px-0">
+    <a href={r.link} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
+      <div class="flex items-center justify-between px-2">
+        <span class="text-[9px] font-black tracking-tighter uppercase text-white/90 truncate">
+          {r.away} <span class="opacity-40 italic mx-0.5">vs</span> {r.home}
+        </span>
+        <span class="flex-shrink-0 text-[8px] text-blue-400 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
+    </a>
+  </div>
+</div>
             ))}
           </div>
         ) : (
@@ -344,7 +344,7 @@ window.applyViewMode = function(mode) {
     pane.classList.add('grid', 'grid-cols-2', 'gap-x-2', 'gap-y-8'); // 左右の隙間を狭く(gap-x-2)
     cards.forEach(c => {
       c.classList.remove('flex-none', 'w-[320px]', 'snap-center');
-      c.classList.add('w-full'); // 幅を100%にしてグリッド枠に合わせる
+      c.style.width = '100%';
     });
     
     btnGrid.classList.add('bg-white/20');
@@ -451,11 +451,16 @@ window.applyViewMode = function(mode) {
     100% { transform: translateX(100%); }
   }
 
-/* PCサイズ (768px以上) では常に横スクロール形式を維持 */
-  
-   #report-pane.flex .report-card {
+/* 修正後：以下のように書き換えてください */
+#report-pane.flex .report-card {
   width: 320px !important;
   flex: none !important;
+}
+
+/* グリッド時は 320px を無効化する指定を追加 */
+#report-pane.grid .report-card {
+  width: 100% !important;
+  min-width: 0 !important; /* はみ出し防止 */
 }
   
 
