@@ -80,7 +80,8 @@ try {
   console.error("Fetch Error:", e);
 }
 
-const latestDateKey = Object.keys(allRankings).sort().reverse()[0];
+const availableDates = Object.keys(allRankings).sort().reverse(); 
+const latestDateKey = availableDates[0] || "260124"; // 安全策
 const initialData = allRankings[latestDateKey] || { pts: [], reb: [], ast: [] };
 
 const sortRank = (a, b, statKey) => {
@@ -207,7 +208,7 @@ for (let i = 0; i < teams.length; i += 9) {
             <h2 class="text-4xl font-black uppercase tracking-tighter mb-4">GAME REPORT</h2>
             <div class="flex flex-col gap-1">
               <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span>
-              <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em]">{today}</span>
+              <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em] date-display">{today}</span>
             </div>
           </div>
           <div class="text-right leading-none">
@@ -233,11 +234,12 @@ for (let i = 0; i < teams.length; i += 9) {
             </div>
           )) : <div class="text-gray-500 px-4">No reports found.</div>}
         </div>
-        <div class="mt-16 flex justify-center">
-          <a href="/nba-reports" class="bg-[#CE1141] hover:bg-red-700 hover:scale-105 text-white px-12 py-5 rounded-full text-sm font-black uppercase tracking-[0.25em] shadow-2xl transition-all">
-            Game Report Archive
-          </a>
+
+        <div class="mt-8 mb-12 flex justify-center">
+          <div id="calendar" class="w-full max-w-sm bg-black/20 p-6 rounded-3xl border border-white/5 shadow-2xl">
+            </div>
         </div>
+        
       </section>
 
       <section class="mt-24">
@@ -382,7 +384,7 @@ for (let i = 0; i < teams.length; i += 9) {
   </main>
 </Layout>
 
-<script>
+<script is:inline define:vars={{ reportGroups, allRankings, allPlayerCards }}>
   const carousel = document.getElementById('team-carousel');
   const dots = document.querySelectorAll('[data-dot]');
   if (carousel) {
@@ -428,6 +430,90 @@ for (let i = 0; i < teams.length; i += 9) {
   };
   initTabs('tab-btn');
   initTabs('rank-btn');
+
+  // --- [カレンダー・日付切り替えロジック] ---
+  const calendarEl = document.getElementById('calendar');
+  const dateDisplay = document.querySelector('.date-display');
+  const rankDateDisplay = document.querySelector('.rank-date-display');
+
+  const updateDashboard = (dateKey) => {
+    const group = reportGroups.find(g => g.id === dateKey);
+    const slider = document.querySelector('section:first-of-type .flex.overflow-x-auto');
+    
+    if (group && slider) {
+      // 日付表示の更新
+      if (dateDisplay) dateDisplay.textContent = group.date;
+      if (rankDateDisplay) rankDateDisplay.textContent = group.date;
+
+      // ★ここで提示いただいた「移植コード」を使用します
+      slider.innerHTML = group.reports.map(r => `
+        <div class="flex-none w-[300px] snap-center">
+          <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
+            <img src="${r.path}" class="w-full h-full object-cover" loading="lazy" />
+          </div>
+          <div class="mt-6 flex justify-center">
+            <a href="${r.link}" class="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-black/40 border-2 border-transparent bg-clip-padding relative active:scale-95 hover:scale-110 transition-transform group overflow-hidden">
+              <div class="absolute inset-0 p-[2px] rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 -z-10"></div>
+              <span class="text-[12px] font-black tracking-[0.2em] uppercase text-white">
+                ${r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/50 px-1">vs</span> ${r.home}
+              </span>
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // ランキングの更新ロジック等（必要であればここに追加）
+  };
+
+  // カレンダーの生成（B1版から移植）
+  // カレンダーの生成
+  if (calendarEl) {
+    const renderCalendar = () => {
+      // reportGroupsにある日付だけを抽出
+      const availableDates = reportGroups.map(g => g.id);
+      
+      // カレンダーの枠を作成
+      calendarEl.innerHTML = `
+        <div class="flex flex-col gap-4">
+          <div class="text-[10px] font-black tracking-[0.2em] uppercase text-white/40 border-b border-white/10 pb-2">Recent Games</div>
+          <div class="grid grid-cols-4 gap-2">
+            ${reportGroups.slice(0, 8).map((group, idx) => `
+              <button 
+                data-date="${group.id}" 
+                class="calendar-day py-3 rounded-xl border transition-all flex flex-col items-center gap-1
+                ${idx === 0 ? 'bg-white text-black border-white shadow-lg shadow-white/10' : 'bg-white/5 text-white border-white/10 hover:bg-white/10'}"
+              >
+                <span class="text-[8px] font-bold opacity-50 uppercase">${group.date.split('.')[1]}/${group.date.split('.')[2]}</span>
+                <span class="text-[14px] font-black italic tracking-tighter">${group.id.substring(4,6)}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      // 日付クリックイベントの登録
+      calendarEl.querySelectorAll('.calendar-day').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const date = btn.getAttribute('data-date');
+          
+          // ボタンの見た目更新
+          calendarEl.querySelectorAll('.calendar-day').forEach(b => {
+            b.classList.remove('bg-white', 'text-black', 'border-white', 'shadow-lg');
+            b.classList.add('bg-white/5', 'text-white', 'border-white/10');
+          });
+          btn.classList.add('bg-white', 'text-black', 'border-white', 'shadow-lg');
+          btn.classList.remove('bg-white/5', 'text-white', 'border-white/10');
+
+          // ダッシュボード更新関数を呼び出し
+          updateDashboard(date);
+        });
+      });
+    };
+
+    renderCalendar();
+  }
+
 </script>
 
 <style>
