@@ -22,7 +22,7 @@ Object.entries(rankingFiles).forEach(([path, content]) => {
 let reportGroups = [];
 let allPlayerCards = []; // [追加] 選手個別のカード画像リスト用
 
-// --- ここからデータ取得ロジック修正 ---
+// --- [修正] データ取得ロジック ---
 try {
   const res = await fetch(RECURSIVE_API, {
     headers: token ? { 
@@ -34,7 +34,8 @@ try {
 
   if (data && data.tree) {
     allPlayerCards = data.tree;
-    // 1. NBAのレポート画像を抽出 (パスに /NBA/ を含み、.png で終わるもの)
+    
+    // NBAディレクトリ内の画像を抽出
     const reportFiles = data.tree.filter(item => 
       item.path.includes('output/reports/NBA/') && 
       item.path.endsWith('.png')
@@ -43,51 +44,48 @@ try {
     const groups = {};
     
     reportFiles.forEach(file => {
-      const fileName = file.path.split('/').pop(); // 例: NBA_20260220_0022500802_CHA_CLE.png
+      const pathParts = file.path.split('/');
+      const fileName = pathParts.pop();
       
-      // ファイル名から 260220 (6桁) を抽出する
-      // NBA_202[60220] の部分を抜き出す
-      const dateMatch = fileName.match(/NBA_20(\d{6})/);
-      if (!dateMatch) return;
-      
-      const dateKey = dateMatch[1]; // "260220"
-      const folderName = dateKey; 
+      // [重要] フォルダ名（例: 260220）を日付キーとして使用する
+      // パス形式: output/reports/NBA/260220/NBA_20260220...
+      const dateFolder = pathParts[pathParts.length - 1]; 
+      if (!/^\d{6}$/.test(dateFolder)) return; // 6桁の数字フォルダ以外は除外
 
+      const dateKey = dateFolder; 
       const nameParts = fileName.replace('.png', '').split('_');
-      // nameParts = ["NBA", "20260220", "0022500802", "CHA", "CLE"]
       const gameId = nameParts[2];   
       const teamA_raw = nameParts[3] || "AWAY";
       const teamB_raw = nameParts[4] || "HOME";
 
-      // 都市名変換 (cityNameMapを使用)
       const teamA = cityNameMap[teamA_raw.toUpperCase()] || teamA_raw;
       const teamB = cityNameMap[teamB_raw.toUpperCase()] || teamB_raw;
 
-      // リンク先の生成 (B1の構成に合わせる)
       const targetSubFolder = `game_${gameId}_${teamA_raw}_${teamB_raw}_20${dateKey}`;
 
       if (!groups[dateKey]) {
-        groups[dateKey] = { id: dateKey, reports: [] };
+        // 表示用の日付フォーマットを作成
+        const displayDate = `20${dateKey.substring(0,2)}.${dateKey.substring(2,4)}.${dateKey.substring(4,6)}`;
+        groups[dateKey] = { id: dateKey, date: displayDate, reports: [] };
       }
       
       groups[dateKey].reports.push({
         path: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${file.path}`,
         away: teamA,
         home: teamB,
-        link: `/nba-cards?folder=${dateKey}/${targetSubFolder}` // nba-cards へのパス
+        link: `/nba-cards?folder=${dateKey}/${targetSubFolder}`
       });
     });
 
-    // 日付順に並び替え
     reportGroups = Object.values(groups).sort((a, b) => b.id.localeCompare(a.id));
   }
 } catch (e) {
   console.error("Fetch Error:", e);
 }
-// --- ここまで修正 ---
 
-const availableDates = Object.keys(allRankings).sort().reverse(); 
-const latestDateKey = availableDates[0] || "260124"; // 安全策
+// データの有無に基づいた初期値設定
+const availableDates = reportGroups.map(g => g.id);
+const latestDateKey = availableDates[0] || "260220"; // 取得データから最新を自動取得
 const initialData = allRankings[latestDateKey] || { pts: [], reb: [], ast: [] };
 
 const sortRank = (a, b, statKey) => {
@@ -559,8 +557,11 @@ for (let i = 0; i < teams.length; i += 9) {
   // --- 4. カレンダーの描画 ---
   const calendarEl = document.getElementById('calendar');
   const availableDates = reportGroups.map(g => g.id);
-  const latestDate = availableDates[0];
-  let curY = 2026, curM = 1; // 2026年2月
+  const latestDate = availableDates[0]; // 例: "260220"
+
+  // 最新データの日付からカレンダーの初期表示を決定
+  let curY = latestDate ? parseInt("20" + latestDate.substring(0, 2)) : 2026;
+  let curM = latestDate ? parseInt(latestDate.substring(2, 4)) - 1 : 1;
 
   function renderCalendar(y, m) {
     if (!calendarEl) return;
