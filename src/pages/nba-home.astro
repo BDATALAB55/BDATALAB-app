@@ -33,6 +33,7 @@ try {
   const data = await res.json();
 
   if (data && data.tree) {
+    allPlayerCards = data.tree;
     // 1. NBAのレポート画像を抽出 (パスに /NBA/ を含み、.png で終わるもの)
     const reportFiles = data.tree.filter(item => 
       item.path.includes('output/reports/NBA/') && 
@@ -177,6 +178,7 @@ const cityNameMap = {
 const today = reportGroups.length > 0 ? reportGroups[0].date : "2026.01.24";
 const displayToday = today;
 const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length : 0;
+const initialDateId = reportGroups.length > 0 ? reportGroups[0].id : "260220";
 
 const teamChunks = [];
 for (let i = 0; i < teams.length; i += 9) {
@@ -401,7 +403,7 @@ for (let i = 0; i < teams.length; i += 9) {
   </main>
 </Layout>
 
-<script is:inline define:vars={{ reportGroups, allRankings, allPlayerCards }}>
+<script is:inline define:vars={{ reportGroups, allRankings, allPlayerCards, initialDateId }}>
   const carousel = document.getElementById('team-carousel');
   const dots = document.querySelectorAll('[data-dot]');
   if (carousel) {
@@ -515,7 +517,9 @@ for (let i = 0; i < teams.length; i += 9) {
     document.querySelectorAll('.date-display, .rank-date-display').forEach(d => {
       d.innerText = displayStr;
     });
-    const countEl = document.getElementById('game-count-num');
+    
+    // 【重要】ゲーム数の数字部分を強制書き換え
+    const countEl = document.querySelector('.text-7xl.font-black.italic');
     if (countEl) countEl.innerText = group.reports.length;
 
     // 3. ゲームレポートスライダーの書き換え
@@ -532,7 +536,7 @@ for (let i = 0; i < teams.length; i += 9) {
                 <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
                   ${r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> ${r.home}
                 </span>
-                <span class="flex-shrink-0 text-[10px] text-[#2D3A56] group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
+                <span class="flex-shrink-0 text-[10px] text-white/40 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
               </div>
             </a>
           </div>
