@@ -467,91 +467,100 @@ for (let i = 0; i < teams.length; i += 9) {
   };
 
   // --- 3. データ更新のメイン関数 (カレンダーから呼ばれる) ---
-  const updateContentByDate = (targetDate) => {
-    const group = reportGroups.find(g => g.id === targetDate);
-    const rankingData = allRankings[targetDate];
-    if (!group) return;
+  // --- scriptタグ内の updateContentByDate 関数を以下に差し替え ---
 
-    // ゲーム数の更新
-    const countEl = document.getElementById('game-count-num');
-    if (countEl) countEl.innerText = group.reports.length;
+const updateContentByDate = (targetDate) => {
+  const group = reportGroups.find(g => g.id === targetDate);
+  // allRankings[targetDate] が存在するか確認
+  const rankingData = allRankings[targetDate];
+  
+  if (!group) return;
 
-    // 日付表示の更新
-    const displayStr = `20${targetDate.substring(0, 2)}.${targetDate.substring(2, 4)}.${targetDate.substring(4, 6)}`;
-    document.querySelectorAll('.date-display, .rank-date-display').forEach(d => {
-      d.innerText = displayStr;
-    });
+  // 1. ゲーム数の更新
+  const countEl = document.getElementById('game-count-num');
+  if (countEl) countEl.innerText = group.reports.length;
 
-    // レポートスライダーの更新
-    const slider = document.getElementById('report-slider');
-    if (slider) {
-      slider.innerHTML = group.reports.map(r => `
-        <div class="flex-none w-[300px] snap-center">
-          <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
-            <img src="${r.path}" class="w-full h-full object-cover" loading="lazy" />
-          </div>
-          <div class="mt-6 px-1">
-            <a href="${r.link}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
-              <div class="flex items-center justify-between px-6">
-                <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
-                  ${r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> ${r.home}
-                </span>
-                <span class="flex-shrink-0 text-[10px] text-[#2D3A56] group-hover/btn:translate-x-1 transition-transform duration-300 ease-out">▶︎</span>
-              </div>
-            </a>
-          </div>
+  // 2. 日付表示の更新
+  const displayStr = `20${targetDate.substring(0, 2)}.${targetDate.substring(2, 4)}.${targetDate.substring(4, 6)}`;
+  document.querySelectorAll('.date-display, .rank-date-display').forEach(d => {
+    d.innerText = displayStr;
+  });
+
+  // 3. レポートスライダーの更新（既存のコードでOK）
+  const slider = document.getElementById('report-slider');
+  if (slider) {
+    slider.innerHTML = group.reports.map(r => `
+      <div class="flex-none w-[300px] snap-center">
+        <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
+          <img src="${r.path}" class="w-full h-full object-cover" loading="lazy" />
         </div>
-      `).join('');
+        <div class="mt-6 px-1">
+          <a href="${r.link}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
+            <div class="flex items-center justify-between px-6">
+              <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
+                ${r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> ${r.home}
+              </span>
+              <span class="flex-shrink-0 text-[10px] text-white/40 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // 4. ランキングの更新
+  ['PTS', 'REB', 'AST'].forEach(statType => {
+    const pane = document.getElementById(`rank-${statType}`);
+    if (!pane) return;
+
+    // データがない場合の表示
+    if (!rankingData || !rankingData[statType.toLowerCase()]) {
+      pane.innerHTML = `<div class="text-white/20 px-4 py-20 text-center w-full">No ranking data for this date.</div>`;
+      return;
     }
 
-    // ランキングの更新
-    if (rankingData) {
-      ['PTS', 'REB', 'AST'].forEach(statType => {
-        const pane = document.getElementById(`rank-${statType}`);
-        if (!pane) return;
-        const statKey = statType.toLowerCase();
-        const sortedData = (rankingData[statKey] || []).sort((a, b) => {
-          if (b[statKey] !== a[statKey]) return b[statKey] - a[statKey];
-          return (a.min || "").localeCompare(b.min || "");
-        }).slice(0, 10);
+    const statKey = statType.toLowerCase();
+    const rawData = rankingData[statKey] || [];
+    
+    // ソート処理
+    const sortedData = [...rawData].sort((a, b) => {
+      if (Number(b[statKey]) !== Number(a[statKey])) return Number(b[statKey]) - Number(a[statKey]);
+      return (a.min || "").localeCompare(b.min || "");
+    }).slice(0, 10);
 
-        pane.innerHTML = sortedData.map((player, i) => {
-          let cardUrl = "/no-player.png";
-          const gameMatch = (player.cardPath || "").match(/game_(\d+)_/);
-          const gameId = gameMatch ? gameMatch[1] : null;
+    pane.innerHTML = sortedData.map((player, i) => {
+      // サーバーサイドと同じ getCardUrl ロジックをここでも再現するか、
+      // player.cardPath をそのまま使う（既にフルURLが入っている場合）
+      // ここでは簡易的に player.cardPath をベースに調整
+      let cardUrl = "/no-player.png";
+      
+      // 画像検索ロジック (allPlayerCardsを使用)
+      const targetName = player.name ? player.name.toUpperCase().replace(/\s+/g, '_').replace(/'/g, '') : "";
+      const found = allPlayerCards.find(f => f.path.toUpperCase().includes(targetName));
+      if (found) {
+        cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${found.path}`;
+      }
 
-          if (gameId && allPlayerCards.length > 0) {
-            const targetEn = player.name ? player.name.trim().toUpperCase().replace("SHAWN OMARA", "SEAN OMARA").replace(/\s+/g, '_').replace(/'/g, '') : "";
-            const realFile = allPlayerCards.find(item => {
-              const upPath = item.path.toUpperCase();
-              return upPath.includes(`GAME_${gameId}_`) && targetEn && upPath.includes(targetEn);
-            });
-            if (realFile) cardUrl = `https://raw.githubusercontent.com/BDATALAB55/BDL-game-player-cards/main/${encodeURI(realFile.path)}`;
-          }
+      return `
+        <div class="rank-card flex-none w-[260px] snap-center">
+          <div class="relative group">
+            <div class="absolute -top-11 left-1 z-10 flex items-baseline">
+              <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
+              <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${['st','nd','rd'][i] || 'th'}</span>
+            </div>
+            <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
+              <img src="${cardUrl}" alt="${player.name}" class="w-full h-full object-cover" />
+            </div>
+            <div class="mt-4 px-1">
+              <a href="/nba-players?name=${encodeURIComponent(player.name)}" class="relative block w-full bg-white/10 border border-white/10 py-3.5 rounded-full text-center">
+                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white">${player.name}</span>
+              </a>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  });
 
-          return `
-      <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
-        <div class="relative group">
-          <div class="absolute -top-11 left-1 z-10 flex items-baseline">
-            <span class="text-4xl font-black italic text-white leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">${i + 1}</span>
-            <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}</span>
-          </div>
-          <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 transition-transform duration-300 group-hover:translate-y-[-4px]">
-            <img src="${cardUrl}" alt="${player.name}" class="w-full h-full object-cover" /> 
-          </div>
-          <div class="mt-4 px-1">
-            <a href="/nba-players?name=${encodeURIComponent(player.name)}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
-              <div class="flex items-center justify-between px-6">
-                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate mr-2">${player.name}</span>
-                <span class="flex-shrink-0 text-[10px] text-white/40 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-};
-    }
     // 表示モードの再適用
     applyViewMode();
   };
@@ -599,9 +608,17 @@ for (let i = 0; i < teams.length; i += 9) {
     });
   }
 
-  // 初期実行
+  // --- 初期実行 ---
+if (availableDates.length > 0) {
+  // データがある場合、最新の日付でカレンダーとコンテンツを初期化
+  const defaultDate = availableDates[0];
   renderCalendar(curY, curM);
-  if (latestDate) updateContentByDate(latestDate);
+  updateContentByDate(defaultDate);
+} else {
+  // データがない場合のフォールバック
+  renderCalendar(curY, curM);
+  console.warn("表示できるデータが見つかりません。");
+}
 
   // 表示モードボタン
   document.querySelectorAll('.view-switch-btn').forEach(btn => {
