@@ -124,6 +124,21 @@ const astRank10 = (initialData.ast || []).sort((a, b) => sortRank(a, b, 'ast')).
 
 const getCardUrl = (cardPathInJson, playerObject) => {
   if (!cardPathInJson || allPlayerCards.length === 0) return "/no-player.png";
+
+  const getTeamStatsUrl = (teamId) => {
+  if (!allPlayerCards || allPlayerCards.length === 0) return "/no-image.png";
+  
+  // 「TS_チーム名」で始まるファイルを探す
+  const found = allPlayerCards.find(item => {
+    const fileName = item.path.split('/').pop().toUpperCase();
+    return fileName.startsWith(`TS_${teamId.toUpperCase()}`);
+  });
+
+  if (found) {
+    return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${encodeURI(found.path)}`;
+  }
+  return "/no-image.png";
+};
   
   // JSON内のパスから Game ID を抽出
   const gameMatch = cardPathInJson.match(/game_(\d+)_/i) || cardPathInJson.match(/Cards_(\d+)_/i);
@@ -433,12 +448,12 @@ for (let i = 0; i < teams.length; i += 9) {
           </div>
           <div class="rounded-2xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]">
             <img 
-              src={`${TEAM_STATS_BASE_URL}/TS_${teamId}.png`} 
-              alt={teamId}
-              class="w-full h-auto block"
-              loading="lazy"
-              onerror="this.src='/no-image.png';" 
-            />
+  src={getTeamStatsUrl(teamId)} 
+  alt={teamId}
+  class="w-full h-auto block"
+  loading="lazy"
+  onerror="this.src='/no-image.png';" 
+/>
           </div>
         </div>
       ))}
