@@ -124,21 +124,6 @@ const astRank10 = (initialData.ast || []).sort((a, b) => sortRank(a, b, 'ast')).
 
 const getCardUrl = (cardPathInJson, playerObject) => {
   if (!cardPathInJson || allPlayerCards.length === 0) return "/no-player.png";
-
-  const getTeamStatsUrl = (teamId) => {
-  if (!allPlayerCards || allPlayerCards.length === 0) return "/no-image.png";
-  
-  // 「TS_チーム名」で始まるファイルを探す
-  const found = allPlayerCards.find(item => {
-    const fileName = item.path.split('/').pop().toUpperCase();
-    return fileName.startsWith(`TS_${teamId.toUpperCase()}`);
-  });
-
-  if (found) {
-    return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${encodeURI(found.path)}`;
-  }
-  return "/no-image.png";
-};
   
   // JSON内のパスから Game ID を抽出
   const gameMatch = cardPathInJson.match(/game_(\d+)_/i) || cardPathInJson.match(/Cards_(\d+)_/i);
@@ -207,6 +192,25 @@ const today = reportGroups.length > 0 ? reportGroups[0].date : "2026.01.24";
 const displayToday = today;
 const todayGameCount = reportGroups.length > 0 ? reportGroups[0].reports.length : 0;
 const initialDateId = reportGroups.length > 0 ? reportGroups[0].id : "260220";
+
+const getTeamStatsUrl = (teamId) => {
+  if (!allPlayerCards || allPlayerCards.length === 0) return "/no-image.png";
+
+  // output/Team/NBA/ 内にある、TS_チーム略称 で始まるファイルを検索
+  // 複数ある場合は、アルファベット順（日付が新しいもの）で最後に来るものを選択
+  const teamFiles = allPlayerCards
+    .filter(item => 
+      item.path.includes('output/Team/NBA/') && 
+      item.path.includes(`TS_${teamId}`)
+    )
+    .sort((a, b) => b.path.localeCompare(a.path)); // 降順ソートで最新日付をトップに
+
+  if (teamFiles.length > 0) {
+    return `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${teamFiles[0].path}`;
+  }
+  
+  return "/no-image.png";
+};
 
 const teamChunks = [];
 for (let i = 0; i < teams.length; i += 9) {
@@ -448,12 +452,12 @@ for (let i = 0; i < teams.length; i += 9) {
           </div>
           <div class="rounded-2xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]">
             <img 
-  src={getTeamStatsUrl(teamId)} 
-  alt={teamId}
-  class="w-full h-auto block"
-  loading="lazy"
-  onerror="this.src='/no-image.png';" 
-/>
+              src={getTeamStatsUrl(teamId)} 
+              alt={teamId}
+              class="w-full h-auto block"
+              loading="lazy"
+              onerror="this.src='/no-image.png';" 
+            />
           </div>
         </div>
       ))}
