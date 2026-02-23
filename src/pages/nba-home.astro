@@ -72,7 +72,7 @@ try {
   // ★追加：フォルダ名が8桁なら6桁に正規化
   const dateKey = dateFolder.length === 8 ? dateFolder.substring(2) : dateFolder;
 
-      const dateKey = dateFolder; 
+      
       const nameParts = fileName.replace('.png', '').split('_');
       const gameId = nameParts[2];   
       const teamA_raw = nameParts[3] || "AWAY";
