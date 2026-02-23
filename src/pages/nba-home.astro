@@ -250,6 +250,21 @@ for (let i = 0; i < teams.length; i += 9) {
           </div>
         </div>
 
+<div class="flex items-center gap-2 mb-6">
+  <button 
+    class="view-switch-btn px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all bg-white/20 text-white" 
+    data-view-mode="slide"
+  >
+    Slide View
+  </button>
+  <button 
+    class="view-switch-btn px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all bg-black/40 text-white/60 hover:text-white" 
+    data-view-mode="grid"
+  >
+    Grid View
+  </button>
+</div>
+
         <div id="report-slider" class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-4">
           {reportGroups.length > 0 ? reportGroups[0].reports.map(r => (
             <div class="flex-none w-[300px] snap-center">
@@ -460,12 +475,12 @@ for (let i = 0; i < teams.length; i += 9) {
       const cards = pane.querySelectorAll('.rank-card');
       if (currentViewMode === 'grid') {
         pane.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'pb-8', 'pt-12');
-        pane.classList.add('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-20', 'overflow-visible', 'pt-16'); 
-        cards.forEach(c => c.classList.remove('flex-none', 'w-[300px]', 'snap-center'));
+        pane.classList.add('grid', 'grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-5', 'gap-x-4', 'gap-y-20', 'overflow-visible', 'pt-16'); 
+        cards.forEach(c => c.classList.remove('flex-none', 'w-[260px]', 'snap-center'));
       } else {
         pane.classList.add('flex', 'overflow-x-auto', 'snap-x', 'pb-8', 'pt-12');
-        pane.classList.remove('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-20', 'overflow-visible', 'pt-16');
-        cards.forEach(c => c.classList.add('flex-none', 'w-[300px]', 'snap-center'));
+        pane.classList.remove('grid', 'grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-5', 'gap-x-4', 'gap-y-20', 'overflow-visible', 'pt-16');
+        cards.forEach(c => c.classList.add('flex-none', 'w-[260px]', 'snap-center'));
       }
     });
 
@@ -474,11 +489,11 @@ for (let i = 0; i < teams.length; i += 9) {
       const reportCards = reportSlider.children;
       if (currentViewMode === 'grid') {
         reportSlider.classList.remove('flex', 'overflow-x-auto', 'snap-x');
-        reportSlider.classList.add('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-10', 'overflow-visible');
+        reportSlider.classList.add('grid', 'grid-cols-2', 'md:grid-cols-3', 'gap-x-4', 'gap-y-10', 'overflow-visible');
         Array.from(reportCards).forEach(c => c.classList.remove('flex-none', 'w-[300px]', 'snap-center'));
       } else {
         reportSlider.classList.add('flex', 'overflow-x-auto', 'snap-x');
-        reportSlider.classList.remove('grid', 'grid-cols-2', 'gap-x-3', 'gap-y-10', 'overflow-visible');
+        reportSlider.classList.remove('grid', 'grid-cols-2', 'md:grid-cols-3', 'gap-x-4', 'gap-y-10', 'overflow-visible');
         Array.from(reportCards).forEach(c => c.classList.add('flex-none', 'w-[300px]', 'snap-center'));
       }
     }
@@ -663,18 +678,29 @@ if (availableDates.length > 0) {
   console.warn("表示できるデータが見つかりません。");
 }
 
-  // 表示モードボタン
+  // 表示モードボタンのイベントリスナー
   document.querySelectorAll('.view-switch-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       currentViewMode = btn.getAttribute('data-view-mode');
+      
+      // ボタンの見た目を更新
       document.querySelectorAll('.view-switch-btn').forEach(b => {
         const isActive = b.getAttribute('data-view-mode') === currentViewMode;
-        b.classList.toggle('bg-white/20', isActive);
-        b.classList.toggle('bg-black/40', !isActive);
+        if (isActive) {
+          b.classList.add('bg-white/20', 'text-white');
+          b.classList.remove('bg-black/40', 'text-white/60');
+        } else {
+          b.classList.remove('bg-white/20', 'text-white');
+          b.classList.add('bg-black/40', 'text-white/60');
+        }
       });
+      
       applyViewMode();
     });
   });
+
+  // 初回読み込み時にも適用
+  applyViewMode();
 </script>
 
 <style>
