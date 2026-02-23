@@ -64,6 +64,7 @@ try {
     
     reportFiles.forEach(file => {
   const pathParts = file.path.split('/');
+  const fileName = pathParts[pathParts.length - 1];
   const dateFolder = pathParts[pathParts.length - 2]; // フォルダ名
   
   // ★修正：6桁または8桁の数字フォルダを許可
@@ -479,22 +480,24 @@ for (let i = 0; i < teams.length; i += 9) {
 
 const updateContentByDate = (targetDate) => {
   const normalizedDate = (targetDate && targetDate.length === 8) ? targetDate.substring(2) : targetDate;
-  const group = reportGroups.find(g => g.id === targetDate);
-  // allRankings[targetDate] が存在するか確認
-  const rankingData = allRankings[targetDate];
+  const group = reportGroups.find(g => g.id === normalizedDate);
+  const rankingData = allRankings[normalizedDate];
   
-  if (!group) return;
+  if (!group) {
+    console.error("No data found for:", normalizedDate);
+    return;
+  }
 
   // 1. ゲーム数の更新
   const countEl = document.getElementById('game-count-num');
   if (countEl) countEl.innerText = group.reports.length;
 
-  // 2. 日付表示の更新
-  const displayStr = `20${targetDate.substring(0, 2)}.${targetDate.substring(2, 4)}.${targetDate.substring(4, 6)}`;
+  // 2. 日付表示の更新（normalizedDateから作成）
+  const displayStr = `20${normalizedDate.substring(0, 2)}.${normalizedDate.substring(2, 4)}.${normalizedDate.substring(4, 6)}`;
   document.querySelectorAll('.date-display, .rank-date-display').forEach(d => {
     d.innerText = displayStr;
   });
-
+  
   // 3. レポートスライダーの更新（既存のコードでOK）
   const slider = document.getElementById('report-slider');
   if (slider) {
