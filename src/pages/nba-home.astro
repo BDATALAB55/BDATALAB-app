@@ -209,7 +209,10 @@ for (let i = 0; i < teams.length; i += 9) {
             </a>
           </div>
           <div class="flex flex-col items-end text-right space-y-3">
-            <h2 class="text-xl md:text-3xl font-black tracking-widest uppercase leading-none">BDATALAB</h2>
+            <h2 class="text-xl md:text-3xl font-black tracking-widest uppercase leading-none"
+                style="color: #2E3C57; -webkit-text-stroke: 1px white; text-stroke: 1px white; paint-order: stroke fill;">
+                BDATALAB
+            </h2>
             <div class="flex items-center gap-3 md:gap-5">
               <a href="https://x.com/BDataLab5x5" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-1.5 transition-all">
                 <div class="w-7 h-7 md:w-8 md:h-8 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-white/20 transition-colors">
@@ -336,7 +339,7 @@ for (let i = 0; i < teams.length; i += 9) {
                     <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate mr-2">
                       {player.name}
                     </span>
-                    <span class="flex-shrink-0 text-[10px] text-white/40 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
+                    <span class="flex-shrink-0 text-[10px] text-[#2D3A56] group-hover/btn:translate-x-1 transition-transform">▶︎</span>
                   </div>
                 </a>
               </div>
@@ -518,7 +521,7 @@ const updateContentByDate = (targetDate) => {
           <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
             ${r.away_id} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> ${r.home_id}
           </span>
-          <span class="flex-shrink-0 text-[10px] text-white/40 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
+          <span class="flex-shrink-0 text-[10px] text-[#2D3A56] group-hover/btn:translate-x-1 transition-transform">▶︎</span>
         </div>
       </a>
     </div>
@@ -592,7 +595,7 @@ const updateContentByDate = (targetDate) => {
                 <a href="/nba-players?name=${encodeURIComponent(player.name)}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl">
                   <div class="flex items-center justify-between px-6">
                     <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 truncate mr-2">${player.name}</span>
-                    <span class="flex-shrink-0 text-[10px] text-white/40 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
+                    <span class="flex-shrink-0 text-[10px] text-[#2D3A56] group-hover/btn:translate-x-1 transition-transform">▶︎</span>
                   </div>
                 </a>
               </div>
