@@ -94,6 +94,8 @@ try {
         path: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${file.path}`,
         away: teamA,
         home: teamB,
+        away_id: teamA_raw.toUpperCase(), // 追加：略称を保持
+        home_id: teamB_raw.toUpperCase(), // 追加：略称を保持
         link: `/nba-cards?folder=${dateKey}/${targetSubFolder}`
       });
     });
@@ -255,7 +257,9 @@ for (let i = 0; i < teams.length; i += 9) {
                 <a href={r.link} class="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-black/40 border-2 border-transparent bg-clip-padding relative active:scale-95 hover:scale-110 transition-transform group overflow-hidden">
                   <div class="absolute inset-0 p-[2px] rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 -z-10"></div>
                   <span class="text-[12px] font-black tracking-[0.2em] uppercase text-white">
-                    {r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/50 px-1">vs</span> {r.home}
+                    {/* r.away ではなく teamA_raw を使いたいので、データ構造を調整するか
+                        cityNameMap の 逆引きを避けるため、後述の JS 修正と合わせます */}
+                    {r.away_id} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/50 px-1">vs</span> {r.home_id}
                   </span>
                 </a>
               </div>
@@ -504,22 +508,22 @@ const updateContentByDate = (targetDate) => {
   const slider = document.getElementById('report-slider');
   if (slider) {
     slider.innerHTML = group.reports.map(r => `
-      <div class="flex-none w-[300px] snap-center">
-        <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
-          <img src="${r.path}" class="w-full h-full object-cover" loading="lazy" />
+  <div class="flex-none w-[300px] snap-center">
+    <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
+      <img src="${r.path}" class="w-full h-full object-cover" loading="lazy" />
+    </div>
+    <div class="mt-6 px-1">
+      <a href="${r.link}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
+        <div class="flex items-center justify-between px-6">
+          <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
+            ${r.away_id} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> ${r.home_id}
+          </span>
+          <span class="flex-shrink-0 text-[10px] text-white/40 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
         </div>
-        <div class="mt-6 px-1">
-          <a href="${r.link}" class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3.5 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden">
-            <div class="flex items-center justify-between px-6">
-              <span class="text-[11px] font-black tracking-[0.2em] uppercase text-white/90">
-                ${r.away} <span class="text-[9px] font-medium lowercase tracking-normal mx-1 text-white/40 italic">vs</span> ${r.home}
-              </span>
-              <span class="flex-shrink-0 text-[10px] text-white/40 group-hover/btn:translate-x-1 transition-transform">▶︎</span>
-            </div>
-          </a>
-        </div>
-      </div>
-    `).join('');
+      </a>
+    </div>
+  </div>
+`).join('');
   }
 
   // 4. ランキングの更新
