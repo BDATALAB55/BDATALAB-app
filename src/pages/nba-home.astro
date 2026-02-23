@@ -323,7 +323,7 @@ for (let i = 0; i < teams.length; i += 9) {
         class={`rank-pane ${statType !== 'PTS' ? 'hidden' : ''} flex overflow-x-auto gap-6 no-scrollbar snap-x pb-8 pt-12`}
       >
         {rankData.length > 0 ? rankData.map((player, i) => (
-          <div class="rank-card flex-none w-[260px] snap-center">
+          <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
             <div class="relative group">
               {/* 順位表示 */}
               <div class="absolute -top-11 left-1 z-10 flex items-baseline">
