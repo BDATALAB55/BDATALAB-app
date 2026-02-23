@@ -519,7 +519,7 @@ for (let i = 0; i < teams.length; i += 9) {
       } else {
         pane.classList.add('flex', 'overflow-x-auto', 'snap-x', 'pb-8', 'pt-12');
         pane.classList.remove('grid', 'grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-5', 'gap-x-4', 'gap-y-20', 'overflow-visible', 'pt-16');
-        cards.forEach(c => c.classList.add('flex-none', 'w-[260px]', 'snap-center'));
+        cards.forEach(c => c.classList.add('flex-none', 'w-[300px]', 'snap-center'));
       }
     });
 
@@ -636,7 +636,7 @@ const updateContentByDate = (targetDate) => {
         }
 
         return `
-          <div class="rank-card flex-none w-[260px] snap-center">
+          <div class="rank-card flex-none w-[300px] md:w-[210px] snap-center">
             <div class="relative group">
               <div class="absolute -top-11 left-1 z-10 flex items-baseline">
                 <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
