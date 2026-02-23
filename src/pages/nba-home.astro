@@ -536,6 +536,22 @@ for (let i = 0; i < teams.length; i += 9) {
         Array.from(reportCards).forEach(c => c.classList.add('flex-none', 'w-[300px]', 'snap-center'));
       }
     }
+
+    const standingPanes = document.querySelectorAll('.standing-pane');
+    standingPanes.forEach(pane => {
+      const teamCards = pane.children;
+      if (currentViewMode === 'grid') {
+        // グリッド表示：横2列に変更
+        pane.classList.remove('flex', 'overflow-x-auto', 'snap-x');
+        pane.classList.add('grid', 'grid-cols-2', 'gap-x-4', 'gap-y-8', 'overflow-visible');
+        Array.from(teamCards).forEach(c => c.classList.remove('flex-none', 'w-[280px]', 'md:w-[320px]', 'snap-center'));
+      } else {
+        // スライド表示：元の横スクロールに戻す
+        pane.classList.add('flex', 'overflow-x-auto', 'snap-x');
+        pane.classList.remove('grid', 'grid-cols-2', 'gap-x-4', 'gap-y-8', 'overflow-visible');
+        Array.from(teamCards).forEach(c => c.classList.add('flex-none', 'w-[280px]', 'md:w-[320px]', 'snap-center'));
+      }
+    });
   };
 
   // --- 3. データ更新のメイン関数 (カレンダーから呼ばれる) ---
