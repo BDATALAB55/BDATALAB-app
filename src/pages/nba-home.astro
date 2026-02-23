@@ -250,20 +250,16 @@ for (let i = 0; i < teams.length; i += 9) {
           </div>
         </div>
 
-<div class="flex items-center gap-2 mb-6">
-  <button 
-    class="view-switch-btn px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all bg-white/20 text-white" 
-    data-view-mode="slide"
-  >
-    Slide View
-  </button>
-  <button 
-    class="view-switch-btn px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all bg-black/40 text-white/60 hover:text-white" 
-    data-view-mode="grid"
-  >
-    Grid View
-  </button>
-</div>
+        <div class="md:hidden flex items-center justify-start mb-4">
+          <div class="flex gap-2">
+            <button data-view-target="report-slider" data-view-mode="slide" class="view-switch-btn active bg-white/20 p-2 rounded-lg">
+              <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M2 13h20v2H2zm0-4h20v2H2zm0-4h20v2H2zm0 12h20v2H2z"/></svg>
+            </button>
+            <button data-view-target="report-slider" data-view-mode="grid" class="view-switch-btn bg-black/40 p-2 rounded-lg">
+              <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>
+            </button>
+          </div>
+        </div>
 
         <div id="report-slider" class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-4">
           {reportGroups.length > 0 ? reportGroups[0].reports.map(r => (
