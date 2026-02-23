@@ -26,8 +26,15 @@ const cityNameMap = {
 // --- [修正1] ランキングデータの読み込み ---
 const rankingFiles = import.meta.glob('../data/rankings/NBA/*.json', { eager: true });
 const allRankings = {};
+
 Object.entries(rankingFiles).forEach(([path, content]) => {
-  const dateKey = path.split('/').pop().replace('.json', ''); 
+  let dateKey = path.split('/').pop().replace('.json', ''); 
+  
+  // ★追加：8桁（20260220）なら先頭2文字を削って6桁（260220）にする
+  if (dateKey.length === 8 && dateKey.startsWith('20')) {
+    dateKey = dateKey.substring(2);
+  }
+  
   allRankings[dateKey] = content.default || content;
 });
 
@@ -56,13 +63,14 @@ try {
     const groups = {};
     
     reportFiles.forEach(file => {
-      const pathParts = file.path.split('/');
-      const fileName = pathParts.pop();
-      
-      // [重要] フォルダ名（例: 260220）を日付キーとして使用する
-      // パス形式: output/reports/NBA/260220/NBA_20260220...
-      const dateFolder = pathParts[pathParts.length - 1]; 
-      if (!/^\d{6}$/.test(dateFolder)) return; // 6桁の数字フォルダ以外は除外
+  const pathParts = file.path.split('/');
+  const dateFolder = pathParts[pathParts.length - 2]; // フォルダ名
+  
+  // ★修正：6桁または8桁の数字フォルダを許可
+  if (!/^\d{6,8}$/.test(dateFolder)) return;
+
+  // ★追加：フォルダ名が8桁なら6桁に正規化
+  const dateKey = dateFolder.length === 8 ? dateFolder.substring(2) : dateFolder;
 
       const dateKey = dateFolder; 
       const nameParts = fileName.replace('.png', '').split('_');
@@ -470,6 +478,7 @@ for (let i = 0; i < teams.length; i += 9) {
   // --- scriptタグ内の updateContentByDate 関数を以下に差し替え ---
 
 const updateContentByDate = (targetDate) => {
+  const normalizedDate = (targetDate && targetDate.length === 8) ? targetDate.substring(2) : targetDate;
   const group = reportGroups.find(g => g.id === targetDate);
   // allRankings[targetDate] が存在するか確認
   const rankingData = allRankings[targetDate];
