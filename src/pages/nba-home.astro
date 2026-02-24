@@ -285,7 +285,7 @@ for (let i = 0; i < teams.length; i += 9) {
         <div id="report-slider" class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-4">
           {reportGroups.length > 0 ? reportGroups[0].reports.map(r => (
             <div class="flex-none w-[300px] snap-center">
-              <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
+              <div class="cursor-pointer card-trigger rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]" data-img={r.path}>
                 <img src={r.path} alt="Report" class="w-full h-full object-cover" />
               </div>
               <div class="mt-6 flex justify-center">
@@ -355,9 +355,9 @@ for (let i = 0; i < teams.length; i += 9) {
               </div>
 
               {/* 選手カード画像 */}
-              <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 transition-transform duration-300 group-hover:translate-y-[-4px]">
+              <div class="cursor-pointer card-trigger relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 transition-transform duration-300 group-hover:translate-y-[-4px]" data-img={getCardUrl(player.cardPath, player)}>
                 <img 
-                  src={getCardUrl(player.cardPath, player)} 
+                  src={getCardUrl(player.cardPath, player)}
                   alt={player.name} 
                   class="w-full h-full object-cover" 
                   loading="lazy"
@@ -450,7 +450,7 @@ for (let i = 0; i < teams.length; i += 9) {
               </span>
             </div>
           </div>
-          <div class="rounded-2xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]">
+          <div class="cursor-pointer card-trigger rounded-2xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]" data-img={getTeamStatsUrl(teamId)}>
             <img 
               src={getTeamStatsUrl(teamId)} 
               alt={teamId}
@@ -472,6 +472,13 @@ for (let i = 0; i < teams.length; i += 9) {
     <div class="fixed bottom-8 right-8 z-40 pointer-events-none">
       <a href="/" class="pointer-events-auto bg-gray-800 text-white px-8 py-4 rounded-full font-black text-[11px] uppercase tracking-widest shadow-2xl active:scale-95 hover:scale-105 transition-all border border-white/10">Back to Home</a>
     </div>
+
+    <div id="modal" class="fixed inset-0 bg-black/95 z-[100] hidden flex-col items-center justify-center p-6 backdrop-blur-xl">
+      <div class="absolute top-8 right-8 text-white/40 text-4xl cursor-pointer p-4 hover:text-white transition-colors" id="close">&times;</div>
+      <img id="modal-img" src="" class="max-w-full max-h-[80vh] shadow-2xl rounded-2xl mb-12" />
+      <a id="download-btn" href="" download class="bg-white text-black px-14 py-4 rounded-full font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all">Download Card</a>
+    </div>
+
   </main>
 </Layout>
 
@@ -585,7 +592,7 @@ const updateContentByDate = (targetDate) => {
   if (slider) {
     slider.innerHTML = group.reports.map(r => `
   <div class="flex-none w-[300px] snap-center">
-    <div class="rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]">
+    <div class="cursor-pointer card-trigger rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 aspect-[3/4.2]" data-img="${r.path}">
       <img src="${r.path}" class="w-full h-full object-cover" loading="lazy" />
     </div>
     <div class="mt-6 px-1">
@@ -661,7 +668,7 @@ const updateContentByDate = (targetDate) => {
                 <span class="text-4xl font-black italic text-white leading-none">${i + 1}</span>
                 <span class="text-[10px] font-bold uppercase ml-0.5 text-white/70">${['st','nd','rd'][i] || 'th'}</span>
               </div>
-              <div class="relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
+              <div class="cursor-pointer card-trigger relative aspect-[3/4.2] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40" data-img="${cardUrl}">
                 <img src="${cardUrl}" alt="${player.name}" class="w-full h-full object-cover" loading="lazy" />
               </div>
               <div class="mt-4 px-1">
@@ -759,6 +766,35 @@ if (availableDates.length > 0) {
 
   // 初回読み込み時にも適用
   applyViewMode();
+
+  // --- 5. モーダル制御ロジック ---
+  const modal = document.getElementById('modal');
+  const modalImg = document.getElementById('modal-img');
+  const close = document.getElementById('close');
+  const downloadBtn = document.getElementById('download-btn');
+
+  // 親要素にイベント委譲することで、カレンダー切り替え後の新しいカードにも対応
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('.card-trigger');
+    if (trigger) {
+      const imgSrc = trigger.getAttribute('data-img');
+      if (imgSrc && modalImg && downloadBtn) {
+        modalImg.src = imgSrc;
+        downloadBtn.href = imgSrc;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+  });
+
+  close?.addEventListener('click', () => {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  });
+
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) close.click();
+  });
 </script>
 
 <style>
