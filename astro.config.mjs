@@ -1,12 +1,12 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@tailwindcss/vite';
 
-import vercel from '@astrojs/vercel';
+// Vercelの設定を削除（またはコメントアウト）
+// import vercel from '@astrojs/vercel'; 
 
 export default defineConfig({
   vite: {
     plugins: [tailwind()],
   },
-
-  adapter: vercel(),
+  // adapterの設定を消すことで、Cloudflareが読み込める「静的サイト」形式で出力されます
 });
