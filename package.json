@@ -16,6 +16,7 @@
   "entities": "2.2.0",
   "playwright": "^1.58.1",
   "tailwindcss": "^4.1.18",
+  "vite": "^6.0.0",
   "wrangler": "^4.76.0"
 }
 }
