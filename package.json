@@ -10,12 +10,12 @@
     "clean": "rm -rf .astro dist node_modules"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^12.0.0",
-    "@tailwindcss/vite": "^4.1.18",
-    "astro": "^5.16.11",
-    "entities": "2.2.0",
-    "playwright": "^1.58.1",
-    "tailwindcss": "^4.1.18",
-    "wrangler": "^4.76.0"
-  }
+  "@astrojs/cloudflare": "12.0.0",  // ← 「^」を消して 12.0.0 に固定
+  "@tailwindcss/vite": "^4.1.18",
+  "astro": "^5.16.11",
+  "entities": "2.2.0",
+  "playwright": "^1.58.1",
+  "tailwindcss": "^4.1.18",
+  "wrangler": "^4.76.0"
+}
 }
