@@ -1,9 +1,11 @@
 import { defineConfig } from 'astro/config';
-import tailwind from '@tailwindcss/vite';
+import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
-  output: 'static', // これが最重要です
-  vite: {
-    plugins: [tailwind()],
-  },
+  // あなたの実際のURLに合わせてください
+  site: 'https://bdatalab-app.pages.dev', 
+  output: 'server',
+  adapter: cloudflare({
+    mode: 'directory', // または 'advanced'。通常は指定なしでも動きますが、明示すると安定します
+  }),
 });

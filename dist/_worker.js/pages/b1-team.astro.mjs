@@ -1,0 +1,397 @@
+globalThis.process ??= {}; globalThis.process.env ??= {};
+import { c as createComponent, r as renderTemplate, d as defineScriptVars, a as renderComponent, b as createAstro, m as maybeRenderHead, F as Fragment, e as addAttribute } from '../chunks/astro/server_CKE3Pew-.mjs';
+import { $ as $$Layout } from '../chunks/Layout_6T3sI24S.mjs';
+/* empty css                                   */
+export { renderers } from '../renderers.mjs';
+
+var __freeze = Object.freeze;
+var __defProp = Object.defineProperty;
+var __template = (cooked, raw) => __freeze(__defProp(cooked, "raw", { value: __freeze(raw || cooked.slice()) }));
+var _a;
+const $$Astro = createAstro();
+const prerender = false;
+const $$B1Team = createComponent(async ($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
+  Astro2.self = $$B1Team;
+  const { searchParams } = Astro2.url;
+  const teamId = searchParams.get("team") || "HOKKAIDO";
+  const GITHUB_REPO = "BDATALAB55/BDL-game-player-cards";
+  const RECURSIVE_API = `https://api.github.com/repos/${GITHUB_REPO}/git/trees/main?recursive=1&t=${Date.now()}`;
+  const IMAGE_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/reports/B1`;
+  const token = process.env.GITHUB_TOKEN;
+  const cityNameMap = {
+    "HOKKAIDO": "HOKKAIDO",
+    "LEVANGA": "HOKKAIDO",
+    "LEVANGAHOKKAIDO": "HOKKAIDO",
+    "89ERS": "SENDAI",
+    "SENDAI": "SENDAI",
+    "SENDAI89ERS": "SENDAI",
+    "AKITA": "AKITA",
+    "NORTHERNHAPPINETS": "AKITA",
+    "ROBOTS": "IBARAKI",
+    "IBARAKI": "IBARAKI",
+    "BREX": "UTSUNOMIYA",
+    "UTSUNOMIYA": "UTSUNOMIYA",
+    "CRANETHUNDERS": "GUNMA",
+    "GUNMA": "GUNMA",
+    "ALPHAS": "KOSHIGAYA",
+    "KOSHIGAYA": "KOSHIGAYA",
+    "ALTIRI": "A CHIBA",
+    "ACHIBA": "A CHIBA",
+    "JETS": "CHIBA J",
+    "CHIBAJ": "CHIBA J",
+    "ALVARK": "A TOKYO",
+    "ATOKYO": "A TOKYO",
+    "SUNROCKERS": "SR SHIBUYA",
+    "SHIBUYA": "SR SHIBUYA",
+    "BRAVETHUNDERS": "KAWASAKI",
+    "KAWASAKI": "KAWASAKI",
+    "BCORSAIRS": "YOKOHAMA BC",
+    "YOKOHAMABC": "YOKOHAMA BC",
+    "GROUSES": "TOYAMA",
+    "TOYAMA": "TOYAMA",
+    "NEOPHOENIX": "SAN-EN",
+    "SANEN": "SAN-EN",
+    "SAN-EN": "SAN-EN",
+    "SEAHORSES": "MIKAWA",
+    "MIKAWA": "MIKAWA",
+    "FIGHTINGEAGLES": "FE NAGOYA",
+    "FENAGOYA": "FE NAGOYA",
+    "DOLPHINS": "NAGOYA D",
+    "DIAMONDDOLPHINS": "NAGOYA D",
+    "NAGOYA": "NAGOYA D",
+    "LAKES": "SHIGA",
+    "SHIGA": "SHIGA",
+    "HANNARYZ": "KYOTO",
+    "KYOTO": "KYOTO",
+    "EVESSA": "OSAKA",
+    "OSAKA": "OSAKA",
+    "SUSANOOMAGIC": "SHIMANE",
+    "SHIMANE": "SHIMANE",
+    "DRAGONFLIES": "HIROSHIMA",
+    "HIROSHIMA": "HIROSHIMA",
+    "BALLOONERS": "SAGA",
+    "SAGA": "SAGA",
+    "VELCA": "NAGASAKI",
+    "NAGASAKI": "NAGASAKI",
+    "GOLDENKINGS": "RYUKYU",
+    "RYUKYU": "RYUKYU"
+  };
+  const teamInfo = {
+    HOKKAIDO: { city: "Levanga", name: "Hokkaido", color: "#91ad10", searchKey: "LEVANGA" },
+    SENDAI: { city: "Sendai", name: "89ers", color: "#f7e000", searchKey: "89ERS" },
+    AKITA: { city: "Akita", name: "Northern Happinets", color: "#dd0055", searchKey: "NORTHERNHAPPINETS" },
+    IBARAKI: { city: "Ibaraki", name: "Robots", color: "#002e95", searchKey: "ROBOTS" },
+    UTSUNOMIYA: { city: "Utsunomiya", name: "Brex", color: "#12284b", searchKey: "BREX" },
+    GUNMA: { city: "Gunma", name: "Crane Thunders", color: "#ffda00", searchKey: "CRANETHUNDERS" },
+    KOSHIGAYA: { city: "Koshigaya", name: "Alphas", color: "#610d0d", searchKey: "ALPHAS" },
+    "A CHIBA": { city: "Altiri", name: "Chiba", color: "#212836", searchKey: "ALTIRI" },
+    "CHIBA J": { city: "Chiba", name: "Jets", color: "#e33216", searchKey: "JETS" },
+    "A TOKYO": { city: "Alvark", name: "Tokyo", color: "#000000", searchKey: "ALVARK" },
+    "SR SHIBUYA": { city: "Sunrockers", name: "Shibuya", color: "#ffea00", searchKey: "SUNROCKERS" },
+    KAWASAKI: { city: "Kawasaki", name: "Brave Thunders", color: "#7a1231", searchKey: "BRAVETHUNDERS" },
+    "YOKOHAMA BC": { city: "Yokohama", name: "B-Corsairs", color: "#000f31", searchKey: "B-CORSAIRS" },
+    TOYAMA: { city: "Toyama", name: "Grouses", color: "#e21f26", searchKey: "GROUSES" },
+    "SAN-EN": { city: "San-en", name: "NeoPhoenix", color: "#d31118", searchKey: "NEOPHOENIX" },
+    MIKAWA: { city: "SeaHorses", name: "Mikawa", color: "#3356b9", searchKey: "SEAHORSES" },
+    "FE NAGOYA": { city: "FIGHTING EAGLES", name: "Nagoya", color: "#003882", searchKey: "FIGHTINGEAGLES" },
+    "NAGOYA D": { city: "Nagoya", name: "DIAMOND DOLPHINS", color: "#e31d20", searchKey: "DIAMONDDOLPHINS" },
+    SHIGA: { city: "Shiga", name: "Lakes", color: "#1a448e", searchKey: "LAKES" },
+    KYOTO: { city: "Kyoto", name: "Hannaryz", color: "#5ea1b4", searchKey: "HANNARYZ" },
+    OSAKA: { city: "Osaka", name: "Evessa", color: "#d11c1d", searchKey: "EVESSA" },
+    SHIMANE: { city: "Shimane", name: "Susanoo Magic", color: "#1c71be", searchKey: "SUSANOOMAGIC" },
+    HIROSHIMA: { city: "Hiroshima", name: "Dragonflies", color: "#f05a22", searchKey: "DRAGONFLIES" },
+    SAGA: { city: "Saga", name: "Ballooners", color: "#4da9df", searchKey: "BALLOONERS" },
+    NAGASAKI: { city: "Nagasaki", name: "Velca", color: "#2b3754", searchKey: "VELCA" },
+    RYUKYU: { city: "Ryukyu", name: "Golden Kings", color: "#b69e63", searchKey: "GOLDENKINGS" }
+  };
+  const currentTeam = teamInfo[teamId] || { city: "B.LEAGUE", name: "TEAM", color: "#FFFFFF", searchKey: "" };
+  const reverseTeams = ["HOKKAIDO", "A CHIBA", "A TOKYO", "SR SHIBUYA", "MIKAWA", "FE NAGOYA"];
+  const isReversed = reverseTeams.includes(teamId);
+  let allTeamReports = [];
+  let availableDatesMap = {};
+  try {
+    const res = await fetch(RECURSIVE_API, {
+      headers: {
+        ...token ? { "Authorization": `token ${token}` } : {},
+        "Accept": "application/vnd.github.v3+json",
+        "Cache-Control": "no-cache"
+      }
+    });
+    const data = await res.json();
+    if (data.tree) {
+      const reportFiles = data.tree.filter(
+        (item) => item.path.includes("output/reports/B1/") && item.path.endsWith(".png")
+      );
+      reportFiles.forEach((file) => {
+        const parts = file.path.split("/");
+        const fileName = parts[parts.length - 1];
+        const folderName = parts[parts.length - 2];
+        if (currentTeam.searchKey && fileName.toUpperCase().includes(currentTeam.searchKey)) {
+          const nameParts = fileName.replace(".png", "").split("_");
+          const fullDate = nameParts[0];
+          const gameId = nameParts[1];
+          const rawAway = nameParts[2] || "AWAY";
+          const rawHome = nameParts[3] || "HOME";
+          const displayAway = cityNameMap[rawAway.toUpperCase().replace(/[\s\-_]/g, "")] || rawAway;
+          const displayHome = cityNameMap[rawHome.toUpperCase().replace(/[\s\-_]/g, "")] || rawHome;
+          const targetCardFolder = `game_${gameId}_${rawAway}_${rawHome}_${fullDate}`;
+          const reportObj = {
+            id: folderName,
+            date: `${fullDate.substring(0, 4)}.${fullDate.substring(4, 6)}.${fullDate.substring(6, 8)}`,
+            path: `${IMAGE_BASE_URL}/${folderName}/${fileName}?t=${Date.now()}`,
+            fileName,
+            away: displayAway,
+            home: displayHome,
+            link: `/b1-cards?folder=${folderName}/${targetCardFolder}`
+          };
+          allTeamReports.push(reportObj);
+          if (!availableDatesMap[folderName]) availableDatesMap[folderName] = reportObj.link;
+        }
+      });
+      allTeamReports.sort((a, b) => b.id.localeCompare(a.id));
+    }
+  } catch (e) {
+    console.error("Fetch failed:", e);
+  }
+  const TEAM_STATS_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/Team/B1`;
+  const teamStatsImgName = currentTeam.searchKey ? `TS_${currentTeam.searchKey}_R23.png` : null;
+  const teamStatsPath = teamStatsImgName ? `${TEAM_STATS_BASE_URL}/${teamStatsImgName}?t=${Date.now()}` : null;
+  return renderTemplate(_a || (_a = __template(["", " <script>(function(){", `
+  let currentY = 2026;
+  let currentM = 0;
+  const dates = Object.keys(availableDatesMap).sort((a,b) => b.localeCompare(a));
+  if (dates.length > 0) {
+    currentY = 2000 + parseInt(dates[0].substring(0,2));
+    currentM = parseInt(dates[0].substring(2,4)) - 1;
+  }
+// 修正後（チームページの415行目付近）
+window.applyViewMode = function(mode) {
+  const pane = document.getElementById('report-pane');
+  const cards = document.querySelectorAll('.report-card');
+  const btnGrid = document.getElementById('btn-grid');
+  const btnList = document.getElementById('btn-list');
+
+  if (mode === 'grid') {
+    pane.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'gap-8'); // gap-8を解除
+    pane.classList.add('grid', 'grid-cols-2', 'gap-x-2', 'gap-y-8'); // 左右の隙間を狭く(gap-x-2)
+    
+    cards.forEach(c => {
+      c.classList.remove('flex-none', 'w-[320px]', 'snap-center');
+      c.style.width = '100%';
+
+      const textSpan = c.querySelector('.team-names');
+      if (textSpan) {
+        textSpan.className = "team-names ml-1.5 text-[11px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.1em]";
+      }
+
+    });
+    
+    btnGrid.classList.add('bg-white/20');
+    btnGrid.classList.remove('bg-black/40');
+    btnList.classList.add('bg-black/40');
+    btnList.classList.remove('bg-white/20');
+
+  } else {
+    pane.classList.add('flex', 'overflow-x-auto', 'snap-x', 'gap-8');
+    pane.classList.remove('grid', 'grid-cols-2', 'gap-x-2', 'gap-y-8');
+    
+    cards.forEach(c => {
+      c.classList.add('flex-none', 'w-[320px]', 'snap-center');
+      c.classList.remove('w-full');
+
+    const textSpan = c.querySelector('.team-names');
+      if (textSpan) {
+        textSpan.className = "team-names ml-1.5 text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]";
+      }
+
+    });
+
+    btnList.classList.add('bg-white/20');
+    btnList.classList.remove('bg-black/40');
+    btnGrid.classList.add('bg-black/40');
+    btnGrid.classList.remove('bg-white/20');
+  }
+};
+
+  window.changeMonth = function(delta) {
+    currentM += delta;
+    if (currentM < 0) { currentM = 11; currentY--; }
+    else if (currentM > 11) { currentM = 0; currentY++; }
+    renderCalendar(currentY, currentM);
+  };
+
+  function renderCalendar(y, m) {
+  const calendarEl = document.getElementById('calendar');
+  if(!calendarEl) return;
+  const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+
+  let html = \`
+    <div class="flex justify-between items-center mb-10 px-2">
+      <button onclick="changeMonth(-1)" class="text-white/30 hover:text-white transition-colors text-lg">←</button>
+      <div class="font-black text-[13px] tracking-[0.3em] uppercase">\${monthNames[m]} \${y}</div>
+      <button onclick="changeMonth(1)" class="text-white/30 hover:text-white transition-colors text-lg">→</button>
+    </div>
+    <div class="grid grid-cols-7 gap-1 text-[9px] text-center text-white/40 mb-4 font-bold uppercase">
+      <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+    </div>
+    <div class="grid grid-cols-7 gap-y-4 gap-x-1">\`; // 丸を大きくするため gap-x を少し狭めました
+
+  for (let i = 0; i < firstDay; i++) html += \`<div></div>\`;
+  
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = \`\${String(y).substring(2)}\${String(m + 1).padStart(2, '0')}\${String(d).padStart(2, '0')}\`;
+    const link = availableDatesMap[dateStr];
+
+    // データがある日のスタイル
+    const activeStyle = "bg-[#2D3A56] text-white font-black border border-white/10";
+    html += \`
+      <div class="flex items-center justify-center">
+        \${link ? 
+          \`<a href="\${link}" class="w-11 h-11 shrink-0 aspect-square flex items-center justify-center rounded-full text-[12px] \${activeStyle}">\${d}</a>\` : 
+          \`<span class="text-white/10 text-[12px] font-bold">\${d}</span>\`
+        }
+      </div>\`;
+  }
+  calendarEl.innerHTML = html + \`</div>\`;
+}
+  renderCalendar(currentY, currentM);
+})();</script> `], ["", " <script>(function(){", `
+  let currentY = 2026;
+  let currentM = 0;
+  const dates = Object.keys(availableDatesMap).sort((a,b) => b.localeCompare(a));
+  if (dates.length > 0) {
+    currentY = 2000 + parseInt(dates[0].substring(0,2));
+    currentM = parseInt(dates[0].substring(2,4)) - 1;
+  }
+// 修正後（チームページの415行目付近）
+window.applyViewMode = function(mode) {
+  const pane = document.getElementById('report-pane');
+  const cards = document.querySelectorAll('.report-card');
+  const btnGrid = document.getElementById('btn-grid');
+  const btnList = document.getElementById('btn-list');
+
+  if (mode === 'grid') {
+    pane.classList.remove('flex', 'overflow-x-auto', 'snap-x', 'gap-8'); // gap-8を解除
+    pane.classList.add('grid', 'grid-cols-2', 'gap-x-2', 'gap-y-8'); // 左右の隙間を狭く(gap-x-2)
+    
+    cards.forEach(c => {
+      c.classList.remove('flex-none', 'w-[320px]', 'snap-center');
+      c.style.width = '100%';
+
+      const textSpan = c.querySelector('.team-names');
+      if (textSpan) {
+        textSpan.className = "team-names ml-1.5 text-[11px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.1em]";
+      }
+
+    });
+    
+    btnGrid.classList.add('bg-white/20');
+    btnGrid.classList.remove('bg-black/40');
+    btnList.classList.add('bg-black/40');
+    btnList.classList.remove('bg-white/20');
+
+  } else {
+    pane.classList.add('flex', 'overflow-x-auto', 'snap-x', 'gap-8');
+    pane.classList.remove('grid', 'grid-cols-2', 'gap-x-2', 'gap-y-8');
+    
+    cards.forEach(c => {
+      c.classList.add('flex-none', 'w-[320px]', 'snap-center');
+      c.classList.remove('w-full');
+
+    const textSpan = c.querySelector('.team-names');
+      if (textSpan) {
+        textSpan.className = "team-names ml-1.5 text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]";
+      }
+
+    });
+
+    btnList.classList.add('bg-white/20');
+    btnList.classList.remove('bg-black/40');
+    btnGrid.classList.add('bg-black/40');
+    btnGrid.classList.remove('bg-white/20');
+  }
+};
+
+  window.changeMonth = function(delta) {
+    currentM += delta;
+    if (currentM < 0) { currentM = 11; currentY--; }
+    else if (currentM > 11) { currentM = 0; currentY++; }
+    renderCalendar(currentY, currentM);
+  };
+
+  function renderCalendar(y, m) {
+  const calendarEl = document.getElementById('calendar');
+  if(!calendarEl) return;
+  const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+
+  let html = \\\`
+    <div class="flex justify-between items-center mb-10 px-2">
+      <button onclick="changeMonth(-1)" class="text-white/30 hover:text-white transition-colors text-lg">←</button>
+      <div class="font-black text-[13px] tracking-[0.3em] uppercase">\\\${monthNames[m]} \\\${y}</div>
+      <button onclick="changeMonth(1)" class="text-white/30 hover:text-white transition-colors text-lg">→</button>
+    </div>
+    <div class="grid grid-cols-7 gap-1 text-[9px] text-center text-white/40 mb-4 font-bold uppercase">
+      <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+    </div>
+    <div class="grid grid-cols-7 gap-y-4 gap-x-1">\\\`; // 丸を大きくするため gap-x を少し狭めました
+
+  for (let i = 0; i < firstDay; i++) html += \\\`<div></div>\\\`;
+  
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = \\\`\\\${String(y).substring(2)}\\\${String(m + 1).padStart(2, '0')}\\\${String(d).padStart(2, '0')}\\\`;
+    const link = availableDatesMap[dateStr];
+
+    // データがある日のスタイル
+    const activeStyle = "bg-[#2D3A56] text-white font-black border border-white/10";
+    html += \\\`
+      <div class="flex items-center justify-center">
+        \\\${link ? 
+          \\\`<a href="\\\${link}" class="w-11 h-11 shrink-0 aspect-square flex items-center justify-center rounded-full text-[12px] \\\${activeStyle}">\\\${d}</a>\\\` : 
+          \\\`<span class="text-white/10 text-[12px] font-bold">\\\${d}</span>\\\`
+        }
+      </div>\\\`;
+  }
+  calendarEl.innerHTML = html + \\\`</div>\\\`;
+}
+  renderCalendar(currentY, currentM);
+})();</script> `])), renderComponent($$result, "Layout", $$Layout, { "title": `${teamId} | B-Data Lab` }, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<main class="bg-[#373A36] min-h-screen text-white font-avenir overflow-x-hidden flex flex-col"> <header class="custom-page-header pt-12 pb-6 px-6 max-w-6xl mx-auto w-full relative shrink-0"> <div class="flex items-end w-full relative mb-1"> <div class="flex-1"> <div class="flex items-baseline gap-3 md:gap-7 font-bold font-avenir uppercase whitespace-nowrap"> ${(() => {
+    const totalLength = currentTeam.city.length + currentTeam.name.length;
+    let mobileTracking = "0.05em";
+    let mobileSize = "8vw";
+    if (totalLength > 20) {
+      mobileTracking = "-0.05em";
+      mobileSize = "6.5vw";
+    } else if (totalLength > 15) {
+      mobileTracking = "-0.02em";
+      mobileSize = "7.2vw";
+    }
+    const commonClass = "tracking-[0.05em] shrink-0 leading-none";
+    const dynamicStyle = `letter-spacing: ${mobileTracking}; font-size: clamp(1.5rem, ${mobileSize}, 4rem);`;
+    return renderTemplate`${renderComponent($$result2, "Fragment", Fragment, {}, { "default": async ($$result3) => renderTemplate` <span${addAttribute(`${commonClass} ${isReversed ? "" : "opacity-60"}`, "class")}${addAttribute(dynamicStyle, "style")}> ${currentTeam.city} </span> <span${addAttribute(`${commonClass} ${isReversed ? "opacity-60" : ""}`, "class")}${addAttribute(dynamicStyle, "style")}> ${currentTeam.name} </span> ` })}`;
+  })()} </div> </div> </div> <div class="absolute bottom-1 left-6 right-6 h-[3px] md:h-[5px]"${addAttribute(`background-color: ${currentTeam.color}; box-shadow: 0 4px 15px ${currentTeam.color}66;`, "style")}></div> </header> <div class="max-w-6xl mx-auto px-6 flex-grow w-full"> <section class="mt-16 flex flex-col"> <div class="w-full mb-6"> <h2 class="text-4xl font-bold uppercase tracking-tight leading-none mb-4">TEAM STATS</h2> </div> ${teamStatsPath ? renderTemplate`<div class="w-full flex justify-center pb-12 transition-all duration-500">  <div class="flex-none w-[320px] md:w-[500px]"> <div class="mb-4 flex items-center gap-2 px-2"> <div class="w-2 h-2 rounded-full bg-blue-500"></div> <span class="text-[16px] font-black tracking-wider text-white/90 uppercase">Season Average</span> </div>  <div class="cursor-pointer card-trigger rounded-2xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]"${addAttribute(teamStatsPath, "data-img")}> <img${addAttribute(teamStatsPath, "src")} alt="Team Stats" class="w-full h-auto block" loading="lazy"> </div> </div> </div>` : renderTemplate`<div class="w-full py-20 text-center border-2 border-dashed border-white/5 rounded-3xl"> <p class="text-white/20 font-black uppercase tracking-widest italic">No team stats found</p> </div>`} </section> <section class="mt-16"> <div class="flex justify-between items-end mb-6"> <div> <h2 class="text-4xl font-bold uppercase tracking-tight leading-none mb-4">GAME REPORT</h2> <div class="flex gap-2 md:hidden"> <button onclick="applyViewMode('list')" id="btn-list" class="view-switch-btn active bg-white/20 p-2 rounded-lg border border-white/10 transition-all"> <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M2 13h20v2H2zm0-4h20v2H2zm0-4h20v2H2zm0 12h20v2H2z"></path></svg> </button> <button onclick="applyViewMode('grid')" id="btn-grid" class="view-switch-btn bg-black/40 p-2 rounded-lg border border-white/10 transition-all"> <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"></path></svg> </button> </div> </div> <div class="text-right leading-none"> <span class="text-7xl font-bold italic opacity-20 block tracking-[-0.1em] leading-none">${allTeamReports.length}</span> <span class="text-[12px] font-bold opacity-40 uppercase tracking-[0.3em]">Games</span> </div> </div> ${allTeamReports.length > 0 ? renderTemplate`<div id="report-pane" class="flex overflow-x-auto gap-8 no-scrollbar snap-x pb-12 transition-all duration-500"> ${allTeamReports.map((r) => renderTemplate`<div class="report-card flex-none w-[320px] snap-center"> <div class="mb-2 flex items-center gap-1.5 px-1"> <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div> <span class="text-[13px] font-black tracking-wider text-white/90">${r.date}</span> </div> <a${addAttribute(r.path, "href")}${addAttribute(r.fileName, "download")} class="block cursor-pointer active:scale-95 transition-transform"> <div class="rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 relative group"> <img${addAttribute(r.path, "src")} alt="Report" class="w-full h-auto block"> </div> </a> <div class="mt-3 px-0"> <a${addAttribute(r.link, "href")} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden"> <div class="flex items-center justify-between px-2"> <span class="team-names ml-1.5 text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]"> ${r.away} <span class="text-[10px] opacity-50 italic mx-1">vs</span> ${r.home} </span> <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform">▶︎</span> </div> <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div> </a> </div> </div>`)} </div>` : renderTemplate`<div class="py-20 text-center border-2 border-dashed border-white/5 rounded-3xl"> <p class="text-white/20 font-black uppercase tracking-widest italic">No game reports found</p> </div>`} </section> <section class="mt-24 mb-40"> <div class="max-w-md mx-auto"> <h3 class="text-center text-[10px] font-black tracking-[0.4em] uppercase mb-8 text-white/30 italic">Game Calendar</h3> <div id="calendar" class="bg-black/30 p-8 rounded-[40px] border border-white/5 shadow-inner"></div> </div> </section> </div> <footer class="w-full pt-16 pb-32 flex flex-col items-center justify-center gap-6 bg-black/10 shrink-0 border-t border-white/5 mt-20"> <div class="text-center"> <h2 class="text-2xl md:text-3xl font-black tracking-[0.4em] uppercase leading-none" style="color: #2E3C57; -webkit-text-stroke: 1px rgba(255,255,255,0.7); paint-order: stroke fill;">
+BDATALAB
+</h2> </div> <div class="flex items-center gap-6"> <a href="https://x.com/BDataLab5x5" target="_blank" rel="noopener noreferrer" class="group"> <div class="w-9 h-9 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-all border border-white/5"> <svg class="w-3.5 h-3.5 fill-white/60 group-hover:fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg> </div> </a> <div class="h-4 w-[1px] bg-white/10"></div> <a href="https://note.com/bdatalab5x5" target="_blank" rel="noopener noreferrer" class="group"> <div class="w-9 h-9 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-[#23bb9d]/80 transition-all border border-white/5"> <span class="text-[16px] font-black text-white/60 group-hover:text-white">n</span> </div> </a> </div> </footer> <div class="fixed bottom-8 left-8 z-50"> <button onclick="history.back()" class="bg-white/10 backdrop-blur-xl text-white px-8 h-[58px] rounded-full font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl border border-white/20 active:scale-90 transition-all flex items-center justify-center">
+← Back
+</button> </div> <div class="fixed bottom-8 right-8 z-50"> <a href="/b1-home" class="bg-gray-800/80 backdrop-blur-xl text-white px-10 h-[58px] rounded-full font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl border border-white/10 active:scale-90 transition-all flex items-center justify-center">
+B1 Home
+</a> </div> </main> ` }), defineScriptVars({ availableDatesMap }));
+}, "/Users/masaki/BDATALAB-app/src/pages/b1-team.astro", void 0);
+const $$file = "/Users/masaki/BDATALAB-app/src/pages/b1-team.astro";
+const $$url = "/b1-team";
+
+const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: $$B1Team,
+  file: $$file,
+  prerender,
+  url: $$url
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const page = () => _page;
+
+export { page };

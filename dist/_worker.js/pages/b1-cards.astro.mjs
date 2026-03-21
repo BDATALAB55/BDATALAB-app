@@ -1,0 +1,144 @@
+globalThis.process ??= {}; globalThis.process.env ??= {};
+import { c as createComponent, a as renderComponent, f as renderScript, r as renderTemplate, b as createAstro, m as maybeRenderHead, e as addAttribute } from '../chunks/astro/server_CKE3Pew-.mjs';
+import { $ as $$Layout } from '../chunks/Layout_6T3sI24S.mjs';
+/* empty css                                    */
+export { renderers } from '../renderers.mjs';
+
+const $$Astro = createAstro();
+const prerender = false;
+const $$B1Cards = createComponent(async ($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
+  Astro2.self = $$B1Cards;
+  const { searchParams } = Astro2.url;
+  const queryFolder = searchParams.get("folder") || "";
+  const GITHUB_REPO = "BDATALAB55/BDL-game-player-cards";
+  const token = process.env.GITHUB_TOKEN;
+  const segments = queryFolder.split("/").filter(Boolean);
+  const dateId = segments[0] || "";
+  const folderName = segments[1] || "";
+  const folderParts = folderName.split("_");
+  const gameId = folderParts[1] || "";
+  const displayDate = dateId.length === 6 ? `20${dateId.substring(0, 2)}.${dateId.substring(2, 4)}.${dateId.substring(4, 6)}` : dateId.replace(/-/g, ".");
+  let awayData = [];
+  let homeData = [];
+  let displayTeamAway = "AWAY";
+  let displayTeamHome = "HOME";
+  let awayId = "";
+  let homeId = "";
+  let reportImagePath = "";
+  const TEAM_MASTER = {
+    "HOKKAIDO": { card: "LEVANGA_HOKKAIDO", display: "HOKKAIDO", color: "bg-[#8FC320] text-white" },
+    "SENDAI": { card: "SENDAI_89ERS", display: "SENDAI", color: "bg-[#E9E611] text-black" },
+    "AKITA": { card: "AKITA_NORTHERN_HAPPINETS", display: "AKITA", color: "bg-[#E40073] text-white" },
+    "IBARAKI": { card: "IBARAKI_ROBOTS", display: "IBARAKI", color: "bg-[#023793] text-white" },
+    "UTSUNOMIYA": { card: "UTSUNOMIYA_BREX", display: "UTSUNOMIYA", color: "bg-[#11315A] text-white" },
+    "GUNMA": { card: "GUNMA_CRANE_THUNDERS", display: "GUNMA", color: "bg-[#FED500] text-black" },
+    "KOSHIGAYA": { card: "KOSHIGAYA_ALPHAS", display: "KOSHIGAYA", color: "bg-[#660000] text-white" },
+    "ACHIBA": { card: "ALTIRI_CHIBA", display: "A CHIBA", color: "bg-[#1F2735] text-white" },
+    "CHIBAJ": { card: "CHIBA_JETS", display: "CHIBA J", color: "bg-[#E6280E] text-white" },
+    "ATOKYO": { card: "ALVARK_TOKYO", display: "A TOKYO", color: "bg-black border border-white/20 text-white" },
+    "SHIBUYA": { card: "SUNROCKERS_SHIBUYA", display: "SR SHIBUYA", color: "bg-[#FFF100] text-black" },
+    "KAWASAKI": { card: "KAWASAKI_BRAVE_THUNDERS", display: "KAWASAKI", color: "bg-[#8F0038] text-white" },
+    "YOKOHAMABC": { card: "YOKOHAMA_B-CORSAIRS", display: "YOKOHAMA BC", color: "bg-[#000D37] text-white" },
+    "TOYAMA": { card: "TOYAMA_GROUSES", display: "TOYAMA", color: "bg-[#D80100] text-white" },
+    "SANEN": { card: "SAN-EN_NEOPHOENIX", display: "SAN-EN", color: "bg-[#D2001F] text-white" },
+    "MIKAWA": { card: "SEAHORSES_MIKAWA", display: "MIKAWA", color: "bg-[#323D99] text-white" },
+    "FENAGOYA": { card: "FIGHTING_EAGLES_NAGOYA", display: "FE NAGOYA", color: "bg-[#004181] text-white" },
+    "NAGOYAD": { card: "NAGOYA_DIAMOND_DOLPHINS", display: "NAGOYA D", color: "bg-[#E70012] text-white" },
+    "SHIGA": { card: "SHIGA_LAKES", display: "SHIGA", color: "bg-[#18519E] text-white" },
+    "KYOTO": { card: "KYOTO_HANNARYZ", display: "KYOTO", color: "bg-[#33A6B8] text-white" },
+    "OSAKA": { card: "OSAKA_EVESSA", display: "OSAKA", color: "bg-[#E6001C] text-white" },
+    "SHIMANE": { card: "SHIMANE_SUSANOO_MAGIC", display: "SHIMANE", color: "bg-[#026EB7] text-white" },
+    "HIROSHIMA": { card: "HIROSHIMA_DRAGONFLIES", display: "HIROSHIMA", color: "bg-[#EA470C] text-white" },
+    "SAGA": { card: "SAGA_BALLOONERS", display: "SAGA", color: "bg-[#00A2D1] text-white" },
+    "NAGASAKI": { card: "NAGASAKI_VELCA", display: "NAGASAKI", color: "bg-[#2F3C58] text-white" },
+    "RYUKYU": { card: "RYUKYU_GOLDEN_KINGS", display: "RYUKYU", color: "bg-[#DBC073] text-white" }
+  };
+  const findConfig = (key) => {
+    if (!key) return { card: "", display: "UNKNOWN", color: "bg-gray-700 text-white" };
+    const upperKey = key.toUpperCase().replace(/[\s\-_]/g, "");
+    if (TEAM_MASTER[upperKey]) return TEAM_MASTER[upperKey];
+    for (const teamKey in TEAM_MASTER) {
+      const conf = TEAM_MASTER[teamKey];
+      if (conf.card.replace(/[\s\-_]/g, "").includes(upperKey)) return conf;
+    }
+    return { card: key, display: key, color: "bg-gray-700 text-white" };
+  };
+  try {
+    const listApi = `https://api.github.com/repos/${GITHUB_REPO}/contents/output/Bplayers/B1/${dateId}?t=${Date.now()}`;
+    const res = await fetch(listApi, { headers: token ? { "Authorization": `token ${token}` } : {} });
+    const items = await res.json();
+    if (Array.isArray(items)) {
+      const realFolder = items.find((item) => item.name.split("_")[1] === gameId && item.type === "dir");
+      if (realFolder) {
+        const folderPath = realFolder.path;
+        const rawBase = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${folderPath}`;
+        const parts = realFolder.name.split("_");
+        const awayConf = findConfig(parts[2]);
+        const homeConf = findConfig(parts[3]);
+        displayTeamAway = awayConf.display;
+        displayTeamHome = homeConf.display;
+        awayId = awayConf.display;
+        homeId = homeConf.display;
+        const filesRes = await fetch(realFolder.url, { headers: token ? { "Authorization": `token ${token}` } : {} });
+        const files = await filesRes.json();
+        if (Array.isArray(files)) {
+          files.forEach((f) => {
+            if (!f.name.toLowerCase().endsWith(".png")) return;
+            const fileNameNoExt = f.name.replace(".png", "");
+            const nameParts = fileNameNoExt.split("_");
+            const cleanNameParts = nameParts.filter(
+              (p) => !p.match(/^\d+$/) && !awayConf.card.includes(p) && !homeConf.card.includes(p) && !["89ERS", "BRAVE", "JETS", "ROBOTS", "BREX", "ALTIRI", "VELCA", "SUSANOOMAGIC", "LEVANGA"].includes(p.toUpperCase())
+            );
+            const playerName = cleanNameParts.join(" ").trim();
+            const playerObj = { name: playerName, imagePath: `${rawBase}/${f.name}` };
+            if (f.name.toUpperCase().includes(awayConf.card.toUpperCase())) {
+              awayData.push(playerObj);
+            } else if (f.name.toUpperCase().includes(homeConf.card.toUpperCase())) {
+              homeData.push(playerObj);
+            }
+          });
+        }
+        const reportApiURL = `https://api.github.com/repos/${GITHUB_REPO}/contents/output/reports/B1/${dateId}?t=${Date.now()}`;
+        const reportRes = await fetch(reportApiURL, { headers: token ? { "Authorization": `token ${token}` } : {} });
+        const reportFiles = await reportRes.json();
+        if (Array.isArray(reportFiles)) {
+          const matchFile = reportFiles.find((f) => f.name.includes(gameId) && f.name.toLowerCase().endsWith(".png"));
+          if (matchFile) {
+            reportImagePath = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/output/reports/B1/${dateId}/${matchFile.name}`;
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Fetch Error:", e);
+  }
+  const awayFinalConf = findConfig(awayId);
+  const homeFinalConf = findConfig(homeId);
+  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": "B1 CARDS | B-Data Lab" }, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<main class="bg-[#373A36] min-h-screen text-white font-avenir overflow-x-hidden relative"> <div class="max-w-6xl mx-auto px-6 pt-12"> <section class="mb-12"> <h2 class="text-4xl font-bold uppercase tracking-tighter mb-4">GAME REPORT</h2> <div class="flex flex-col gap-1"> <span class="text-blue-500 text-[10px] font-black uppercase tracking-[0.3em]">Latest Update</span> <span class="text-white text-[32px] font-bold uppercase leading-none tracking-[0.05em]">${displayDate}</span> </div> </section> <section class="flex flex-col items-center mb-20"> <div class="w-full md:max-w-[500px] mx-auto cursor-pointer card-trigger rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black/40 min-h-[200px] flex items-center justify-center transition-transform hover:scale-[1.02]"${addAttribute(reportImagePath, "data-img")}> <img${addAttribute(reportImagePath, "src")} class="w-full h-auto block" onerror="this.src='https://placehold.jp/24/333333/ffffff/400x500.png?text=B1%20REPORT%20NOT%20FOUND'"> </div> <div class="mt-8 text-center w-full"> <div class="flex flex-col items-start md:items-center"> <span class="text-[20px] font-black tracking-[0.2em] uppercase">${displayTeamAway} <span class="text-blue-500 mx-3 text-[14px] italic opacity-70">vs</span> ${displayTeamHome}</span> <div class="flex gap-2 mt-6 md:hidden"> <button data-view-mode="slide" class="view-switch-btn active bg-white/20 p-2 rounded-lg transition-all"> <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M2 13h20v2H2zm0-4h20v2H2zm0-4h20v2H2zm0 12h20v2H2z"></path></svg> </button> <button data-view-mode="grid" class="view-switch-btn bg-black/40 p-2 rounded-lg transition-all"> <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"></path></svg> </button> </div> </div> </div> </section> ${[
+    { data: awayData, label: displayTeamAway, conf: awayFinalConf },
+    { data: homeData, label: displayTeamHome, conf: homeFinalConf }
+  ].map((team) => renderTemplate`<section class="mt-24"> <div class="mb-10"> <a${addAttribute(`/b1-team?team=${encodeURIComponent(team.conf.display)}`, "href")}${addAttribute(`${team.conf.color} group/team px-8 py-3 text-[14px] font-black uppercase rounded-full inline-block shadow-xl hover:brightness-110 hover:scale-105 transition-all tracking-widest min-w-[180px]`, "class")}> <div class="flex items-center justify-between gap-4"> <span class="flex-1 text-center">${team.label}</span> <span class="text-[#2E3C57] group-hover/team:translate-x-1 transition-transform duration-300 ease-out">▶︎</span> </div> </a> </div> <div class="player-container flex overflow-x-auto gap-8 no-scrollbar pb-12 snap-x snap-mandatory"> ${team.data.length > 0 ? team.data.map((p) => renderTemplate`<div class="player-card flex-none w-[280px] md:w-[320px] snap-center"> <div class="cursor-pointer card-trigger rounded-xl overflow-hidden border border-white/10 bg-black/20 shadow-2xl transition-all hover:translate-y-[-8px]"${addAttribute(p.imagePath, "data-img")}> <img${addAttribute(p.imagePath, "src")}${addAttribute(p.name, "alt")} class="w-full h-auto block" loading="lazy"> </div> <div class="mt-4 px-0"> <a${addAttribute(`/b-players?name=${encodeURIComponent(p.name)}`, "href")} class="relative group/btn block w-full bg-gradient-to-br from-white/15 to-white/5 border border-white/10 hover:border-white/30 py-3 rounded-full transition-all active:scale-95 shadow-xl overflow-hidden"> <div class="flex items-center justify-between px-2"> <span class="team-names ml-1.5 text-[14px] font-bold uppercase text-white/90 truncate leading-none tracking-[0.2em]"> ${p.name} </span> <span class="flex-shrink-0 text-[10px] text-blue-400 group-hover/btn:translate-x-1 transition-transform">
+▶︎
+</span> </div> <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] pointer-events-none"></div> </a> </div> </div>`) : renderTemplate`<div class="w-full py-20 border border-dashed border-white/10 rounded-3xl text-center text-white/20 uppercase text-[12px] tracking-[0.5em] bg-black/10">No Player Cards Found</div>`} </div> </section>`)} </div> <div class="fixed bottom-8 left-8 z-40"> <button onclick="history.back()" class="bg-gray-800/80 backdrop-blur-md text-white px-8 py-4 rounded-full font-black text-[11px] uppercase tracking-widest shadow-2xl active:scale-95 border border-white/10 flex items-center justify-center">
+← Back
+</button> </div> <div class="fixed bottom-8 right-8 z-40"> <a href="/b1-home" class="bg-gray-800/80 backdrop-blur-md text-white px-8 py-4 rounded-full font-black text-[11px] uppercase tracking-widest shadow-2xl active:scale-105 transition-all border border-white/10 flex items-center justify-center">
+B1 Home
+</a> </div> <div id="modal" class="fixed inset-0 bg-black/95 z-50 hidden flex-col items-center justify-center p-6 backdrop-blur-xl"> <div class="absolute top-8 right-8 text-white/40 text-4xl cursor-pointer p-4 hover:text-white transition-colors" id="close">&times;</div> <img id="modal-img" src="" class="max-w-full max-h-[80vh] shadow-2xl rounded-2xl mb-12"> <a id="download-btn" href="" download class="bg-white text-black px-14 py-4 rounded-full font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all">Download Card</a> </div> <footer class="w-full pt-16 pb-32 flex flex-col items-center justify-center gap-6 bg-black/10 shrink-0 border-t border-white/5 mt-20"> <div class="text-center"> <h2 class="text-xl md:text-3xl font-black tracking-widest uppercase leading-none" style="color: #2E3C57; -webkit-text-stroke: 1px rgba(255,255,255,0.7); paint-order: stroke fill;">
+BDATALAB
+</h2> </div> <div class="flex items-center gap-6"> <a href="https://x.com/BDataLab5x5" target="_blank" rel="noopener noreferrer" class="group"> <div class="w-9 h-9 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-all border border-white/5"> <svg class="w-3.5 h-3.5 fill-white/60 group-hover:fill-white" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg> </div> </a> <div class="h-4 w-[1px] bg-white/10"></div> <a href="https://note.com/bdatalab5x5" target="_blank" rel="noopener noreferrer" class="group"> <div class="w-9 h-9 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-[#23bb9d]/80 transition-all border border-white/5"> <span class="text-[16px] font-black text-white/60 group-hover:text-white">n</span> </div> </a> </div> </footer> </main> ` })} ${renderScript($$result, "/Users/masaki/BDATALAB-app/src/pages/b1-cards.astro?astro&type=script&index=0&lang.ts")} `;
+}, "/Users/masaki/BDATALAB-app/src/pages/b1-cards.astro", void 0);
+const $$file = "/Users/masaki/BDATALAB-app/src/pages/b1-cards.astro";
+const $$url = "/b1-cards";
+
+const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: $$B1Cards,
+  file: $$file,
+  prerender,
+  url: $$url
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const page = () => _page;
+
+export { page };
